@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" fill="none">
+  <rect width="800" height="800" rx="36" fill="#F4F1EA"/>
+  <rect x="96" y="96" width="608" height="608" rx="28" fill="#FCFAF5" stroke="#D4BBA3" stroke-width="4"/>
+  <circle cx="286" cy="286" r="56" fill="#D4BBA3" fill-opacity="0.6"/>
+  <path d="M180 564L314 412C325 399 346 397 360 408L420 455C434 466 454 463 465 448L538 352C551 335 578 333 593 348L652 408V564H180Z" fill="#B38B6D" fill-opacity="0.72"/>
+  <path d="M208 610H592" stroke="#8A6245" stroke-width="18" stroke-linecap="round" stroke-opacity="0.5"/>
+  <text x="400" y="675" text-anchor="middle" fill="#7A5C47" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="4">IMAGE COMING SOON</text>
+</svg>

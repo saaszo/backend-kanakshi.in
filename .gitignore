@@ -1,0 +1,6 @@
+api/vendor
+api/node_modules
+api/.env
+legacy-php/vendor
+legacy-php/logs/*.log
+legacy-php/tmp/cache

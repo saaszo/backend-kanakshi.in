@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# Redirect sitemap.xml to sitemap.php
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect .env and other sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect includes and admin/includes
+RewriteRule ^(includes|admin/includes|config)/ - [F,L]
+RewriteRule ^install(/.*)?$ - [F,L]
+
+</IfModule>

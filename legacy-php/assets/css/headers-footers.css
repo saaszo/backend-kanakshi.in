@@ -1,0 +1,102 @@
+/* 
+ * Headers & Footers Variations
+ * Built for UVIRA Ecommerce
+ */
+
+/* ── Common Utilities ── */
+.ls-1 { letter-spacing: 1px; }
+.fw-800 { font-weight: 800; }
+.fs-7 { font-size: 0.85rem; }
+.fs-8 { font-size: 0.75rem; }
+
+/* ── HEADER STYLE 2: Minimal Centered ── */
+.header-v2 .navbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.header-v2 .nav-left, .header-v2 .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* ── HEADER STYLE 3: Modern Full-width ── */
+.header-v3 {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.header-v3 .nav-link {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 1.5rem 1rem !important;
+}
+
+/* ── HEADER STYLE 4: Luxury / Elegant ── */
+.header-v4 .navbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+}
+.header-v4 .nav-link {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+}
+
+/* ── FOOTER STYLE 2: Clean Lists ── */
+.footer-v2 .footer-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 10px;
+}
+.footer-v2 .footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: var(--primary);
+}
+
+/* ── FOOTER STYLE 3: Mega Footer ── */
+.footer-v3 {
+    background: #0f172a !important; /* Slate 900 */
+}
+.footer-v3 .trust-card {
+    background: rgba(255,255,255,0.03);
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: transform 0.3s;
+}
+.footer-v3 .trust-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.05);
+}
+
+/* ── FOOTER STYLE 4: Minimalist Centered ── */
+.footer-v4 {
+    text-align: center;
+    padding: 4rem 0 2rem;
+}
+.footer-v4 .social-links a {
+    width: 45px;
+    height: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.05);
+    color: var(--text);
+    margin: 0 10px;
+    transition: all 0.3s;
+}
+.footer-v4 .social-links a:hover {
+    background: var(--primary);
+    color: white;
+}
