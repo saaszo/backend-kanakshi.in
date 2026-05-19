@@ -1,0 +1,65 @@
+name: Deploy Ecommerce Backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        env:
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$HOSTINGER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ secrets.HOSTINGER_PORT }}" "${{ secrets.HOSTINGER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync Laravel application
+        run: |
+          rsync -az --delete \
+            --exclude ".env" \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "node_modules" \
+            --exclude "tests" \
+            --exclude "storage/logs/*" \
+            --exclude "storage/framework/cache/data/*" \
+            --exclude "storage/framework/sessions/*" \
+            --exclude "storage/framework/testing/*" \
+            --exclude "storage/framework/views/*" \
+            --exclude "bootstrap/cache/*" \
+            -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
+            ./api/ "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:${{ secrets.HOSTINGER_APP_PATH }}/"
+
+      - name: Sync public entry files
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
+            ./api/deploy/hostinger-public/ "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:${{ secrets.HOSTINGER_PUBLIC_PATH }}/"
+
+      - name: Run remote deployment steps
+        run: |
+          ssh -p "${{ secrets.HOSTINGER_PORT }}" -i ~/.ssh/id_ed25519 \
+            "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}" \
+            "mkdir -p '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/cache/data' \
+              '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/sessions' \
+              '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/views' \
+              '${{ secrets.HOSTINGER_APP_PATH }}/storage/logs' \
+              '${{ secrets.HOSTINGER_APP_PATH }}/bootstrap/cache' && \
+            rm -f '${{ secrets.HOSTINGER_PUBLIC_PATH }}/default.php' && \
+            ln -sfn '${{ secrets.HOSTINGER_APP_PATH }}/storage/app/public' '${{ secrets.HOSTINGER_PUBLIC_PATH }}/storage' && \
+            cd '${{ secrets.HOSTINGER_APP_PATH }}' && \
+            php artisan migrate --seed --force && \
+            php artisan optimize:clear && \
+            php artisan config:cache && \
+            php artisan route:cache && \
+            php artisan view:cache"
