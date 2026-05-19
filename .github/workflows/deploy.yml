@@ -48,18 +48,25 @@ jobs:
 
       - name: Run remote deployment steps
         run: |
-          ssh -p "${{ secrets.HOSTINGER_PORT }}" -i ~/.ssh/id_ed25519 \
-            "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}" \
-            "mkdir -p '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/cache/data' \
-              '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/sessions' \
-              '${{ secrets.HOSTINGER_APP_PATH }}/storage/framework/views' \
-              '${{ secrets.HOSTINGER_APP_PATH }}/storage/logs' \
-              '${{ secrets.HOSTINGER_APP_PATH }}/bootstrap/cache' && \
-            rm -f '${{ secrets.HOSTINGER_PUBLIC_PATH }}/default.php' && \
-            ln -sfn '${{ secrets.HOSTINGER_APP_PATH }}/storage/app/public' '${{ secrets.HOSTINGER_PUBLIC_PATH }}/storage' && \
-            cd '${{ secrets.HOSTINGER_APP_PATH }}' && \
-            php artisan migrate --seed --force && \
-            php artisan optimize:clear && \
-            php artisan config:cache && \
-            php artisan route:cache && \
-            php artisan view:cache"
+          ssh -o StrictHostKeyChecking=no -p "${{ secrets.HOSTINGER_PORT }}" -i ~/.ssh/id_ed25519 \
+            "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}" 'bash -se' <<EOF
+          set -e
+          APP_PATH="${{ secrets.HOSTINGER_APP_PATH }}"
+          PUBLIC_PATH="${{ secrets.HOSTINGER_PUBLIC_PATH }}"
+
+          mkdir -p "\$APP_PATH/storage/framework/cache/data" \
+            "\$APP_PATH/storage/framework/sessions" \
+            "\$APP_PATH/storage/framework/views" \
+            "\$APP_PATH/storage/logs" \
+            "\$APP_PATH/bootstrap/cache"
+
+          rm -f "\$PUBLIC_PATH/default.php"
+          ln -sfn "\$APP_PATH/storage/app/public" "\$PUBLIC_PATH/storage"
+
+          cd "\$APP_PATH"
+          php artisan migrate --seed --force
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          EOF
