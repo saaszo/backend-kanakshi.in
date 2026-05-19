@@ -10,8 +10,8 @@ class StoreSettingsSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            ['key_name' => 'site_name', 'value' => 'Luxury Jewelry Store', 'label' => 'Site Name', 'group_name' => 'general'],
-            ['key_name' => 'site_tagline', 'value' => 'Timeless Elegance.', 'label' => 'Site Tagline', 'group_name' => 'general'],
+            ['key_name' => 'site_name', 'value' => 'Little Divinity', 'label' => 'Site Name', 'group_name' => 'general'],
+            ['key_name' => 'site_tagline', 'value' => 'Handcrafted brass decor, pooja pieces, and meaningful gifting.', 'label' => 'Site Tagline', 'group_name' => 'general'],
             ['key_name' => 'site_email', 'value' => 'admin@saaszo.in', 'label' => 'Site Email', 'group_name' => 'general'],
             ['key_name' => 'site_currency', 'value' => 'INR', 'label' => 'Currency', 'group_name' => 'general'],
             ['key_name' => 'site_currency_symbol', 'value' => '₹', 'label' => 'Currency Symbol', 'group_name' => 'general'],

@@ -116,7 +116,7 @@ class ExampleTest extends TestCase
     public function test_the_public_settings_endpoint_returns_store_defaults(): void
     {
         DB::table('settings')->insert([
-            ['key_name' => 'site_name', 'value' => 'Luxury Jewelry Store', 'label' => 'Site Name', 'group_name' => 'general'],
+            ['key_name' => 'site_name', 'value' => 'Little Divinity', 'label' => 'Site Name', 'group_name' => 'general'],
             ['key_name' => 'site_currency', 'value' => 'INR', 'label' => 'Currency', 'group_name' => 'general'],
         ]);
 
@@ -125,7 +125,7 @@ class ExampleTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.site_name', 'Luxury Jewelry Store')
+            ->assertJsonPath('data.site_name', 'Little Divinity')
             ->assertJsonPath('data.site_currency', 'INR');
     }
 }
