@@ -12,6 +12,11 @@ class AdminPanelFoundationSeeder extends Seeder
 {
     public function run(): void
     {
+        $existingEmailSettings = DB::table('email_settings')->where('id', 1)->first();
+        $smtpPassword = env('SMTP_SETTINGS_PASSWORD')
+            ?: env('MAIL_PASSWORD')
+            ?: ($existingEmailSettings->smtp_password ?? null);
+
         DB::table('store_settings')->updateOrInsert(
             ['id' => 1],
             [
@@ -53,7 +58,7 @@ class AdminPanelFoundationSeeder extends Seeder
                 'smtp_port' => 465,
                 'smtp_encryption' => 'ssl',
                 'smtp_username' => env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
-                'smtp_password' => env('SMTP_SETTINGS_PASSWORD'),
+                'smtp_password' => $smtpPassword,
                 'imap_host' => 'imap.hostinger.com',
                 'imap_port' => 993,
                 'imap_encryption' => 'ssl',

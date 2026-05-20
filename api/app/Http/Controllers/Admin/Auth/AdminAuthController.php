@@ -289,12 +289,18 @@ class AdminAuthController extends Controller
         }
 
         $smtpPassword = $emailSettings->smtp_password ?: env('SMTP_SETTINGS_PASSWORD') ?: env('MAIL_PASSWORD');
+        $smtpScheme = match (strtolower((string) $emailSettings->smtp_encryption)) {
+            'ssl' => 'smtps',
+            'tls' => 'tls',
+            default => null,
+        };
 
         config([
             'mail.default' => $emailSettings->mailer ?: 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
             'mail.mailers.smtp.host' => $emailSettings->smtp_host,
             'mail.mailers.smtp.port' => $emailSettings->smtp_port,
+            'mail.mailers.smtp.scheme' => $smtpScheme,
             'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
             'mail.mailers.smtp.username' => $emailSettings->smtp_username,
             'mail.mailers.smtp.password' => $smtpPassword,
