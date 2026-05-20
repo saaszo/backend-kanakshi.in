@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AdminPanelFoundationSeeder extends Seeder
 {
@@ -245,7 +246,12 @@ class AdminPanelFoundationSeeder extends Seeder
                 ]);
         }
 
-        if ($adminEmail && $adminPassword) {
+        if ($adminEmail) {
+            $existingAdmin = User::query()->where('email', $adminEmail)->first();
+            $passwordHash = $adminPassword
+                ? Hash::make($adminPassword)
+                : ($existingAdmin?->password ?: Hash::make(Str::password(24)));
+
             User::query()->updateOrCreate(
                 ['email' => $adminEmail],
                 [
@@ -259,7 +265,7 @@ class AdminPanelFoundationSeeder extends Seeder
                     'two_factor_channel' => 'email',
                     'permissions' => ['all' => true],
                     'email_verified_at' => now(),
-                    'password' => Hash::make($adminPassword),
+                    'password' => $passwordHash,
                 ]
             );
         }
