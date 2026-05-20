@@ -143,7 +143,7 @@ class AdminAuthController extends Controller
 
         $user = User::query()
             ->where('email', $validated['email'])
-            ->whereIn('role', ['super_admin', 'admin', 'manager', 'staff'])
+            ->where('role', 'super_admin')
             ->first();
 
         if (! $user) {
@@ -187,7 +187,7 @@ class AdminAuthController extends Controller
 
         $user = User::query()
             ->where('email', $validated['email'])
-            ->whereIn('role', ['super_admin', 'admin', 'manager', 'staff'])
+            ->where('role', 'super_admin')
             ->first();
 
         if (! $user) {
@@ -260,12 +260,16 @@ class AdminAuthController extends Controller
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
         $this->applyMailSettings();
+        $fromAddress = env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in');
+        $fromName = config('mail.from.name', 'ecomeservice for littledivinity');
 
         try {
             Mail::raw(
                 "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
-                function ($message) use ($email, $subject): void {
-                    $message->to($email)->subject($subject);
+                function ($message) use ($email, $subject, $fromAddress, $fromName): void {
+                    $message->to($email)
+                        ->from($fromAddress, $fromName)
+                        ->subject($subject);
                 }
             );
         } catch (\Throwable $throwable) {
