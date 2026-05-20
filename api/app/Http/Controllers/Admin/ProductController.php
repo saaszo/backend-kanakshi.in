@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -38,18 +37,10 @@ class ProductController extends Controller
             'meta_desc' => ['nullable', 'string', 'max:320'],
         ]);
 
-        $slug = $validated['slug'] ?: Str::slug($validated['name']);
-        $baseSlug = $slug;
-        $counter = 1;
-        while (Product::query()->where('slug', $slug)->exists()) {
-            $slug = "{$baseSlug}-{$counter}";
-            $counter++;
-        }
-
         Product::query()->create([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
-            'slug' => $slug,
+            'slug' => $validated['slug'] ?? null,
             'short_desc' => $validated['short_desc'] ?? null,
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],
@@ -75,7 +66,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:200'],
-            'slug' => ['required', 'string', 'max:220'],
+            'slug' => ['nullable', 'string', 'max:220'],
             'short_desc' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -91,7 +82,7 @@ class ProductController extends Controller
         $product->update([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
-            'slug' => $validated['slug'],
+            'slug' => $validated['slug'] ?? null,
             'short_desc' => $validated['short_desc'] ?? null,
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -30,16 +29,8 @@ class CategoryController extends Controller
             'sort_order' => ['nullable', 'integer'],
         ]);
 
-        $slug = $validated['slug'] ?: Str::slug($validated['name']);
-        $baseSlug = $slug;
-        $counter = 1;
-        while (Category::query()->where('slug', $slug)->exists()) {
-            $slug = "{$baseSlug}-{$counter}";
-            $counter++;
-        }
-
         Category::query()->create($validated + [
-            'slug' => $slug,
+            'slug' => $validated['slug'] ?? null,
             'is_active' => $request->boolean('is_active', true),
             'sort_order' => $validated['sort_order'] ?? 0,
         ]);
@@ -51,7 +42,7 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
-            'slug' => ['required', 'string', 'max:120'],
+            'slug' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'string', 'max:255'],
             'parent_id' => ['nullable', 'exists:categories,id'],
