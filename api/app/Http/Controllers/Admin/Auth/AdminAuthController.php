@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\EmailSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
+use RuntimeException;
 
 class AdminAuthController extends Controller
 {
@@ -44,7 +46,13 @@ class AdminAuthController extends Controller
 
         if ($user->two_factor_enabled) {
             $otp = $this->createOtp($user->id, $user->email, 'two_factor');
-            $this->sendOtpMail($user->email, 'Your admin login OTP', $otp);
+            try {
+                $this->sendOtpMail($user->email, 'Your admin login OTP', $otp);
+            } catch (RuntimeException $exception) {
+                return back()->withErrors([
+                    'email' => $exception->getMessage(),
+                ])->onlyInput('email');
+            }
 
             $request->session()->put('admin_2fa_user_id', $user->id);
             $request->session()->put('admin_2fa_email', $user->email);
@@ -138,13 +146,24 @@ class AdminAuthController extends Controller
             ->whereIn('role', ['super_admin', 'admin', 'manager', 'staff'])
             ->first();
 
-        if ($user) {
-            $otp = $this->createOtp($user->id, $user->email, 'forgot_password');
+        if (! $user) {
+            return back()->withErrors([
+                'email' => 'You are not authorize person.',
+            ])->onlyInput('email');
+        }
+
+        $otp = $this->createOtp($user->id, $user->email, 'forgot_password');
+
+        try {
             $this->sendOtpMail($user->email, 'Your admin password reset OTP', $otp);
+        } catch (RuntimeException $exception) {
+            return back()->withErrors([
+                'email' => $exception->getMessage(),
+            ])->onlyInput('email');
         }
 
         return redirect()->route('admin.reset-password.form', ['email' => $validated['email']])
-            ->with('status', 'If the admin email exists, a reset OTP has been sent.');
+            ->with('status', 'A reset OTP has been sent to your admin email.');
     }
 
     public function showResetPassword(Request $request): View
@@ -173,7 +192,7 @@ class AdminAuthController extends Controller
 
         if (! $user) {
             return back()->withErrors([
-                'email' => 'No admin account found for this email.',
+                'email' => 'You are not authorize person.',
             ]);
         }
 
@@ -240,11 +259,43 @@ class AdminAuthController extends Controller
 
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
-        Mail::raw(
-            "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
-            function ($message) use ($email, $subject): void {
-                $message->to($email)->subject($subject);
-            }
-        );
+        $this->applyMailSettings();
+
+        try {
+            Mail::raw(
+                "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
+                function ($message) use ($email, $subject): void {
+                    $message->to($email)->subject($subject);
+                }
+            );
+        } catch (\Throwable $throwable) {
+            throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
+        }
+    }
+
+    private function applyMailSettings(): void
+    {
+        $emailSettings = EmailSetting::query()
+            ->where('is_active', true)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $emailSettings) {
+            return;
+        }
+
+        $smtpPassword = $emailSettings->smtp_password ?: env('SMTP_SETTINGS_PASSWORD') ?: env('MAIL_PASSWORD');
+
+        config([
+            'mail.default' => $emailSettings->mailer ?: 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => $emailSettings->smtp_host,
+            'mail.mailers.smtp.port' => $emailSettings->smtp_port,
+            'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
+            'mail.mailers.smtp.username' => $emailSettings->smtp_username,
+            'mail.mailers.smtp.password' => $smtpPassword,
+            'mail.from.address' => $emailSettings->from_email ?: env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
+            'mail.from.name' => $emailSettings->from_name ?: 'ecomeservice for littledivinity',
+        ]);
     }
 }
