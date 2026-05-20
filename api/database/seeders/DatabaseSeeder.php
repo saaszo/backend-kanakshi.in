@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             StoreSettingsSeeder::class,
             CatalogDemoSeeder::class,
+            AdminPanelFoundationSeeder::class,
         ]);
     }
 }

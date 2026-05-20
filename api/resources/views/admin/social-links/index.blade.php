@@ -1,0 +1,72 @@
+@extends('admin.layout')
+
+@section('title', 'Social Links')
+
+@section('content')
+    <div class="dashboard-shell">
+        @include('admin.partials.sidebar')
+        <main class="admin-main">
+            <div class="dashboard-card">
+                <div class="page-head">
+                    <div>
+                        <div class="brand">Brand Handles</div>
+                        <h2>Social Links</h2>
+                        <p class="lead" style="margin-top:8px;">Update footer social icons and brand URLs from here.</p>
+                    </div>
+                </div>
+                @if (session('status'))
+                    <div class="message">{{ session('status') }}</div>
+                @endif
+                <div class="split-grid">
+                    <section class="panel">
+                        <h3>Add Social Link</h3>
+                        <form method="POST" action="{{ route('admin.social-links.store') }}" class="section-grid">
+                            @csrf
+                            <div class="form-grid">
+                                <div class="field"><label>Platform</label><input name="platform" /></div>
+                                <div class="field"><label>Title</label><input name="title" /></div>
+                                <div class="field"><label>Handle</label><input name="handle" /></div>
+                                <div class="field"><label>URL</label><input name="url" /></div>
+                                <div class="field"><label>Icon</label><input name="icon" /></div>
+                                <div class="field"><label>Sort Order</label><input name="sort_order" value="0" /></div>
+                            </div>
+                            <div class="button-row">
+                                <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" checked> <span>Active</span></label>
+                                <button class="button small" type="submit">Create Social Link</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="panel">
+                        <h3>Existing Social Links</h3>
+                        <div class="section-grid">
+                            @foreach ($socialLinks as $socialLink)
+                                <form method="POST" action="{{ route('admin.social-links.update', $socialLink) }}" class="panel" style="padding:18px;">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="form-grid">
+                                        <div class="field"><label>Platform</label><input name="platform" value="{{ $socialLink->platform }}" /></div>
+                                        <div class="field"><label>Title</label><input name="title" value="{{ $socialLink->title }}" /></div>
+                                        <div class="field"><label>Handle</label><input name="handle" value="{{ $socialLink->handle }}" /></div>
+                                        <div class="field"><label>URL</label><input name="url" value="{{ $socialLink->url }}" /></div>
+                                        <div class="field"><label>Icon</label><input name="icon" value="{{ $socialLink->icon }}" /></div>
+                                        <div class="field"><label>Sort Order</label><input name="sort_order" value="{{ $socialLink->sort_order }}" /></div>
+                                    </div>
+                                    <div class="button-row">
+                                        <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" @checked($socialLink->is_active)> <span>Active</span></label>
+                                        <button class="button small" type="submit">Save</button>
+                                    </div>
+                                </form>
+                                <form method="POST" action="{{ route('admin.social-links.destroy', $socialLink) }}" onsubmit="return confirm('Delete this social link?')" style="margin-top:10px;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="button danger small" type="submit">Delete</button>
+                                </form>
+                            @endforeach
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+@endsection

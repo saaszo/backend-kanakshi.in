@@ -26,11 +26,20 @@ class User extends Authenticatable
         'city',
         'state',
         'pincode',
+        'profile_image',
         'role',
+        'permissions',
+        'status',
         'is_active',
+        'is_protected',
+        'two_factor_enabled',
+        'email_verified_at',
         'email_verify_token',
         'login_attempts',
         'locked_until',
+        'last_login',
+        'last_login_ip',
+        'two_factor_channel',
         'password',
     ];
 
@@ -61,6 +70,7 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'is_protected' => 'boolean',
             'two_factor_enabled' => 'boolean',
+            'permissions' => 'array',
             'password' => 'hashed',
         ];
     }
