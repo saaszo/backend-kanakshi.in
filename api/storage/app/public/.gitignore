@@ -5,3 +5,5 @@
 !products/*.jpeg
 !products/*.png
 !products/*.webp
+!products/imported-optimized/
+!products/imported-optimized/**
