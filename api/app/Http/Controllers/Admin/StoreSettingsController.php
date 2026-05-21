@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\HandlesAdminUploads;
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryPartnerSetting;
 use App\Models\EmailSetting;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class StoreSettingsController extends Controller
 {
+    use HandlesAdminUploads;
+
     public function edit(): View
     {
         return view('admin.settings.edit', [
@@ -35,7 +38,9 @@ class StoreSettingsController extends Controller
             'support_phone' => ['nullable', 'string', 'max:30'],
             'whatsapp_number' => ['nullable', 'string', 'max:30'],
             'logo_url' => ['nullable', 'string', 'max:255'],
+            'logo_file' => ['nullable', 'image', 'max:5120'],
             'favicon_url' => ['nullable', 'string', 'max:255'],
+            'favicon_file' => ['nullable', 'image', 'max:5120'],
             'custom_domain' => ['nullable', 'string', 'max:180'],
             'currency' => ['required', 'string', 'max:12'],
             'currency_symbol' => ['required', 'string', 'max:12'],
@@ -56,6 +61,12 @@ class StoreSettingsController extends Controller
         ]);
 
         $validated['show_logo_on_invoice'] = $request->boolean('show_logo_on_invoice');
+        if ($request->hasFile('logo_file')) {
+            $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo');
+        }
+        if ($request->hasFile('favicon_file')) {
+            $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon');
+        }
 
         StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
 

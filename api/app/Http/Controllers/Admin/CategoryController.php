@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\HandlesAdminUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,8 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
+    use HandlesAdminUploads;
+
     public function index(): View
     {
         return view('admin.categories.index', [
@@ -25,9 +28,14 @@ class CategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'string', 'max:255'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'parent_id' => ['nullable', 'exists:categories,id'],
             'sort_order' => ['nullable', 'integer'],
         ]);
+
+        if ($request->hasFile('image_file')) {
+            $validated['image'] = $this->storeAdminUpload($request->file('image_file'), 'categories', 'Category image');
+        }
 
         Category::query()->create($validated + [
             'slug' => $validated['slug'] ?? null,
@@ -45,9 +53,14 @@ class CategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'string', 'max:255'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'parent_id' => ['nullable', 'exists:categories,id'],
             'sort_order' => ['nullable', 'integer'],
         ]);
+
+        if ($request->hasFile('image_file')) {
+            $validated['image'] = $this->storeAdminUpload($request->file('image_file'), 'categories', 'Category image');
+        }
 
         $category->update($validated + [
             'is_active' => $request->boolean('is_active'),

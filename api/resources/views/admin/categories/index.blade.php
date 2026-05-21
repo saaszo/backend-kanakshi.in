@@ -20,12 +20,16 @@
                 <div class="split-grid">
                     <section class="panel">
                         <h3>Add Category</h3>
-                        <form method="POST" action="{{ route('admin.categories.store') }}" class="section-grid" data-auto-slug-form>
+                        <form method="POST" action="{{ route('admin.categories.store') }}" class="section-grid" data-auto-slug-form enctype="multipart/form-data">
                             @csrf
                             <div class="form-grid">
                                 <div class="field"><label>Name</label><input name="name" data-slug-source /></div>
                                 <div class="field"><label>Slug</label><input name="slug" data-slug-target /></div>
-                                <div class="field"><label>Image URL</label><input name="image" /></div>
+                                <div class="field">
+                                    <label>Image URL</label>
+                                    <input name="image" />
+                                    <input type="file" name="image_file" accept="image/*" style="margin-top:10px;" />
+                                </div>
                                 <div class="field"><label>Parent</label>
                                     <select name="parent_id">
                                         <option value="">None</option>
@@ -49,13 +53,20 @@
                         <h3>Existing Categories</h3>
                         <div class="section-grid">
                             @foreach ($categories as $category)
-                                <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="panel" style="padding:18px;" data-auto-slug-form>
+                                <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="panel" style="padding:18px;" data-auto-slug-form enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="form-grid">
                                         <div class="field"><label>Name</label><input name="name" value="{{ $category->name }}" data-slug-source /></div>
                                         <div class="field"><label>Slug</label><input name="slug" value="{{ $category->slug }}" data-slug-target /></div>
-                                        <div class="field"><label>Image URL</label><input name="image" value="{{ $category->image }}" /></div>
+                                        <div class="field">
+                                            <label>Image URL</label>
+                                            <input name="image" value="{{ $category->image }}" />
+                                            @if ($category->image)
+                                                <img src="{{ $category->image }}" alt="{{ $category->name }}" class="admin-upload-preview" style="margin-top:10px;" />
+                                            @endif
+                                            <input type="file" name="image_file" accept="image/*" style="margin-top:10px;" />
+                                        </div>
                                         <div class="field"><label>Parent</label>
                                             <select name="parent_id">
                                                 <option value="">None</option>

@@ -29,7 +29,7 @@
                     <section class="panel">
                         <h3>Store Identity</h3>
                         <p>These values power storefront branding, footer details, invoice branding, and general business information.</p>
-                        <form method="POST" action="{{ route('admin.settings.store.update') }}" class="section-grid">
+                        <form method="POST" action="{{ route('admin.settings.store.update') }}" class="section-grid" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="form-grid">
@@ -72,10 +72,18 @@
                                 <div class="field">
                                     <label for="logo_url">Logo URL</label>
                                     <input id="logo_url" name="logo_url" value="{{ old('logo_url', $store?->logo_url) }}" />
+                                    @if ($store?->logo_url)
+                                        <img src="{{ $store->logo_url }}" alt="Logo" class="admin-upload-preview" style="margin-top:10px;" />
+                                    @endif
+                                    <input type="file" id="logo_file" name="logo_file" accept="image/*" style="margin-top:10px;" />
                                 </div>
                                 <div class="field">
                                     <label for="favicon_url">Favicon URL</label>
                                     <input id="favicon_url" name="favicon_url" value="{{ old('favicon_url', $store?->favicon_url) }}" />
+                                    @if ($store?->favicon_url)
+                                        <img src="{{ $store->favicon_url }}" alt="Favicon" class="admin-upload-preview admin-upload-preview--small" style="margin-top:10px;" />
+                                    @endif
+                                    <input type="file" id="favicon_file" name="favicon_file" accept="image/*" style="margin-top:10px;" />
                                 </div>
                                 <div class="field">
                                     <label for="invoice_prefix">Invoice Prefix</label>

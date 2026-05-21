@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Admin\Concerns\HandlesAdminUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
@@ -11,10 +12,20 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    use HandlesAdminUploads;
+
     public function index(): View
     {
         return view('admin.products.index', [
             'products' => Product::query()->with('category')->latest()->get(),
+            'categories' => Category::query()->orderBy('name')->get(),
+        ]);
+    }
+
+    public function edit(Product $product): View
+    {
+        return view('admin.products.edit', [
+            'product' => $product,
             'categories' => Category::query()->orderBy('name')->get(),
         ]);
     }
@@ -32,6 +43,10 @@ class ProductController extends Controller
             'stock' => ['nullable', 'integer', 'min:0'],
             'sku' => ['nullable', 'string', 'max:100'],
             'images_input' => ['nullable', 'string'],
+            'image_urls' => ['nullable', 'array', 'max:8'],
+            'image_urls.*' => ['nullable', 'string', 'max:255'],
+            'image_uploads' => ['nullable', 'array', 'max:8'],
+            'image_uploads.*' => ['nullable', 'image', 'max:5120'],
             'video_url' => ['nullable', 'string', 'max:255'],
             'meta_title' => ['nullable', 'string', 'max:200'],
             'meta_desc' => ['nullable', 'string', 'max:320'],
@@ -47,7 +62,7 @@ class ProductController extends Controller
             'sale_price' => $validated['sale_price'] ?? null,
             'stock' => $validated['stock'] ?? 0,
             'sku' => $validated['sku'] ?? null,
-            'images' => $this->parseImages($validated['images_input'] ?? null),
+            'images' => $this->resolveProductImages($request, $validated),
             'video_url' => $validated['video_url'] ?? null,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
@@ -74,6 +89,10 @@ class ProductController extends Controller
             'stock' => ['nullable', 'integer', 'min:0'],
             'sku' => ['nullable', 'string', 'max:100'],
             'images_input' => ['nullable', 'string'],
+            'image_urls' => ['nullable', 'array', 'max:8'],
+            'image_urls.*' => ['nullable', 'string', 'max:255'],
+            'image_uploads' => ['nullable', 'array', 'max:8'],
+            'image_uploads.*' => ['nullable', 'image', 'max:5120'],
             'video_url' => ['nullable', 'string', 'max:255'],
             'meta_title' => ['nullable', 'string', 'max:200'],
             'meta_desc' => ['nullable', 'string', 'max:320'],
@@ -89,7 +108,7 @@ class ProductController extends Controller
             'sale_price' => $validated['sale_price'] ?? null,
             'stock' => $validated['stock'] ?? 0,
             'sku' => $validated['sku'] ?? null,
-            'images' => $this->parseImages($validated['images_input'] ?? null),
+            'images' => $this->resolveProductImages($request, $validated),
             'video_url' => $validated['video_url'] ?? null,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
@@ -118,6 +137,40 @@ class ProductController extends Controller
         return array_values(array_filter(array_map(
             static fn (string $item): string => trim($item),
             $items
+        )));
+    }
+
+    private function resolveProductImages(Request $request, array $validated): array
+    {
+        $slots = array_fill(0, 8, '');
+        $textImages = $this->parseImages($validated['images_input'] ?? null);
+        foreach ($textImages as $index => $url) {
+            if ($index > 7) {
+                break;
+            }
+
+            $slots[$index] = $url;
+        }
+
+        foreach (($validated['image_urls'] ?? []) as $index => $url) {
+            if ($index > 7) {
+                break;
+            }
+
+            $slots[$index] = trim((string) $url);
+        }
+
+        foreach ($request->file('image_uploads', []) as $index => $file) {
+            if (! $file || $index > 7) {
+                continue;
+            }
+
+            $slots[$index] = $this->storeAdminUpload($file, 'products', 'Product image');
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (string $item): string => trim($item),
+            $slots
         )));
     }
 }
