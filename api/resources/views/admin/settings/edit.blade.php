@@ -12,7 +12,7 @@
                     <div>
                         <div class="brand">Configuration</div>
                         <h2>Store Settings</h2>
-                        <p class="lead" style="margin-top:8px;">Manage brand details, email transport, delivery setup, and payment gateways from one place.</p>
+                        <p class="lead" style="margin-top:8px;">Manage brand details, storefront identity, delivery setup, and payment gateways from one place.</p>
                     </div>
                 </div>
 
@@ -48,6 +48,18 @@
                                 <div class="field">
                                     <label for="custom_domain">Custom Domain</label>
                                     <input id="custom_domain" name="custom_domain" value="{{ old('custom_domain', $store?->custom_domain) }}" />
+                                </div>
+                                <div class="checkbox-row">
+                                    <input id="show_topbar" type="checkbox" name="show_topbar" value="1" @checked(old('show_topbar', $store?->show_topbar))>
+                                    <label for="show_topbar" style="margin:0;">Enable top offer bar</label>
+                                </div>
+                                <div class="field">
+                                    <label for="topbar_bg_color">Topbar Background Color</label>
+                                    <input id="topbar_bg_color" name="topbar_bg_color" value="{{ old('topbar_bg_color', $store?->topbar_bg_color) }}" placeholder="#0f0f0f" />
+                                </div>
+                                <div class="field">
+                                    <label for="topbar_text_color">Topbar Text Color</label>
+                                    <input id="topbar_text_color" name="topbar_text_color" value="{{ old('topbar_text_color', $store?->topbar_text_color) }}" placeholder="#ffffff" />
                                 </div>
                                 <div class="field">
                                     <label for="business_email">Business Email</label>
@@ -135,6 +147,15 @@
                                     <label for="invoice_footer_note">Invoice Footer Note</label>
                                     <textarea id="invoice_footer_note" name="invoice_footer_note">{{ old('invoice_footer_note', $store?->invoice_footer_note) }}</textarea>
                                 </div>
+                                <div class="field">
+                                    <label for="topbar_offers_text">Topbar Offers</label>
+                                    <textarea id="topbar_offers_text" name="topbar_offers_text" placeholder="One offer per line">{{ old('topbar_offers_text', $topbarOffersText ?? '') }}</textarea>
+                                    <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">Add one offer per line. The storefront will rotate them like a slider.</small>
+                                </div>
+                                <div class="field">
+                                    <label for="footer_copyright_text">Footer Copyright Text</label>
+                                    <input id="footer_copyright_text" name="footer_copyright_text" value="{{ old('footer_copyright_text', $store?->footer_copyright_text) }}" placeholder="© Little Divinity. All rights reserved to Tadpole Story LLP." />
+                                </div>
                                 <div class="checkbox-row">
                                     <input id="show_logo_on_invoice" type="checkbox" name="show_logo_on_invoice" value="1" @checked(old('show_logo_on_invoice', $store?->show_logo_on_invoice))>
                                     <label for="show_logo_on_invoice" style="margin:0;">Show logo on invoices</label>
@@ -154,83 +175,6 @@
                             </div>
                             <div class="button-row">
                                 <button type="submit" class="button small">Save Store Settings</button>
-                            </div>
-                        </form>
-                    </section>
-
-                    <section class="panel">
-                        <h3>Email Configuration</h3>
-                        <p>Used for admin OTPs, forgot password flows, and all transactional store emails.</p>
-                        <form method="POST" action="{{ route('admin.settings.email.update') }}" class="section-grid">
-                            @csrf
-                            @method('PUT')
-                            <div class="form-grid">
-                                <div class="field">
-                                    <label for="from_name">From Name</label>
-                                    <input id="from_name" name="from_name" value="{{ old('from_name', $emailSettings?->from_name) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="from_email">From Email</label>
-                                    <input id="from_email" type="email" name="from_email" value="{{ old('from_email', $emailSettings?->from_email) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="reply_to_email">Reply To Email</label>
-                                    <input id="reply_to_email" type="email" name="reply_to_email" value="{{ old('reply_to_email', $emailSettings?->reply_to_email) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="smtp_host">SMTP Host</label>
-                                    <input id="smtp_host" name="smtp_host" value="{{ old('smtp_host', $emailSettings?->smtp_host) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="smtp_port">SMTP Port</label>
-                                    <input id="smtp_port" name="smtp_port" value="{{ old('smtp_port', $emailSettings?->smtp_port) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="smtp_encryption">SMTP Encryption</label>
-                                    <input id="smtp_encryption" name="smtp_encryption" value="{{ old('smtp_encryption', $emailSettings?->smtp_encryption) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="smtp_username">SMTP Username</label>
-                                    <input id="smtp_username" name="smtp_username" value="{{ old('smtp_username', $emailSettings?->smtp_username) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="smtp_password">SMTP Password</label>
-                                    <input id="smtp_password" type="password" name="smtp_password" value="{{ old('smtp_password', $emailSettings?->smtp_password) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="imap_host">IMAP Host</label>
-                                    <input id="imap_host" name="imap_host" value="{{ old('imap_host', $emailSettings?->imap_host) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="imap_port">IMAP Port</label>
-                                    <input id="imap_port" name="imap_port" value="{{ old('imap_port', $emailSettings?->imap_port) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="imap_encryption">IMAP Encryption</label>
-                                    <input id="imap_encryption" name="imap_encryption" value="{{ old('imap_encryption', $emailSettings?->imap_encryption) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="pop_host">POP Host</label>
-                                    <input id="pop_host" name="pop_host" value="{{ old('pop_host', $emailSettings?->pop_host) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="pop_port">POP Port</label>
-                                    <input id="pop_port" name="pop_port" value="{{ old('pop_port', $emailSettings?->pop_port) }}" />
-                                </div>
-                                <div class="field">
-                                    <label for="pop_encryption">POP Encryption</label>
-                                    <input id="pop_encryption" name="pop_encryption" value="{{ old('pop_encryption', $emailSettings?->pop_encryption) }}" />
-                                </div>
-                            </div>
-                            <div class="button-row">
-                                <label class="checkbox-row"><input type="checkbox" name="send_otp_emails" value="1" @checked(old('send_otp_emails', $emailSettings?->send_otp_emails))> <span>OTP emails</span></label>
-                                <label class="checkbox-row"><input type="checkbox" name="send_password_reset_emails" value="1" @checked(old('send_password_reset_emails', $emailSettings?->send_password_reset_emails))> <span>Password reset emails</span></label>
-                                <label class="checkbox-row"><input type="checkbox" name="send_account_creation_emails" value="1" @checked(old('send_account_creation_emails', $emailSettings?->send_account_creation_emails))> <span>Account creation emails</span></label>
-                                <label class="checkbox-row"><input type="checkbox" name="send_order_emails" value="1" @checked(old('send_order_emails', $emailSettings?->send_order_emails))> <span>Order emails</span></label>
-                                <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $emailSettings?->is_active))> <span>Email config active</span></label>
-                            </div>
-                            <div class="button-row">
-                                <button type="submit" class="button small">Save Email Settings</button>
                             </div>
                         </form>
                     </section>

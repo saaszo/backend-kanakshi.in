@@ -34,6 +34,9 @@ class PublicSettingsController
             $socialLinks = Schema::hasTable('social_links')
                 ? SocialLink::query()->where('is_active', true)->orderBy('sort_order')->get()
                 : collect();
+            $topbarOffers = collect(json_decode($store?->topbar_offers ?? '[]', true) ?: [])
+                ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
+                ->values();
 
             return response()->json([
                 'success' => true,
@@ -54,6 +57,11 @@ class PublicSettingsController
                     'custom_domain' => $store?->custom_domain,
                     'logo_url' => $store?->logo_url,
                     'favicon_url' => $store?->favicon_url,
+                    'footer_copyright_text' => $store?->footer_copyright_text,
+                    'show_topbar' => (bool) ($store?->show_topbar ?? false),
+                    'topbar_bg_color' => $store?->topbar_bg_color ?: '#0f0f0f',
+                    'topbar_text_color' => $store?->topbar_text_color ?: '#ffffff',
+                    'topbar_offers' => $topbarOffers,
                     'header_menu' => $headerMenu->values(),
                     'footer_menu' => $footerMenu->values(),
                     'social_links' => $socialLinks->values(),

@@ -26,6 +26,10 @@
     <div class="sidebar-group">
         <div class="sidebar-label">Storefront Content</div>
         <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.hero.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.hero.edit') }}">
+                <i class="bi bi-sliders2"></i>
+                <span>Hero Slider</span>
+            </a>
             <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.index') }}">
                 <i class="bi bi-images"></i>
                 <span>Homepage Sections</span>
@@ -52,15 +56,31 @@
                 <i class="bi bi-box-seam"></i>
                 <span>Products</span>
             </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}" href="{{ route('admin.inventory.index') }}">
+                <i class="bi bi-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}" href="{{ route('admin.coupons.index') }}">
+                <i class="bi bi-ticket-perforated"></i>
+                <span>Coupons & Offers</span>
+            </a>
         </nav>
     </div>
 
     <div class="sidebar-group">
         <div class="sidebar-label">Configuration</div>
         <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.homepage-products.*') ? 'active' : '' }}" href="{{ route('admin.homepage-products.index') }}">
+                <i class="bi bi-layout-text-window"></i>
+                <span>Homepage Products</span>
+            </a>
             <a class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">
                 <i class="bi bi-gear"></i>
                 <span>Store Settings</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.email-otp.*') ? 'active' : '' }}" href="{{ route('admin.email-otp.edit') }}">
+                <i class="bi bi-envelope-check"></i>
+                <span>Email & OTP Verification</span>
             </a>
         </nav>
     </div>

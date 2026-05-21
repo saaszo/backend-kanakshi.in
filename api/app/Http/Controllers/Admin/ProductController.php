@@ -16,9 +16,48 @@ class ProductController extends Controller
 
     public function index(): View
     {
+        $search = trim((string) request()->string('q'));
+        $categoryFilter = request()->integer('category_id');
+        $statusFilter = request()->string('status')->toString();
+
+        $query = Product::query()->with('category');
+
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search): void {
+                $term = '%' . $search . '%';
+                $builder
+                    ->where('name', 'like', $term)
+                    ->orWhere('sku', 'like', $term)
+                    ->orWhere('slug', 'like', $term);
+            });
+        }
+
+        if ($categoryFilter > 0) {
+            $query->where('category_id', $categoryFilter);
+        }
+
+        if ($statusFilter === 'active') {
+            $query->where('is_active', true);
+        } elseif ($statusFilter === 'inactive') {
+            $query->where('is_active', false);
+        } elseif ($statusFilter === 'featured') {
+            $query->where('is_featured', true);
+        }
+
         return view('admin.products.index', [
-            'products' => Product::query()->with('category')->latest()->get(),
+            'products' => $query->latest()->get(),
             'categories' => Category::query()->orderBy('name')->get(),
+            'filters' => [
+                'q' => $search,
+                'category_id' => $categoryFilter,
+                'status' => $statusFilter,
+            ],
+            'stats' => [
+                'total_products' => Product::query()->count(),
+                'active_products' => Product::query()->where('is_active', true)->count(),
+                'featured_products' => Product::query()->where('is_featured', true)->count(),
+                'total_stock' => (int) Product::query()->sum('stock'),
+            ],
         ]);
     }
 
@@ -35,7 +74,6 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:200'],
-            'slug' => ['nullable', 'string', 'max:220'],
             'short_desc' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -55,7 +93,6 @@ class ProductController extends Controller
         Product::query()->create([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
-            'slug' => $validated['slug'] ?? null,
             'short_desc' => $validated['short_desc'] ?? null,
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],
@@ -81,7 +118,6 @@ class ProductController extends Controller
         $validated = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:200'],
-            'slug' => ['nullable', 'string', 'max:220'],
             'short_desc' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -101,7 +137,6 @@ class ProductController extends Controller
         $product->update([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
-            'slug' => $validated['slug'] ?? null,
             'short_desc' => $validated['short_desc'] ?? null,
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'],

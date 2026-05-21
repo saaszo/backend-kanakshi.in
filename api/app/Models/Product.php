@@ -20,7 +20,7 @@ class Product extends Model
         static::saving(function (Product $product): void {
             $product->slug = UniqueSlug::for(
                 self::class,
-                (string) ($product->slug ?: $product->name),
+                (string) $product->name,
                 $product->id
             );
 

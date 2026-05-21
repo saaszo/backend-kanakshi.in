@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Concerns\HandlesAdminUploads;
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryPartnerSetting;
-use App\Models\EmailSetting;
 use App\Models\PaymentGatewaySetting;
 use App\Models\StoreSetting;
 use Illuminate\Http\RedirectResponse;
@@ -18,9 +17,13 @@ class StoreSettingsController extends Controller
 
     public function edit(): View
     {
+        $store = StoreSetting::query()->first();
+
         return view('admin.settings.edit', [
-            'store' => StoreSetting::query()->first(),
-            'emailSettings' => EmailSetting::query()->first(),
+            'store' => $store,
+            'topbarOffersText' => collect(json_decode($store?->topbar_offers ?? '[]', true) ?: [])
+                ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
+                ->implode("\n"),
             'paymentGateways' => PaymentGatewaySetting::query()->orderBy('sort_order')->get(),
             'deliveryPartners' => DeliveryPartnerSetting::query()->orderByDesc('is_default')->orderBy('name')->get(),
         ]);
@@ -42,6 +45,10 @@ class StoreSettingsController extends Controller
             'favicon_url' => ['nullable', 'string', 'max:255'],
             'favicon_file' => ['nullable', 'image', 'max:5120'],
             'custom_domain' => ['nullable', 'string', 'max:180'],
+            'show_topbar' => ['nullable', 'boolean'],
+            'topbar_bg_color' => ['nullable', 'string', 'max:20'],
+            'topbar_text_color' => ['nullable', 'string', 'max:20'],
+            'topbar_offers_text' => ['nullable', 'string'],
             'currency' => ['required', 'string', 'max:12'],
             'currency_symbol' => ['required', 'string', 'max:12'],
             'timezone' => ['required', 'string', 'max:80'],
@@ -54,6 +61,7 @@ class StoreSettingsController extends Controller
             'country' => ['required', 'string', 'max:100'],
             'invoice_prefix' => ['required', 'string', 'max:25'],
             'invoice_footer_note' => ['nullable', 'string'],
+            'footer_copyright_text' => ['nullable', 'string', 'max:255'],
             'show_logo_on_invoice' => ['nullable', 'boolean'],
             'return_policy' => ['nullable', 'string'],
             'privacy_policy' => ['nullable', 'string'],
@@ -61,6 +69,16 @@ class StoreSettingsController extends Controller
         ]);
 
         $validated['show_logo_on_invoice'] = $request->boolean('show_logo_on_invoice');
+        $validated['show_topbar'] = $request->boolean('show_topbar');
+        $validated['topbar_offers'] = json_encode(
+            collect(preg_split('/\r\n|\r|\n/', (string) $request->input('topbar_offers_text', '')) ?: [])
+                ->map(fn ($offer) => trim((string) $offer))
+                ->filter()
+                ->values()
+                ->all(),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+        unset($validated['topbar_offers_text']);
         if ($request->hasFile('logo_file')) {
             $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo');
         }
@@ -71,41 +89,6 @@ class StoreSettingsController extends Controller
         StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
 
         return back()->with('status', 'Store settings updated successfully.');
-    }
-
-    public function updateEmail(Request $request): RedirectResponse
-    {
-        $existing = EmailSetting::query()->first();
-        $validated = $request->validate([
-            'from_name' => ['required', 'string', 'max:150'],
-            'from_email' => ['required', 'email', 'max:150'],
-            'reply_to_email' => ['nullable', 'email', 'max:150'],
-            'smtp_host' => ['nullable', 'string', 'max:150'],
-            'smtp_port' => ['nullable', 'integer'],
-            'smtp_encryption' => ['nullable', 'string', 'max:20'],
-            'smtp_username' => ['nullable', 'string', 'max:150'],
-            'smtp_password' => ['nullable', 'string'],
-            'imap_host' => ['nullable', 'string', 'max:150'],
-            'imap_port' => ['nullable', 'integer'],
-            'imap_encryption' => ['nullable', 'string', 'max:20'],
-            'pop_host' => ['nullable', 'string', 'max:150'],
-            'pop_port' => ['nullable', 'integer'],
-            'pop_encryption' => ['nullable', 'string', 'max:20'],
-        ]);
-
-        $validated['mailer'] = 'smtp';
-        $validated['send_otp_emails'] = $request->boolean('send_otp_emails');
-        $validated['send_password_reset_emails'] = $request->boolean('send_password_reset_emails');
-        $validated['send_account_creation_emails'] = $request->boolean('send_account_creation_emails');
-        $validated['send_order_emails'] = $request->boolean('send_order_emails');
-        $validated['is_active'] = $request->boolean('is_active');
-        if (($validated['smtp_password'] ?? null) === null || $validated['smtp_password'] === '') {
-            $validated['smtp_password'] = $existing?->smtp_password;
-        }
-
-        EmailSetting::query()->updateOrCreate(['id' => 1], $validated);
-
-        return back()->with('status', 'Email settings updated successfully.');
     }
 
     public function updateGateway(Request $request, PaymentGatewaySetting $gateway): RedirectResponse

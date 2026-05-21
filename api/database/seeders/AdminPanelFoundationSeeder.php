@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Coupon;
+use App\Models\HomepageSection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -29,6 +31,14 @@ class AdminPanelFoundationSeeder extends Seeder
                 'support_phone' => '+91 9910212007',
                 'whatsapp_number' => '+91 9910212007',
                 'custom_domain' => 'littledivinity.com',
+                'show_topbar' => true,
+                'topbar_bg_color' => '#0f0f0f',
+                'topbar_text_color' => '#ffffff',
+                'topbar_offers' => json_encode([
+                    'Avail 10% Off, Use Code - ADVITYA10',
+                    'Get Extra 5% on Prepaid Orders',
+                    'Free shipping on select festive picks',
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
                 'logo_url' => '/logo.jpg',
                 'favicon_url' => '/favicon.ico',
                 'currency' => 'INR',
@@ -41,6 +51,7 @@ class AdminPanelFoundationSeeder extends Seeder
                 'pincode' => '201301',
                 'country' => 'India',
                 'invoice_prefix' => 'LD',
+                'footer_copyright_text' => '© Little Divinity. All rights reserved to Tadpole Story LLP.',
                 'show_logo_on_invoice' => true,
                 'updated_at' => now(),
                 'created_at' => now(),
@@ -74,6 +85,68 @@ class AdminPanelFoundationSeeder extends Seeder
                 'created_at' => now(),
             ]
         );
+
+        DB::table('customer_email_settings')->updateOrInsert(
+            ['id' => 1],
+            [
+                'from_name' => null,
+                'from_email' => null,
+                'reply_to_email' => null,
+                'smtp_host' => null,
+                'smtp_port' => null,
+                'smtp_encryption' => null,
+                'smtp_username' => null,
+                'smtp_password' => null,
+                'send_account_creation_emails' => false,
+                'send_email_verification_emails' => false,
+                'send_password_reset_emails' => false,
+                'send_order_emails' => false,
+                'is_active' => false,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
+
+        DB::table('otp_verification_settings')->updateOrInsert(
+            ['id' => 1],
+            [
+                'email_verification_enabled' => true,
+                'mobile_verification_enabled' => false,
+                'email_otp_enabled' => true,
+                'sms_otp_enabled' => false,
+                'whatsapp_otp_enabled' => false,
+                'default_otp_channel' => 'email',
+                'otp_length' => 6,
+                'otp_expiry_minutes' => 10,
+                'resend_wait_seconds' => 60,
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
+
+        $otpProviders = [
+            ['provider' => 'msg91', 'display_name' => 'MSG91', 'channel' => 'sms'],
+            ['provider' => 'twilio-sms', 'display_name' => 'Twilio SMS', 'channel' => 'sms'],
+            ['provider' => 'twilio-whatsapp', 'display_name' => 'Twilio WhatsApp', 'channel' => 'whatsapp'],
+        ];
+
+        foreach ($otpProviders as $provider) {
+            DB::table('otp_provider_settings')->updateOrInsert(
+                ['provider' => $provider['provider']],
+                array_merge($provider, [
+                    'is_active' => false,
+                    'is_default' => false,
+                    'api_key' => null,
+                    'api_secret' => null,
+                    'sender_id' => null,
+                    'template_id' => null,
+                    'base_url' => null,
+                    'extra_config' => null,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ])
+            );
+        }
 
         $paymentGateways = [
             ['provider' => 'razorpay', 'display_name' => 'Razorpay', 'sort_order' => 1],
@@ -218,6 +291,23 @@ class AdminPanelFoundationSeeder extends Seeder
                 ],
                 'sort_order' => 3,
             ],
+            [
+                'section_key' => 'new-arrivals-products',
+                'section_type' => 'product_rail',
+                'label' => 'New Arrival Product Rail',
+                'title' => 'Latest From The Craft Table',
+                'subtitle' => 'New Arrivals',
+                'heading' => 'Newest product rail managed from admin dashboard.',
+                'button_text' => 'Explore all',
+                'button_url' => '/shop',
+                'sort_order' => 4,
+                'config' => [
+                    'source_type' => 'newest',
+                    'product_count' => 4,
+                    'product_ids' => [],
+                    'category_slug' => null,
+                ],
+            ],
         ];
 
         DB::table('homepage_sections')
@@ -233,6 +323,40 @@ class AdminPanelFoundationSeeder extends Seeder
                     'updated_at' => now(),
                     'created_at' => now(),
                 ])
+            );
+        }
+
+        $couponSeeds = [
+            [
+                'title' => 'First Order 10% Off',
+                'code' => 'WELCOME10',
+                'type' => 'percent',
+                'value' => 10,
+                'min_order_amount' => 1999,
+                'description' => 'Use this code on your first handcrafted order.',
+                'badge_text' => '10% OFF',
+                'is_active' => true,
+                'show_on_cart' => true,
+                'sort_order' => 1,
+            ],
+            [
+                'title' => 'Festive Flat Saving',
+                'code' => 'FESTIVE500',
+                'type' => 'flat',
+                'value' => 500,
+                'min_order_amount' => 4999,
+                'description' => 'Flat savings on premium festive decor orders.',
+                'badge_text' => 'SAVE ₹500',
+                'is_active' => true,
+                'show_on_cart' => true,
+                'sort_order' => 2,
+            ],
+        ];
+
+        foreach ($couponSeeds as $coupon) {
+            Coupon::query()->updateOrCreate(
+                ['code' => $coupon['code']],
+                $coupon
             );
         }
 

@@ -13,6 +13,7 @@
                         <h2>Homepage Sections</h2>
                         <p class="lead" style="margin-top:8px;">Edit hero, slider text, side photos, product section headings, and homepage visibility from here.</p>
                     </div>
+                    <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button small">Open Hero Editor</a>
                 </div>
                 @if (session('status'))
                     <div class="message">{{ session('status') }}</div>
@@ -38,7 +39,13 @@
                                     <td><code>{{ $section->section_key }}</code></td>
                                     <td>{{ $section->is_active ? 'Active' : 'Hidden' }}</td>
                                     <td>{{ $section->sort_order }}</td>
-                                    <td><a href="{{ route('admin.homepage-sections.edit', $section) }}" class="button secondary small">Edit Section</a></td>
+                                    <td>
+                                        @if ($section->section_key === 'hero')
+                                            <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button secondary small">Open Hero Editor</a>
+                                        @else
+                                            <a href="{{ route('admin.homepage-sections.edit', $section) }}" class="button secondary small">Edit Section</a>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

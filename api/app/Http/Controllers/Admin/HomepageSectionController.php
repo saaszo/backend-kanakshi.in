@@ -14,6 +14,9 @@ class HomepageSectionController extends Controller
 {
     use HandlesAdminUploads;
 
+    private const HERO_SLIDE_COUNT = 5;
+    private const HERO_PROMO_COUNT = 2;
+
     public function index(): View
     {
         return view('admin.homepage-sections.index', [
@@ -26,6 +29,25 @@ class HomepageSectionController extends Controller
         return view('admin.homepage-sections.edit', [
             'section' => $homepageSection,
             'products' => Product::query()->orderBy('name')->get(['id', 'name', 'slug']),
+        ]);
+    }
+
+    public function editHero(): View
+    {
+        $section = $this->getHeroSection();
+        $config = $section->config ?? [];
+
+        return view('admin.homepage-sections.hero', [
+            'section' => $section,
+            'sliderSettings' => array_merge([
+                'show_text' => true,
+                'show_dots' => false,
+                'show_arrows' => true,
+                'autoplay_ms' => 3500,
+                'nav_gap' => 34,
+            ], $config['slider_settings'] ?? []),
+            'slides' => $this->normalizeHeroSlides($config['slides'] ?? []),
+            'promos' => $this->normalizeHeroPromos($config['promos'] ?? []),
         ]);
     }
 
@@ -82,5 +104,177 @@ class HomepageSectionController extends Controller
         ]);
 
         return back()->with('status', 'Homepage section updated successfully.');
+    }
+
+    public function updateHero(Request $request): RedirectResponse
+    {
+        $section = $this->getHeroSection();
+        $existingConfig = $section->config ?? [];
+        $existingSlides = $this->normalizeHeroSlides($existingConfig['slides'] ?? []);
+        $existingPromos = $this->normalizeHeroPromos($existingConfig['promos'] ?? []);
+
+        $validated = $request->validate([
+            'label' => ['nullable', 'string', 'max:150'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'subtitle' => ['nullable', 'string', 'max:255'],
+            'heading' => ['nullable', 'string', 'max:255'],
+            'sort_order' => ['required', 'integer'],
+            'show_text' => ['nullable', 'boolean'],
+            'show_dots' => ['nullable', 'boolean'],
+            'show_arrows' => ['nullable', 'boolean'],
+            'autoplay_ms' => ['nullable', 'integer', 'min:1000', 'max:15000'],
+            'nav_gap' => ['nullable', 'integer', 'min:0', 'max:240'],
+            'slide_urls' => ['nullable', 'array'],
+            'slide_urls.*' => ['nullable', 'string', 'max:255'],
+            'slide_files' => ['nullable', 'array'],
+            'slide_files.*' => ['nullable', 'image', 'max:5120'],
+            'clear_slide_image' => ['nullable', 'array'],
+            'clear_slide_image.*' => ['nullable', 'boolean'],
+            'slides' => ['nullable', 'array'],
+            'slides.*.title' => ['nullable', 'string', 'max:120'],
+            'slides.*.alt' => ['nullable', 'string', 'max:150'],
+            'slides.*.href' => ['nullable', 'string', 'max:255'],
+            'promos' => ['nullable', 'array'],
+            'promos.*.title' => ['nullable', 'string', 'max:120'],
+            'promos.*.subtitle' => ['nullable', 'string', 'max:180'],
+            'promos.*.href' => ['nullable', 'string', 'max:255'],
+            'promo_urls' => ['nullable', 'array'],
+            'promo_urls.*' => ['nullable', 'string', 'max:255'],
+            'promo_files' => ['nullable', 'array'],
+            'promo_files.*' => ['nullable', 'image', 'max:5120'],
+            'clear_promo_image' => ['nullable', 'array'],
+            'clear_promo_image.*' => ['nullable', 'boolean'],
+        ]);
+
+        $slides = [];
+        for ($index = 0; $index < self::HERO_SLIDE_COUNT; $index++) {
+            $current = $existingSlides[$index] ?? [];
+            $image = trim((string) $request->input("slide_urls.$index", ''));
+
+            if ($request->boolean("clear_slide_image.$index")) {
+                $image = null;
+            } elseif ($request->hasFile("slide_files.$index")) {
+                $image = $this->storeAdminUpload($request->file("slide_files.$index"), 'homepage/hero', 'Hero slide');
+            } elseif ($image === '') {
+                $image = $current['image'] ?? null;
+            }
+
+            $slide = [
+                'title' => trim((string) $request->input("slides.$index.title", '')),
+                'alt' => trim((string) $request->input("slides.$index.alt", '')),
+                'href' => trim((string) $request->input("slides.$index.href", '')),
+                'image' => $image,
+                'is_active' => $request->boolean("slides.$index.is_active"),
+            ];
+
+            $slides[] = $slide;
+        }
+
+        $promos = [];
+        for ($index = 0; $index < self::HERO_PROMO_COUNT; $index++) {
+            $current = $existingPromos[$index] ?? [];
+            $image = trim((string) $request->input("promo_urls.$index", ''));
+
+            if ($request->boolean("clear_promo_image.$index")) {
+                $image = null;
+            } elseif ($request->hasFile("promo_files.$index")) {
+                $image = $this->storeAdminUpload($request->file("promo_files.$index"), 'homepage/hero', 'Hero side promo');
+            } elseif ($image === '') {
+                $image = $current['image'] ?? null;
+            }
+
+            $promos[] = [
+                'title' => trim((string) $request->input("promos.$index.title", '')),
+                'subtitle' => trim((string) $request->input("promos.$index.subtitle", '')),
+                'href' => trim((string) $request->input("promos.$index.href", '')),
+                'image' => $image,
+                'show_text' => $request->boolean("promos.$index.show_text"),
+                'is_active' => $request->boolean("promos.$index.is_active"),
+            ];
+        }
+
+        $section->update([
+            'label' => $validated['label'] ?? $section->label,
+            'title' => $validated['title'] ?? $section->title,
+            'subtitle' => $validated['subtitle'] ?? $section->subtitle,
+            'heading' => $validated['heading'] ?? $section->heading,
+            'sort_order' => $validated['sort_order'],
+            'is_active' => $request->boolean('is_active'),
+            'config' => [
+                'slider_settings' => [
+                    'show_text' => $request->boolean('show_text'),
+                    'show_dots' => $request->boolean('show_dots'),
+                    'show_arrows' => $request->boolean('show_arrows'),
+                    'autoplay_ms' => (int) ($validated['autoplay_ms'] ?? 3500),
+                    'nav_gap' => (int) ($validated['nav_gap'] ?? 34),
+                ],
+                'slides' => $slides,
+                'promos' => $promos,
+            ],
+        ]);
+
+        return back()->with('status', 'Hero slider updated successfully.');
+    }
+
+    private function getHeroSection(): HomepageSection
+    {
+        return HomepageSection::query()->firstOrCreate(
+            ['section_key' => 'hero'],
+            [
+                'section_type' => 'hero',
+                'label' => 'Homepage Hero',
+                'title' => 'Homepage Hero',
+                'sort_order' => 1,
+                'is_active' => true,
+                'config' => [
+                    'slider_settings' => [
+                        'show_text' => true,
+                        'show_dots' => false,
+                        'show_arrows' => true,
+                        'autoplay_ms' => 3500,
+                        'nav_gap' => 34,
+                    ],
+                    'slides' => [],
+                    'promos' => [],
+                ],
+            ]
+        );
+    }
+
+    private function normalizeHeroSlides(array $slides): array
+    {
+        $normalized = [];
+
+        for ($index = 0; $index < self::HERO_SLIDE_COUNT; $index++) {
+            $slide = $slides[$index] ?? [];
+            $normalized[] = [
+                'title' => $slide['title'] ?? '',
+                'alt' => $slide['alt'] ?? '',
+                'href' => $slide['href'] ?? '',
+                'image' => $slide['image'] ?? null,
+                'is_active' => (bool) ($slide['is_active'] ?? ($index === 0)),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeHeroPromos(array $promos): array
+    {
+        $normalized = [];
+
+        for ($index = 0; $index < self::HERO_PROMO_COUNT; $index++) {
+            $promo = $promos[$index] ?? [];
+            $normalized[] = [
+                'title' => $promo['title'] ?? '',
+                'subtitle' => $promo['subtitle'] ?? '',
+                'href' => $promo['href'] ?? '',
+                'image' => $promo['image'] ?? null,
+                'show_text' => (bool) ($promo['show_text'] ?? true),
+                'is_active' => (bool) ($promo['is_active'] ?? true),
+            ];
+        }
+
+        return $normalized;
     }
 }

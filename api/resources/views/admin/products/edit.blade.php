@@ -37,8 +37,8 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="field"><label>Name</label><input name="name" value="{{ old('name', $product->name) }}" data-slug-source data-meta-title-source /></div>
-                            <div class="field"><label>Slug</label><input name="slug" value="{{ old('slug', $product->slug) }}" data-slug-target /></div>
+                            <div class="field"><label>Name</label><input name="name" value="{{ old('name', $product->name) }}" data-meta-title-source /></div>
+                            <div class="field"><label>Slug</label><input value="{{ $product->slug ?: 'Auto generated from product name' }}" disabled /></div>
                             <div class="field"><label>SKU</label><input name="sku" value="{{ old('sku', $product->sku) }}" /></div>
                             <div class="field"><label>Price</label><input name="price" value="{{ old('price', $product->price) }}" /></div>
                             <div class="field"><label>Sale Price</label><input name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" /></div>
@@ -83,37 +83,13 @@
 @push('scripts')
     <script>
         (() => {
-            const slugify = (value) =>
-                value
-                    .toLowerCase()
-                    .trim()
-                    .replace(/[^a-z0-9]+/g, '-')
-                    .replace(/^-+|-+$/g, '');
-
             const limitText = (value, max) => value.trim().replace(/\s+/g, ' ').slice(0, max);
 
             document.querySelectorAll('[data-auto-seo-form]').forEach((form) => {
-                const slugSource = form.querySelector('[data-slug-source]');
-                const slugTarget = form.querySelector('[data-slug-target]');
                 const metaTitleSource = form.querySelector('[data-meta-title-source]');
                 const metaTitleTarget = form.querySelector('[data-meta-title-target]');
                 const metaDescSource = form.querySelector('[data-meta-desc-source]');
                 const metaDescTarget = form.querySelector('[data-meta-desc-target]');
-
-                if (slugSource && slugTarget) {
-                    const initialAutoSlug = slugify(slugSource.value || '');
-                    let slugManual = Boolean(slugTarget.value) && slugTarget.value !== initialAutoSlug;
-
-                    slugTarget.addEventListener('input', () => {
-                        slugManual = true;
-                    });
-
-                    slugSource.addEventListener('input', () => {
-                        if (!slugManual) {
-                            slugTarget.value = slugify(slugSource.value || '');
-                        }
-                    });
-                }
 
                 if (metaTitleSource && metaTitleTarget) {
                     const initialAutoTitle = limitText(metaTitleSource.value || '', 200);

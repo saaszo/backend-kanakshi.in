@@ -71,6 +71,18 @@ class ProductCatalogService
             });
         }
 
+        if ($request->filled('ids')) {
+            $ids = collect(explode(',', $request->string('ids')->toString()))
+                ->map(fn (string $id): int => (int) trim($id))
+                ->filter(fn (int $id): bool => $id > 0)
+                ->values()
+                ->all();
+
+            if ($ids !== []) {
+                $query->whereIn('p.id', $ids);
+            }
+        }
+
         if ($request->boolean('featured')) {
             $query->where('p.is_featured', 1);
         }
