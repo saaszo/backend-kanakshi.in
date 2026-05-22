@@ -13,6 +13,16 @@
                         <h2>Products</h2>
                         <p class="lead" style="margin-top:8px;">Manage live products, pricing, stock, featured visibility, and category placement from one professional list view.</p>
                     </div>
+                    <div class="toolbar-actions">
+                        <a class="button secondary small" href="{{ route('admin.inventory.index') }}">
+                            <i class="bi bi-boxes"></i>
+                            <span>Inventory</span>
+                        </a>
+                        <a class="button small" href="#create-product">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Add Product</span>
+                        </a>
+                    </div>
                 </div>
 
                 @if (session('status'))
@@ -42,12 +52,12 @@
                     </article>
                 </div>
 
-                <div class="section-grid admin-split-layout">
+                <div class="section-grid admin-product-page">
                     <section class="panel">
                         <div class="admin-toolbar">
                             <div>
                                 <h3>Product List</h3>
-                                <p class="muted">Quick edit stock, price, sale price, category, and visibility directly from the table.</p>
+                                <p class="muted">Quick update category, stock, pricing, visibility, and open the full editor when you need media or SEO changes.</p>
                             </div>
                             <form method="GET" action="{{ route('admin.products.index') }}" class="admin-toolbar-filters">
                                 <input type="search" name="q" placeholder="Search name, sku, slug" value="{{ $filters['q'] }}" />
@@ -135,9 +145,18 @@
                                             </td>
                                             <td>
                                                 <div class="button-row admin-row-actions">
-                                                    <button class="button small" type="submit" form="product-update-{{ $product->id }}">Save</button>
-                                                    <a class="button secondary small" href="{{ route('admin.products.edit', $product) }}">Edit</a>
-                                                    <button class="button danger small" type="submit" form="product-delete-{{ $product->id }}">Delete</button>
+                                                    <a class="button secondary small" href="{{ route('admin.products.edit', $product) }}">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                        <span>Edit</span>
+                                                    </a>
+                                                    <button class="button small" type="submit" form="product-update-{{ $product->id }}">
+                                                        <i class="bi bi-check2-circle"></i>
+                                                        <span>Save</span>
+                                                    </button>
+                                                    <button class="button danger small" type="submit" form="product-delete-{{ $product->id }}">
+                                                        <i class="bi bi-trash3"></i>
+                                                        <span>Delete</span>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -173,9 +192,9 @@
                         </div>
                     </section>
 
-                    <section class="panel">
+                    <section class="panel" id="create-product">
                         <h3>Add Product</h3>
-                        <p class="muted">Create a new product with photos, SEO, pricing, stock, and video link.</p>
+                        <p class="muted">Create a new product with pricing, stock, media, and SEO details in a calmer full-width editor.</p>
                         <form method="POST" action="{{ route('admin.products.store') }}" class="section-grid" data-auto-seo-form enctype="multipart/form-data">
                             @csrf
                             <div class="form-grid">

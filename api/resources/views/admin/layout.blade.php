@@ -551,6 +551,10 @@
             min-width: 160px;
         }
 
+        .admin-row-actions .button {
+            min-width: 88px;
+        }
+
         .media-slot-grid {
             display: grid;
             gap: 14px;
@@ -705,6 +709,10 @@
             align-items: start;
         }
 
+        .admin-product-page {
+            grid-template-columns: 1fr;
+        }
+
         .admin-toolbar {
             display: flex;
             justify-content: space-between;
@@ -735,6 +743,14 @@
             border-radius: 18px;
             overflow: hidden;
             background: #fff;
+        }
+
+        .admin-product-page .admin-product-table-wrap {
+            overflow-x: auto;
+        }
+
+        .admin-product-page .admin-data-table {
+            min-width: 1160px;
         }
 
         .admin-data-table tbody tr:hover {
@@ -771,6 +787,18 @@
             display: grid;
             gap: 10px;
             min-width: 120px;
+        }
+
+        .admin-product-page .panel {
+            overflow: hidden;
+        }
+
+        .admin-product-page .form-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .admin-product-page .media-slot-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
         .admin-badge {
@@ -858,6 +886,11 @@
             .metrics-grid {
                 grid-template-columns: 1fr;
             }
+
+            .admin-product-page .form-grid,
+            .admin-product-page .media-slot-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 720px) {
@@ -875,6 +908,15 @@
             .inventory-inline-form {
                 flex-direction: column;
                 align-items: stretch;
+            }
+
+            .admin-product-page .form-grid,
+            .admin-product-page .media-slot-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-row-actions {
+                min-width: 220px;
             }
 
             .stats {
