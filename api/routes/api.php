@@ -45,7 +45,10 @@ Route::prefix('v1')->group(function (): void {
 
     // Orders, Tracking and Checkout Routes
     Route::post('/checkout', [CheckoutController::class, 'store']);
+    Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment']);
+    Route::post('/checkout/cancel-order', [CheckoutController::class, 'cancelOrder']);
     Route::get('/orders/track', [OrderTrackingController::class, 'track']);
     Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
     Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
 });
+
