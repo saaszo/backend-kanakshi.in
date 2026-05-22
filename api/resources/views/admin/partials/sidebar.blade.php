@@ -24,6 +24,16 @@
     </div>
 
     <div class="sidebar-group">
+        <div class="sidebar-label">Sales & Fulfillments</div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
+                <i class="bi bi-cart-check"></i>
+                <span>Orders Management</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="sidebar-group">
         <div class="sidebar-label">Storefront Content</div>
         <nav class="sidebar-nav">
             <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.hero.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.hero.edit') }}">

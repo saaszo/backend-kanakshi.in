@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\Marketing\PublicCouponsController;
 use App\Http\Controllers\Api\Settings\PublicHomepageSectionsController;
 use App\Http\Controllers\Api\Settings\PublicSettingsController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\CustomerOrderController;
+use App\Http\Controllers\Api\OrderTrackingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -39,4 +42,10 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/forgot-password', [CustomerAuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [CustomerAuthController::class, 'resetPassword']);
     });
+
+    // Orders, Tracking and Checkout Routes
+    Route::post('/checkout', [CheckoutController::class, 'store']);
+    Route::get('/orders/track', [OrderTrackingController::class, 'track']);
+    Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
+    Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
 });
