@@ -9,12 +9,15 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Coupon;
 use App\Models\CustomerAccessToken;
+use App\Models\PaymentGatewaySetting;
 use App\Models\User;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CheckoutController
 {
@@ -23,57 +26,7 @@ class CheckoutController
      */
     public function store(Request $request): JsonResponse
     {
-        // Proactive clean up: auto-cancel payment_pending orders older than 15 minutes to release stock
-        try {
-            $expiredOrders = Order::query()
-                ->where('status', 'payment_pending')
-                ->where('created_at', '<', now()->subMinutes(15))
-                ->get();
-            
-            foreach ($expiredOrders as $expiredOrder) {
-                DB::transaction(function () use ($expiredOrder): void {
-                    foreach ($expiredOrder->items as $item) {
-                        if ($item->variant_id) {
-                            $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
-                            if ($variant) {
-                                $variant->increment('stock', $item->quantity);
-                            }
-                        } else {
-                            $product = Product::query()->lockForUpdate()->find($item->product_id);
-                            if ($product) {
-                                $product->increment('stock', $item->quantity);
-                            }
-                        }
-                        
-                        $product = Product::query()->lockForUpdate()->find($item->product_id);
-                        if ($product && $product->total_sold >= $item->quantity) {
-                            $product->decrement('total_sold', $item->quantity);
-                        }
-                    }
-
-                    if ($expiredOrder->coupon_id) {
-                        $coupon = Coupon::query()->lockForUpdate()->find($expiredOrder->coupon_id);
-                        if ($coupon && $coupon->used_count > 0) {
-                            $coupon->decrement('used_count');
-                        }
-                    }
-
-                    $expiredOrder->update([
-                        'status' => 'cancelled',
-                        'payment_status' => 'failed',
-                    ]);
-
-                    OrderTracking::query()->create([
-                        'order_id' => $expiredOrder->id,
-                        'status' => 'Cancelled',
-                        'location' => 'Mumbai Warehouse',
-                        'message' => 'Pending payment session timed out (15-min limit). Reserved stock and coupon usage released.',
-                    ]);
-                });
-            }
-        } catch (\Throwable $e) {
-            Log::error('Auto cleanup of expired orders failed: ' . $e->getMessage());
-        }
+        $this->cleanupExpiredPendingOrders();
 
         $validated = $request->validate([
             'ship_name' => ['required', 'string', 'max:100'],
@@ -239,6 +192,24 @@ class CheckoutController
                 // Final order amount
                 $totalAmount = $netSubtotal + $shippingCost;
 
+                $gatewaySetting = null;
+                $gatewayConfig = null;
+
+                if ($validated['payment_method'] !== 'cod') {
+                    $gatewaySetting = PaymentGatewaySetting::query()
+                        ->where('provider', $validated['payment_method'])
+                        ->where('is_active', true)
+                        ->first();
+
+                    if (!$gatewaySetting) {
+                        $this->failCheckout('This payment method is currently unavailable.');
+                    }
+                }
+
+                if ($validated['payment_method'] === 'phonepe' && $gatewaySetting && !$gatewaySetting->is_test_mode) {
+                    $this->failCheckout('PhonePe live checkout is not configured yet. Please use COD or test mode.');
+                }
+
                 // Step 4: Payments configuration
                 $orderStatus = 'pending';
                 $paymentStatus = 'pending';
@@ -276,6 +247,30 @@ class CheckoutController
                     OrderItem::query()->create($orderItemData);
                 }
 
+                if ($validated['payment_method'] === 'razorpay' && $gatewaySetting) {
+                    $gatewayConfig = [
+                        'public_key' => $gatewaySetting->public_key,
+                        'merchant_id' => $gatewaySetting->merchant_id,
+                        'is_test_mode' => (bool) $gatewaySetting->is_test_mode,
+                        'provider_order_id' => null,
+                    ];
+
+                    if (!$gatewaySetting->is_test_mode) {
+                        if (empty($gatewaySetting->public_key) || empty($gatewaySetting->secret_key)) {
+                            $this->failCheckout('Razorpay live keys are incomplete. Please contact support.');
+                        }
+
+                        $gatewayConfig['provider_order_id'] = $this->createRazorpayOrder($order, $gatewaySetting);
+                    }
+                } elseif ($validated['payment_method'] === 'phonepe' && $gatewaySetting) {
+                    $gatewayConfig = [
+                        'public_key' => $gatewaySetting->public_key,
+                        'merchant_id' => $gatewaySetting->merchant_id,
+                        'is_test_mode' => (bool) $gatewaySetting->is_test_mode,
+                        'provider_order_id' => null,
+                    ];
+                }
+
                 // Step 6: Create initial tracking event
                 OrderTracking::query()->create([
                     'order_id' => $order->id,
@@ -285,11 +280,6 @@ class CheckoutController
                         ? 'Order initialized. Awaiting secure online payment confirmation.' 
                         : 'Order has been successfully placed. COD verification or payment authorization complete.',
                 ]);
-
-                // Load gateway settings for frontend keys
-                $gatewaySetting = \App\Models\PaymentGatewaySetting::query()
-                    ->where('provider', $validated['payment_method'])
-                    ->first();
 
                 return response()->json([
                     'success' => true,
@@ -303,12 +293,9 @@ class CheckoutController
                         'payment_status' => $order->payment_status,
                         'ship_name' => $order->ship_name,
                         'ship_email' => $order->ship_email,
+                        'ship_phone' => $order->ship_phone,
                         'estimated_delivery' => now()->addDays(5)->format('d M, Y'),
-                        'gateway_config' => $orderStatus === 'payment_pending' ? [
-                            'public_key' => $gatewaySetting?->public_key,
-                            'merchant_id' => $gatewaySetting?->merchant_id,
-                            'is_test_mode' => (bool) ($gatewaySetting?->is_test_mode ?? true),
-                        ] : null
+                        'gateway_config' => $orderStatus === 'payment_pending' ? $gatewayConfig : null
                     ]
                 ], 201);
             });
@@ -335,6 +322,7 @@ class CheckoutController
         $validated = $request->validate([
             'order_number' => ['required', 'string', 'exists:orders,order_number'],
             'payment_method' => ['required', 'string', 'in:razorpay,phonepe'],
+            'order_contact' => ['nullable', 'string', 'max:150'],
             // Razorpay specific inputs
             'razorpay_payment_id' => ['nullable', 'string'],
             'razorpay_order_id' => ['nullable', 'string'],
@@ -356,7 +344,14 @@ class CheckoutController
             ], 404);
         }
 
-        $gateway = \App\Models\PaymentGatewaySetting::query()
+        if (!$this->canAccessPendingOrder($request, $order, $validated['order_contact'] ?? null)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to update this order.',
+            ], 403);
+        }
+
+        $gateway = PaymentGatewaySetting::query()
             ->where('provider', $validated['payment_method'])
             ->first();
 
@@ -376,8 +371,7 @@ class CheckoutController
                 if (hash_equals($expectedSignature, $signature)) {
                     $isVerified = true;
                 }
-            } else {
-                // Test mode / Simulation mode: Auto verify
+            } elseif ($gateway?->is_test_mode ?? true) {
                 $isVerified = true;
             }
 
@@ -403,11 +397,19 @@ class CheckoutController
                 ]);
             }
         } elseif ($validated['payment_method'] === 'phonepe') {
-            // For PhonePe, check transaction ID/status
-            $transactionId = $validated['transaction_id'] ?? 'txn_simulated_' . Str::random(10);
-            
-            // In test mode / simulation mode we consider PhonePe always successful when called with transaction ID
-            $isVerified = true; 
+            $transactionId = $validated['transaction_id'] ?? '';
+
+            if ($gateway?->is_test_mode ?? true) {
+                $isVerified = !empty($transactionId);
+                if ($isVerified && empty($transactionId)) {
+                    $transactionId = 'txn_simulated_' . Str::random(10);
+                }
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'PhonePe live payment verification is not configured yet.',
+                ], 422);
+            }
 
             if ($isVerified) {
                 DB::transaction(function () use ($order, $transactionId): void {
@@ -445,6 +447,7 @@ class CheckoutController
     {
         $validated = $request->validate([
             'order_number' => ['required', 'string', 'exists:orders,order_number'],
+            'order_contact' => ['nullable', 'string', 'max:150'],
         ]);
 
         $order = Order::query()
@@ -457,6 +460,13 @@ class CheckoutController
                 'success' => false,
                 'message' => 'Order not found or cannot be cancelled.',
             ], 404);
+        }
+
+        if (!$this->canAccessPendingOrder($request, $order, $validated['order_contact'] ?? null)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to cancel this order.',
+            ], 403);
         }
 
         try {
@@ -550,6 +560,135 @@ class CheckoutController
         ])->save();
 
         return $token->user;
+    }
+
+    private function cleanupExpiredPendingOrders(): void
+    {
+        try {
+            $expiredOrderIds = Order::query()
+                ->where('status', 'payment_pending')
+                ->where('created_at', '<', now()->subMinutes(15))
+                ->pluck('id');
+
+            foreach ($expiredOrderIds as $orderId) {
+                DB::transaction(function () use ($orderId): void {
+                    $expiredOrder = Order::query()
+                        ->with('items')
+                        ->lockForUpdate()
+                        ->find($orderId);
+
+                    if (
+                        !$expiredOrder ||
+                        $expiredOrder->status !== 'payment_pending' ||
+                        $expiredOrder->created_at->gte(now()->subMinutes(15))
+                    ) {
+                        return;
+                    }
+
+                    foreach ($expiredOrder->items as $item) {
+                        if ($item->variant_id) {
+                            $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
+                            if ($variant) {
+                                $variant->increment('stock', $item->quantity);
+                            }
+                        } else {
+                            $product = Product::query()->lockForUpdate()->find($item->product_id);
+                            if ($product) {
+                                $product->increment('stock', $item->quantity);
+                            }
+                        }
+
+                        $product = Product::query()->lockForUpdate()->find($item->product_id);
+                        if ($product && $product->total_sold >= $item->quantity) {
+                            $product->decrement('total_sold', $item->quantity);
+                        }
+                    }
+
+                    if ($expiredOrder->coupon_id) {
+                        $coupon = Coupon::query()->lockForUpdate()->find($expiredOrder->coupon_id);
+                        if ($coupon && $coupon->used_count > 0) {
+                            $coupon->decrement('used_count');
+                        }
+                    }
+
+                    $expiredOrder->update([
+                        'status' => 'cancelled',
+                        'payment_status' => 'failed',
+                    ]);
+
+                    OrderTracking::query()->create([
+                        'order_id' => $expiredOrder->id,
+                        'status' => 'Cancelled',
+                        'location' => 'Mumbai Warehouse',
+                        'message' => 'Pending payment session timed out (15-min limit). Reserved stock and coupon usage released.',
+                    ]);
+                });
+            }
+        } catch (\Throwable $e) {
+            Log::error('Auto cleanup of expired orders failed: ' . $e->getMessage());
+        }
+    }
+
+    private function canAccessPendingOrder(Request $request, Order $order, ?string $contact): bool
+    {
+        $user = $this->resolveCustomerFromRequest($request);
+
+        if ($user && $order->user_id && (int) $user->id === (int) $order->user_id) {
+            return true;
+        }
+
+        if (!$contact) {
+            return false;
+        }
+
+        $normalizedInput = $this->normalizeContact($contact);
+
+        return $normalizedInput !== '' && in_array($normalizedInput, [
+            $this->normalizeContact($order->ship_email),
+            $this->normalizeContact($order->ship_phone),
+        ], true);
+    }
+
+    private function normalizeContact(?string $value): string
+    {
+        if (!$value) {
+            return '';
+        }
+
+        $trimmed = trim(strtolower($value));
+
+        if (filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+            return $trimmed;
+        }
+
+        return preg_replace('/\D+/', '', $trimmed) ?: '';
+    }
+
+    private function createRazorpayOrder(Order $order, PaymentGatewaySetting $gateway): string
+    {
+        $response = Http::withBasicAuth($gateway->public_key, $gateway->secret_key)
+            ->post('https://api.razorpay.com/v1/orders', [
+                'amount' => (int) round(((float) $order->total_amount) * 100),
+                'currency' => 'INR',
+                'receipt' => $order->order_number,
+                'payment_capture' => 1,
+                'notes' => [
+                    'order_number' => $order->order_number,
+                    'ship_email' => $order->ship_email,
+                ],
+            ]);
+
+        if (!$response->successful() || empty($response->json('id'))) {
+            Log::error('Razorpay order creation failed.', [
+                'order_number' => $order->order_number,
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
+            $this->failCheckout('Unable to initialize Razorpay payment right now. Please try again.');
+        }
+
+        return (string) $response->json('id');
     }
 
     private function failCheckout(string $message, int $status = 422): never
