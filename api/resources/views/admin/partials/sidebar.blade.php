@@ -2,8 +2,38 @@
     $siteUrl = env('FRONTEND_SITE_URL', env('APP_FRONTEND_URL', 'https://littledivinity.com'));
 @endphp
 
-<aside class="sidebar">
-    <div class="sidebar-logo">
+<div class="admin-mobile-bar d-lg-none">
+    <div class="admin-mobile-brand">
+        <span class="sidebar-logo-mark">
+            <i class="bi bi-shop-window"></i>
+        </span>
+        <div class="sidebar-logo-text">
+            <strong>Little Divinity</strong>
+            <span>Commerce Admin</span>
+        </div>
+    </div>
+    <button class="btn btn-primary admin-mobile-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
+        <i class="bi bi-list"></i>
+    </button>
+</div>
+
+<aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+    <div class="offcanvas-header admin-offcanvas-header d-lg-none">
+        <div class="admin-mobile-brand">
+            <span class="sidebar-logo-mark">
+                <i class="bi bi-shop-window"></i>
+            </span>
+            <div class="sidebar-logo-text">
+                <strong id="adminSidebarLabel">Little Divinity</strong>
+                <span>Commerce Admin</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close text-reset shadow-none" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-0">
+    <div class="sidebar-scroll">
+    <div class="sidebar-logo d-none d-lg-flex">
         <span class="sidebar-logo-mark">
             <i class="bi bi-shop-window"></i>
         </span>
@@ -11,6 +41,12 @@
             <strong>Little Divinity</strong>
             <span>Admin Panel</span>
         </div>
+    </div>
+
+    <div class="sidebar-status">
+        <span class="sidebar-status-label">Workspace</span>
+        <strong>Single Store Control</strong>
+        <span>Catalog, orders, content, and settings in one place.</span>
     </div>
 
     <div class="sidebar-group">
@@ -96,6 +132,14 @@
     </div>
 
     <div class="sidebar-footer">
+        <div class="sidebar-quick">
+            <span class="sidebar-quick-label">Quick Access</span>
+            <div class="sidebar-quick-links">
+                <a href="{{ route('admin.products.index') }}">Catalog</a>
+                <a href="{{ route('admin.orders.index') }}">Orders</a>
+                <a href="{{ route('admin.settings.edit') }}">Settings</a>
+            </div>
+        </div>
         <div class="button-row">
             <a href="{{ $siteUrl }}" target="_blank" rel="noreferrer" class="button small">
                 <i class="bi bi-box-arrow-up-right"></i>
@@ -109,5 +153,7 @@
                 </button>
             </form>
         </div>
+    </div>
+    </div>
     </div>
 </aside>

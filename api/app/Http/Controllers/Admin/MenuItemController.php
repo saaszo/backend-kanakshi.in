@@ -6,15 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Models\MenuItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class MenuItemController extends Controller
 {
     public function index(): View
     {
+        $menuItems = MenuItem::query()
+            ->with('parent:id,title')
+            ->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")
+            ->orderBy('sort_order')
+            ->orderBy('title')
+            ->get();
+
         return view('admin.menu-items.index', [
-            'menuItems' => MenuItem::query()->orderBy('location')->orderBy('sort_order')->orderBy('title')->get(),
-            'parents' => MenuItem::query()->orderBy('location')->orderBy('title')->get(['id', 'title', 'location']),
+            'menuItems' => $menuItems,
+            'groupedMenuItems' => $menuItems->groupBy('location'),
+            'parents' => MenuItem::query()->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")->orderBy('title')->get(['id', 'title', 'location']),
         ]);
     }
 
@@ -48,6 +57,13 @@ class MenuItemController extends Controller
 
     public function destroy(MenuItem $menuItem): RedirectResponse
     {
+        MenuItem::query()
+            ->where('parent_id', $menuItem->id)
+            ->update([
+                'parent_id' => null,
+                'updated_at' => now(),
+            ]);
+
         $menuItem->delete();
 
         return back()->with('status', 'Menu item removed successfully.');
@@ -55,7 +71,7 @@ class MenuItemController extends Controller
 
     private function validatePayload(Request $request): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'location' => ['required', 'in:header,footer,mobile'],
             'title' => ['required', 'string', 'max:150'],
             'url' => ['required', 'string', 'max:255'],
@@ -66,6 +82,18 @@ class MenuItemController extends Controller
             'sort_order' => ['nullable', 'integer'],
             'config_json' => ['nullable', 'string'],
         ]);
+
+        if (! empty($validated['parent_id'])) {
+            $parent = MenuItem::query()->find($validated['parent_id']);
+
+            if ($parent && $parent->location !== $validated['location']) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Parent item must be from the same menu location.',
+                ]);
+            }
+        }
+
+        return $validated;
     }
 
     private function decodeConfig(?string $configJson): array
