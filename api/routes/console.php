@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\Services\LittleDivinityEditorialBlogPublisher;
 use App\Services\LittleDivinityBlogImporter;
 
 Artisan::command('inspire', function () {
@@ -58,3 +59,21 @@ Artisan::command('blog:import-little-divinity {--refresh : Update matching impor
         $this->info('Little Divinity blog import completed successfully.');
     }
 })->purpose('Import published Little Divinity Shopify blog articles into the local blog CMS');
+
+Artisan::command('blog:seed-little-divinity-editorial {--no-refresh : Skip existing matching slugs instead of updating them}', function () {
+    /** @var LittleDivinityEditorialBlogPublisher $publisher */
+    $publisher = app(LittleDivinityEditorialBlogPublisher::class);
+    $refresh = !$this->option('no-refresh');
+    $result = $publisher->publish($refresh);
+
+    foreach ($result['slugs'] as $slug) {
+        $this->line("Prepared editorial blog: {$slug}");
+    }
+
+    $this->newLine();
+    $this->info("Created: {$result['created']}");
+    $this->info("Updated: {$result['updated']}");
+    $this->comment("Skipped: {$result['skipped']}");
+    $this->newLine();
+    $this->info('Little Divinity editorial blog publish completed successfully.');
+})->purpose('Seed curated Little Divinity editorial blog content into the blog CMS');
