@@ -200,6 +200,19 @@
                                         <div class="field"><label>Webhook Secret</label><input name="webhook_secret" type="password" value="{{ old('webhook_secret', $gateway->webhook_secret) }}" /></div>
                                         <div class="field"><label>Sort Order</label><input name="sort_order" value="{{ old('sort_order', $gateway->sort_order) }}" /></div>
                                     </div>
+                                    <div class="field" style="margin-top:16px;">
+                                        <label>Extra Config (JSON)</label>
+                                        <textarea name="extra_config_text" placeholder='{"api_base_url":"https://api.phonepe.com/apis/pg","auth_base_url":"https://api.phonepe.com/apis/identity-manager"}'>{{ old('extra_config_text', is_array($gateway->extra_config) ? json_encode($gateway->extra_config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : '') }}</textarea>
+                                        @if ($gateway->provider === 'phonepe')
+                                            <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">
+                                                For PhonePe live mode use: <code>merchant_id</code> as Merchant ID, <code>public_key</code> as Client ID, <code>secret_key</code> as Client Secret, and <code>secret_key_secondary</code> as Client Version. Optional JSON can override <code>api_base_url</code> and <code>auth_base_url</code>.
+                                            </small>
+                                        @elseif ($gateway->provider === 'razorpay')
+                                            <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">
+                                                Razorpay live mode needs Key ID in <code>public_key</code>, Key Secret in <code>secret_key</code>, and Webhook Secret in <code>webhook_secret</code>.
+                                            </small>
+                                        @endif
+                                    </div>
                                     <div class="button-row">
                                         <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $gateway->is_active))> <span>Active</span></label>
                                         <label class="checkbox-row"><input type="checkbox" name="is_test_mode" value="1" @checked(old('is_test_mode', $gateway->is_test_mode))> <span>Test mode</span></label>

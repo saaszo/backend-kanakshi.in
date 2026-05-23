@@ -52,4 +52,21 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
     Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
     Route::post('/customer/orders/{order_number}/returns', [CustomerOrderController::class, 'requestReturn']);
+
+    // Storefront Blog APIs
+    Route::prefix('blog')->group(function (): void {
+        Route::get('/posts', [\App\Http\Controllers\Api\Blog\BlogPostController::class, 'index']);
+        Route::get('/posts/{slug}', [\App\Http\Controllers\Api\Blog\BlogPostController::class, 'show']);
+        Route::get('/categories', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'categories']);
+        Route::get('/categories/{slug}', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'showCategory']);
+        Route::get('/tags', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'tags']);
+        Route::get('/tags/{slug}', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'showTag']);
+        Route::get('/authors', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'authors']);
+        Route::get('/authors/{slug}', [\App\Http\Controllers\Api\Blog\BlogCategoryController::class, 'showAuthor']);
+        Route::get('/feed/rss', [\App\Http\Controllers\Api\Blog\BlogFeedController::class, 'rss']);
+    });
+
+    // Public Newsletter Signup
+    Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterController::class, 'subscribe']);
 });
+

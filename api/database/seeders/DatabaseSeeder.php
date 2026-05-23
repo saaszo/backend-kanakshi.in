@@ -11,10 +11,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
+        $seeders = [
             StoreSettingsSeeder::class,
             CatalogDemoSeeder::class,
             AdminPanelFoundationSeeder::class,
-        ]);
+        ];
+
+        if (app()->environment(['local', 'testing']) || env('SEED_BLOG_DEMO', false)) {
+            $seeders[] = BlogDemoSeeder::class;
+        }
+
+        $this->call($seeders);
     }
 }

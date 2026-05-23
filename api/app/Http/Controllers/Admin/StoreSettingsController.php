@@ -101,7 +101,20 @@ class StoreSettingsController extends Controller
             'secret_key_secondary' => ['nullable', 'string'],
             'webhook_secret' => ['nullable', 'string'],
             'sort_order' => ['nullable', 'integer'],
+            'extra_config_text' => ['nullable', 'string'],
         ]);
+
+        $extraConfig = trim((string) ($validated['extra_config_text'] ?? ''));
+        unset($validated['extra_config_text']);
+
+        if ($extraConfig !== '') {
+            $decoded = json_decode($extraConfig, true);
+            $validated['extra_config'] = is_array($decoded)
+                ? $decoded
+                : ['raw' => $extraConfig];
+        } else {
+            $validated['extra_config'] = $gateway->extra_config;
+        }
 
         foreach (['secret_key', 'secret_key_secondary', 'webhook_secret'] as $secretField) {
             if (($validated[$secretField] ?? null) === null || $validated[$secretField] === '') {

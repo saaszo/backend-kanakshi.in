@@ -207,10 +207,6 @@ class CheckoutController
                     }
                 }
 
-                if ($validated['payment_method'] === 'phonepe' && $gatewaySetting && !$gatewaySetting->is_test_mode) {
-                    $this->failCheckout('PhonePe live checkout is not configured yet. Please use COD or test mode.');
-                }
-
                 // Step 4: Payments configuration
                 $orderStatus = 'pending';
                 $paymentStatus = 'pending';
@@ -272,7 +268,17 @@ class CheckoutController
                         'merchant_id' => $gatewaySetting->merchant_id,
                         'is_test_mode' => (bool) $gatewaySetting->is_test_mode,
                         'provider_order_id' => null,
+                        'checkout_url' => null,
                     ];
+
+                    if (!$gatewaySetting->is_test_mode) {
+                        $phonePeCheckout = $this->createPhonePeCheckoutSession($order, $gatewaySetting);
+                        $gatewayConfig['provider_order_id'] = $phonePeCheckout['provider_order_id'];
+                        $gatewayConfig['checkout_url'] = $phonePeCheckout['checkout_url'];
+                        $order->forceFill([
+                            'provider_order_id' => $phonePeCheckout['provider_order_id'],
+                        ])->save();
+                    }
                 }
 
                 // Step 6: Create initial tracking event
@@ -410,15 +416,33 @@ class CheckoutController
             $transactionId = $validated['transaction_id'] ?? '';
 
             if ($gateway?->is_test_mode ?? true) {
-                $isVerified = !empty($transactionId);
-                if ($isVerified && empty($transactionId)) {
+                if (empty($transactionId)) {
                     $transactionId = 'txn_simulated_' . Str::random(10);
                 }
+                $isVerified = true;
             } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'PhonePe live payment verification is not configured yet.',
-                ], 422);
+                $phonePeStatus = $this->fetchPhonePePaymentStatus($order, $gateway);
+
+                if ($phonePeStatus['state'] === 'paid') {
+                    $transactionId = $phonePeStatus['transaction_id'] ?: ('txn_phonepe_' . Str::random(10));
+                    $isVerified = true;
+                } elseif ($phonePeStatus['state'] === 'failed') {
+                    $this->releasePendingOrderReservation(
+                        $order,
+                        'PhonePe reported a failed or cancelled prepaid attempt. Reserved stock and coupon usage released.',
+                        'failed'
+                    );
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => $phonePeStatus['message'] ?: 'PhonePe reported that the payment did not complete.',
+                    ], 422);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $phonePeStatus['message'] ?: 'PhonePe payment is still pending confirmation. Please wait a moment and try again.',
+                    ], 409);
+                }
             }
 
             if ($isVerified) {
@@ -724,6 +748,187 @@ class CheckoutController
         }
 
         return (string) $response->json('id');
+    }
+
+    private function createPhonePeCheckoutSession(Order $order, PaymentGatewaySetting $gateway): array
+    {
+        $token = $this->fetchPhonePeAccessToken($gateway);
+        $extraConfig = $this->phonePeExtraConfig($gateway);
+        $apiBaseUrl = rtrim((string) ($extraConfig['api_base_url'] ?? 'https://api.phonepe.com/apis/pg'), '/');
+        $redirectUrl = $this->buildPhonePeReturnUrl($order);
+        $providerOrderId = $order->order_number;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'O-Bearer ' . $token,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])->post($apiBaseUrl . '/checkout/v2/pay', [
+            'merchantOrderId' => $providerOrderId,
+            'amount' => (int) round(((float) $order->total_amount) * 100),
+            'expireAfter' => (int) ($extraConfig['expire_after'] ?? 1200),
+            'metaInfo' => [
+                'udf1' => $order->order_number,
+                'udf2' => $order->ship_email,
+                'udf3' => $order->ship_phone,
+            ],
+            'paymentFlow' => [
+                'type' => 'PG_CHECKOUT',
+                'merchantUrls' => [
+                    'redirectUrl' => $redirectUrl,
+                ],
+            ],
+        ]);
+
+        $checkoutUrl = (string) (
+            $response->json('redirectUrl')
+            ?? $response->json('paymentUrl')
+            ?? $response->json('data.redirectUrl')
+            ?? $response->json('data.paymentUrl')
+            ?? $response->json('instrumentResponse.redirectInfo.url')
+            ?? ''
+        );
+
+        if (!$response->successful() || $checkoutUrl === '') {
+            Log::error('PhonePe checkout session creation failed.', [
+                'order_number' => $order->order_number,
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
+            $this->failCheckout('Unable to initialize PhonePe payment right now. Please try again.');
+        }
+
+        return [
+            'provider_order_id' => $providerOrderId,
+            'checkout_url' => $checkoutUrl,
+        ];
+    }
+
+    private function fetchPhonePePaymentStatus(Order $order, ?PaymentGatewaySetting $gateway): array
+    {
+        if (!$gateway) {
+            return [
+                'state' => 'pending',
+                'transaction_id' => null,
+                'message' => 'PhonePe gateway is unavailable right now.',
+            ];
+        }
+
+        $token = $this->fetchPhonePeAccessToken($gateway);
+        $extraConfig = $this->phonePeExtraConfig($gateway);
+        $apiBaseUrl = rtrim((string) ($extraConfig['api_base_url'] ?? 'https://api.phonepe.com/apis/pg'), '/');
+        $providerOrderId = $order->provider_order_id ?: $order->order_number;
+
+        $response = Http::withHeaders([
+            'Authorization' => 'O-Bearer ' . $token,
+            'Accept' => 'application/json',
+        ])->get($apiBaseUrl . '/checkout/v2/order/' . urlencode($providerOrderId) . '/status');
+
+        if (!$response->successful()) {
+            Log::warning('PhonePe order status lookup failed.', [
+                'order_number' => $order->order_number,
+                'provider_order_id' => $providerOrderId,
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
+            return [
+                'state' => 'pending',
+                'transaction_id' => null,
+                'message' => 'We could not confirm the PhonePe payment yet. Please refresh after a moment.',
+            ];
+        }
+
+        $payload = $response->json();
+        $status = strtoupper((string) (
+            data_get($payload, 'state')
+            ?? data_get($payload, 'data.state')
+            ?? data_get($payload, 'paymentState')
+            ?? ''
+        ));
+
+        $transactionId = (string) (
+            data_get($payload, 'paymentDetails.0.transactionId')
+            ?? data_get($payload, 'data.paymentDetails.0.transactionId')
+            ?? data_get($payload, 'transactionId')
+            ?? ''
+        );
+
+        if (in_array($status, ['COMPLETED', 'SUCCESS', 'PAYMENT_SUCCESS'], true)) {
+            return [
+                'state' => 'paid',
+                'transaction_id' => $transactionId !== '' ? $transactionId : null,
+                'message' => 'PhonePe payment verified successfully.',
+            ];
+        }
+
+        if (in_array($status, ['FAILED', 'PAYMENT_ERROR', 'ERROR', 'CANCELLED', 'EXPIRED'], true)) {
+            return [
+                'state' => 'failed',
+                'transaction_id' => $transactionId !== '' ? $transactionId : null,
+                'message' => 'PhonePe marked this payment as failed or cancelled.',
+            ];
+        }
+
+        return [
+            'state' => 'pending',
+            'transaction_id' => $transactionId !== '' ? $transactionId : null,
+            'message' => 'PhonePe payment is still pending confirmation.',
+        ];
+    }
+
+    private function fetchPhonePeAccessToken(PaymentGatewaySetting $gateway): string
+    {
+        $clientId = trim((string) $gateway->public_key);
+        $clientSecret = trim((string) $gateway->secret_key);
+        $clientVersion = trim((string) ($gateway->secret_key_secondary ?: '1'));
+
+        if ($clientId === '' || $clientSecret === '') {
+            $this->failCheckout('PhonePe live keys are incomplete. Please contact support.');
+        }
+
+        $extraConfig = $this->phonePeExtraConfig($gateway);
+        $authBaseUrl = rtrim((string) ($extraConfig['auth_base_url'] ?? 'https://api.phonepe.com/apis/identity-manager'), '/');
+
+        $response = Http::asForm()->post($authBaseUrl . '/v1/oauth/token', [
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'client_version' => $clientVersion,
+            'grant_type' => 'client_credentials',
+        ]);
+
+        $accessToken = (string) (
+            $response->json('access_token')
+            ?? $response->json('token')
+            ?? $response->json('data.access_token')
+            ?? ''
+        );
+
+        if (!$response->successful() || $accessToken === '') {
+            Log::error('PhonePe access token creation failed.', [
+                'provider' => $gateway->provider,
+                'status' => $response->status(),
+                'body' => $response->json(),
+            ]);
+
+            $this->failCheckout('Unable to initialize PhonePe payment right now. Please try again.');
+        }
+
+        return $accessToken;
+    }
+
+    private function buildPhonePeReturnUrl(Order $order): string
+    {
+        $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
+
+        return $frontendUrl . '/checkout/phonepe-return?order_number='
+            . urlencode($order->order_number)
+            . '&contact=' . urlencode($order->ship_email);
+    }
+
+    private function phonePeExtraConfig(PaymentGatewaySetting $gateway): array
+    {
+        return is_array($gateway->extra_config) ? $gateway->extra_config : [];
     }
 
     private function markOrderAsPaid(

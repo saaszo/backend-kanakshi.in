@@ -210,14 +210,17 @@ class AdminPanelFoundationSeeder extends Seeder
             ['location' => 'header', 'title' => 'Home Decor', 'url' => '/shop?category=home-decor', 'sort_order' => 3, 'config' => ['submenu' => ['Wall Decor', 'Table Decor', 'Candle Stands']]],
             ['location' => 'header', 'title' => 'Pooja Decor', 'url' => '/shop?category=pooja-decor', 'sort_order' => 4, 'config' => ['submenu' => ['Brass Singhasan', 'Incense Stand', 'Brass Spoon', 'Diya', 'Brass Chowki', 'Bells', 'Pooja Thali', 'Wooden Mandir Decor']]],
             ['location' => 'header', 'title' => "Mother's Day collection", 'url' => '/shop?category=mothers-day-collection', 'sort_order' => 5, 'config' => ['submenu' => ['Gifting Picks', 'Wall Decor', 'Home Styling']]],
-            ['location' => 'header', 'title' => 'More', 'url' => '/shop', 'sort_order' => 6, 'config' => ['submenu' => ['New Arrivals', 'Festival Categories', 'All Collections']]],
+            ['location' => 'header', 'title' => 'Blog', 'url' => '/blog', 'sort_order' => 6, 'config' => []],
+            ['location' => 'header', 'title' => 'More', 'url' => '/shop', 'sort_order' => 7, 'config' => ['submenu' => ['New Arrivals', 'Festival Categories', 'All Collections']]],
             ['location' => 'footer', 'title' => 'About Us', 'url' => '/pages/about-us', 'sort_order' => 1],
             ['location' => 'footer', 'title' => 'Contact', 'url' => '/pages/contact', 'sort_order' => 2],
             ['location' => 'footer', 'title' => 'Privacy Policy', 'url' => '/pages/privacy-policy', 'sort_order' => 3],
             ['location' => 'footer', 'title' => 'Terms & Conditions', 'url' => '/pages/terms-conditions', 'sort_order' => 4],
             ['location' => 'footer', 'title' => 'Refund Policy', 'url' => '/pages/refund-policy', 'sort_order' => 5],
             ['location' => 'footer', 'title' => 'Track Your Order', 'url' => '/track-order', 'sort_order' => 6],
+            ['location' => 'footer', 'title' => 'Blog', 'url' => '/blog', 'sort_order' => 7],
         ];
+
 
         $headerTitles = array_column(array_filter($menuItems, static fn (array $item): bool => $item['location'] === 'header'), 'title');
         $footerTitles = array_column(array_filter($menuItems, static fn (array $item): bool => $item['location'] === 'footer'), 'title');

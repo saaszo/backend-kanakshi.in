@@ -90,6 +90,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/social-links', [SocialLinkController::class, 'store'])->name('social-links.store');
         Route::put('/social-links/{socialLink}', [SocialLinkController::class, 'update'])->name('social-links.update');
         Route::delete('/social-links/{socialLink}', [SocialLinkController::class, 'destroy'])->name('social-links.destroy');
+
+        // Blog / Editorial Admin CRUD CMS Routes
+        Route::prefix('blog')->name('blog.')->group(function (): void {
+            Route::get('/posts/{post}/preview', [\App\Http\Controllers\Admin\Blog\PostController::class, 'preview'])->name('posts.preview');
+            Route::post('/posts/{post}/restore/{revision}', [\App\Http\Controllers\Admin\Blog\PostController::class, 'restoreRevision'])->name('posts.restore-revision');
+            Route::resource('posts', \App\Http\Controllers\Admin\Blog\PostController::class);
+            Route::resource('categories', \App\Http\Controllers\Admin\Blog\CategoryController::class)->except(['show', 'create', 'edit']);
+            Route::resource('tags', \App\Http\Controllers\Admin\Blog\TagController::class)->except(['show', 'create', 'edit']);
+            Route::resource('authors', \App\Http\Controllers\Admin\Blog\AuthorController::class)->except(['show', 'create', 'edit']);
+        });
+
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     });
 });

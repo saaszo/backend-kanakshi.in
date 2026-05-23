@@ -122,6 +122,28 @@
     </div>
 
     <div class="sidebar-group">
+        <div class="sidebar-label">Editorial & Blog</div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.blog.posts.*') ? 'active' : '' }}" href="{{ route('admin.blog.posts.index') }}">
+                <i class="bi bi-journal-text"></i>
+                <span>Blog Posts</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.blog.categories.*') ? 'active' : '' }}" href="{{ route('admin.blog.categories.index') }}">
+                <i class="bi bi-collection"></i>
+                <span>Blog Categories</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.blog.tags.*') ? 'active' : '' }}" href="{{ route('admin.blog.tags.index') }}">
+                <i class="bi bi-hash"></i>
+                <span>Blog Tags</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.blog.authors.*') ? 'active' : '' }}" href="{{ route('admin.blog.authors.index') }}">
+                <i class="bi bi-people"></i>
+                <span>Blog Authors</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="sidebar-group">
         <div class="sidebar-label">Configuration</div>
         <nav class="sidebar-nav">
             <a class="sidebar-link {{ request()->routeIs('admin.homepage-products.*') ? 'active' : '' }}" href="{{ route('admin.homepage-products.index') }}">
