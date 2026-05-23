@@ -470,9 +470,31 @@ class LittleDivinityBlogImporter
             }
         }
 
+        foreach ($xpath->query('//*') ?: [] as $node) {
+            if (!$node instanceof DOMElement) {
+                continue;
+            }
+
+            $attributesToRemove = [];
+            for ($index = 0; $index < $node->attributes->length; $index++) {
+                $attribute = $node->attributes->item($index);
+                if ($attribute && str_starts_with($attribute->nodeName, 'data-mce-')) {
+                    $attributesToRemove[] = $attribute->nodeName;
+                }
+            }
+
+            foreach ($attributesToRemove as $attributeName) {
+                $node->removeAttribute($attributeName);
+            }
+        }
+
+        $this->unwrapRedundantSpans($fragmentDom);
+        $this->splitDenseParagraphs($fragmentDom);
+
         $root = $fragmentDom->getElementsByTagName('div')->item(0);
         $normalized = $root ? $this->innerHtml($root) : $html;
         $normalized = preg_replace('/<p>\s*[-—]{3,}\s*<\/p>/u', '', $normalized) ?? $normalized;
+        $normalized = preg_replace('/<br\s*\/?>\s*<\/p>/i', '</p>', $normalized) ?? $normalized;
 
         return trim($normalized);
     }
@@ -486,6 +508,68 @@ class LittleDivinityBlogImporter
         }
 
         return $html;
+    }
+
+    private function unwrapRedundantSpans(DOMDocument $dom): void
+    {
+        $spans = [];
+        foreach ($dom->getElementsByTagName('span') as $span) {
+            $spans[] = $span;
+        }
+
+        /** @var DOMElement $span */
+        foreach ($spans as $span) {
+            if ($span->attributes->length > 0 || !$span->parentNode) {
+                continue;
+            }
+
+            while ($span->firstChild) {
+                $span->parentNode->insertBefore($span->firstChild, $span);
+            }
+
+            $span->parentNode->removeChild($span);
+        }
+    }
+
+    private function splitDenseParagraphs(DOMDocument $dom): void
+    {
+        $paragraphs = [];
+        foreach ($dom->getElementsByTagName('p') as $paragraph) {
+            $paragraphs[] = $paragraph;
+        }
+
+        /** @var DOMElement $paragraph */
+        foreach ($paragraphs as $paragraph) {
+            if (!$paragraph->parentNode) {
+                continue;
+            }
+
+            $inner = trim($this->innerHtml($paragraph));
+            if (!preg_match('/(?:<br\s*\/?>\s*){2,}/i', $inner)) {
+                continue;
+            }
+
+            $segments = preg_split('/(?:<br\s*\/?>\s*){2,}/i', $inner) ?: [];
+            $replacement = $dom->createDocumentFragment();
+            $count = 0;
+
+            foreach ($segments as $segment) {
+                $segment = trim($segment);
+                $segment = preg_replace('/^(?:<br\s*\/?>\s*)+/i', '', $segment) ?? $segment;
+                $segment = trim($segment);
+
+                if ($segment === '' || preg_match('/^[-—]{3,}$/u', strip_tags($segment))) {
+                    continue;
+                }
+
+                $count++;
+                $replacement->appendXML('<p>' . $segment . '</p>');
+            }
+
+            if ($count > 1) {
+                $paragraph->parentNode->replaceChild($replacement, $paragraph);
+            }
+        }
     }
 
     /**
