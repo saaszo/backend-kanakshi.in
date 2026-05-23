@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\Services\LittleDivinityBlogImporter;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -32,3 +33,28 @@ Artisan::command('blog:publish-scheduled', function () {
 
 Schedule::command('blog:publish-scheduled')->everyMinute();
 
+Artisan::command('blog:import-little-divinity {--refresh : Update matching imported slugs if they already exist}', function () {
+    /** @var LittleDivinityBlogImporter $importer */
+    $importer = app(LittleDivinityBlogImporter::class);
+    $result = $importer->import((bool) $this->option('refresh'));
+
+    foreach ($result['urls'] as $url) {
+        $this->line("Found source article: {$url}");
+    }
+
+    $this->newLine();
+    $this->info("Imported: {$result['imported']}");
+    $this->info("Updated: {$result['updated']}");
+    $this->comment("Skipped: {$result['skipped']}");
+
+    if (!empty($result['errors'])) {
+        $this->newLine();
+        $this->error('Import finished with some issues:');
+        foreach ($result['errors'] as $error) {
+            $this->line("- {$error}");
+        }
+    } else {
+        $this->newLine();
+        $this->info('Little Divinity blog import completed successfully.');
+    }
+})->purpose('Import published Little Divinity Shopify blog articles into the local blog CMS');
