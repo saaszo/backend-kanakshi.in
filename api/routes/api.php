@@ -47,8 +47,9 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/checkout', [CheckoutController::class, 'store']);
     Route::post('/checkout/verify-payment', [CheckoutController::class, 'verifyPayment']);
     Route::post('/checkout/cancel-order', [CheckoutController::class, 'cancelOrder']);
+    Route::post('/checkout/webhooks/razorpay', [CheckoutController::class, 'razorpayWebhook']);
     Route::get('/orders/track', [OrderTrackingController::class, 'track']);
     Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
     Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
+    Route::post('/customer/orders/{order_number}/returns', [CustomerOrderController::class, 'requestReturn']);
 });
-

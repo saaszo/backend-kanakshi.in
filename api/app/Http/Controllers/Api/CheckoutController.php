@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController
 {
@@ -261,6 +262,9 @@ class CheckoutController
                         }
 
                         $gatewayConfig['provider_order_id'] = $this->createRazorpayOrder($order, $gatewaySetting);
+                        $order->forceFill([
+                            'provider_order_id' => $gatewayConfig['provider_order_id'],
+                        ])->save();
                     }
                 } elseif ($validated['payment_method'] === 'phonepe' && $gatewaySetting) {
                     $gatewayConfig = [
@@ -344,6 +348,13 @@ class CheckoutController
             ], 404);
         }
 
+        if ($order->payment_method !== $validated['payment_method']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment method mismatch for this order.',
+            ], 422);
+        }
+
         if (!$this->canAccessPendingOrder($request, $order, $validated['order_contact'] ?? null)) {
             return response()->json([
                 'success' => false,
@@ -366,6 +377,13 @@ class CheckoutController
             $secretKey = $gateway ? $gateway->secret_key : null;
 
             if ($gateway && !$gateway->is_test_mode && !empty($secretKey) && !empty($paymentId) && !empty($razorpayOrderId) && !empty($signature)) {
+                if (empty($order->provider_order_id) || !hash_equals($order->provider_order_id, $razorpayOrderId)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Payment order reference mismatch.',
+                    ], 422);
+                }
+
                 // Real HMAC verification
                 $expectedSignature = hash_hmac('sha256', $razorpayOrderId . '|' . $paymentId, $secretKey);
                 if (hash_equals($expectedSignature, $signature)) {
@@ -376,20 +394,12 @@ class CheckoutController
             }
 
             if ($isVerified) {
-                DB::transaction(function () use ($order, $paymentId): void {
-                    $order->update([
-                        'status' => 'confirmed',
-                        'payment_status' => 'paid',
-                        'payment_id' => $paymentId ?: 'pay_simulated_' . Str::random(10),
-                    ]);
-
-                    OrderTracking::query()->create([
-                        'order_id' => $order->id,
-                        'status' => 'Placed',
-                        'location' => 'Mumbai Warehouse',
-                        'message' => 'Online payment successfully verified via Razorpay. Order confirmed.',
-                    ]);
-                });
+                $this->markOrderAsPaid(
+                    $order,
+                    $paymentId ?: 'pay_simulated_' . Str::random(10),
+                    $razorpayOrderId ?: $order->provider_order_id,
+                    'Online payment successfully verified via Razorpay. Order confirmed.'
+                );
 
                 return response()->json([
                     'success' => true,
@@ -412,20 +422,12 @@ class CheckoutController
             }
 
             if ($isVerified) {
-                DB::transaction(function () use ($order, $transactionId): void {
-                    $order->update([
-                        'status' => 'confirmed',
-                        'payment_status' => 'paid',
-                        'payment_id' => $transactionId,
-                    ]);
-
-                    OrderTracking::query()->create([
-                        'order_id' => $order->id,
-                        'status' => 'Placed',
-                        'location' => 'Mumbai Warehouse',
-                        'message' => 'Online payment successfully verified via PhonePe. Order confirmed.',
-                    ]);
-                });
+                $this->markOrderAsPaid(
+                    $order,
+                    $transactionId,
+                    $order->provider_order_id,
+                    'Online payment successfully verified via PhonePe. Order confirmed.'
+                );
 
                 return response()->json([
                     'success' => true,
@@ -438,6 +440,110 @@ class CheckoutController
             'success' => false,
             'message' => 'Payment verification failed.',
         ], 400);
+    }
+
+    /**
+     * Handle Razorpay webhook reconciliation for prepaid orders.
+     */
+    public function razorpayWebhook(Request $request): JsonResponse
+    {
+        $gateway = PaymentGatewaySetting::query()
+            ->where('provider', 'razorpay')
+            ->where('is_active', true)
+            ->first();
+
+        if (!$gateway || $gateway->is_test_mode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Razorpay webhook is not enabled for live mode.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $signature = (string) $request->header('X-Razorpay-Signature', '');
+        $payload = $request->getContent();
+
+        if ($signature === '' || empty($gateway->webhook_secret)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Missing Razorpay webhook signature or secret.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $expectedSignature = hash_hmac('sha256', $payload, $gateway->webhook_secret);
+        if (!hash_equals($expectedSignature, $signature)) {
+            Log::warning('Rejected Razorpay webhook due to invalid signature.');
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid webhook signature.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $event = (string) $request->json('event', '');
+        $paymentEntity = $request->input('payload.payment.entity', []);
+        $orderEntity = $request->input('payload.order.entity', []);
+
+        $providerOrderId = (string) ($paymentEntity['order_id'] ?? $orderEntity['id'] ?? '');
+        $paymentId = (string) ($paymentEntity['id'] ?? '');
+
+        if ($providerOrderId === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Provider order reference missing from webhook payload.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $order = Order::query()
+            ->where('provider_order_id', $providerOrderId)
+            ->first();
+
+        if (!$order) {
+            Log::warning('Razorpay webhook did not match any order.', [
+                'provider_order_id' => $providerOrderId,
+                'event' => $event,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Webhook accepted. No matching order found.',
+            ]);
+        }
+
+        if (in_array($event, ['payment.captured', 'order.paid'], true)) {
+            if ($order->status === 'payment_pending') {
+                $this->markOrderAsPaid(
+                    $order,
+                    $paymentId !== '' ? $paymentId : ($order->payment_id ?: 'pay_webhook_' . Str::random(10)),
+                    $providerOrderId,
+                    'Online payment confirmed by Razorpay webhook. Order reconciled automatically.'
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Razorpay payment reconciliation processed.',
+            ]);
+        }
+
+        if ($event === 'payment.failed') {
+            if ($order->status === 'payment_pending') {
+                $this->releasePendingOrderReservation(
+                    $order,
+                    'Payment failed on Razorpay. Reserved stock and coupon usage released.',
+                    'failed'
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Razorpay payment failure processed.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Webhook acknowledged.',
+        ]);
     }
 
     /**
@@ -470,50 +576,11 @@ class CheckoutController
         }
 
         try {
-            DB::transaction(function () use ($order): void {
-                // Rollback stock
-                foreach ($order->items as $item) {
-                    if ($item->variant_id) {
-                        $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
-                        if ($variant) {
-                            $variant->increment('stock', $item->quantity);
-                        }
-                    } else {
-                        $product = Product::query()->lockForUpdate()->find($item->product_id);
-                        if ($product) {
-                            $product->increment('stock', $item->quantity);
-                        }
-                    }
-
-                    // Decrement product total_sold since it was incremented during creation
-                    $product = Product::query()->lockForUpdate()->find($item->product_id);
-                    if ($product && $product->total_sold >= $item->quantity) {
-                        $product->decrement('total_sold', $item->quantity);
-                    }
-                }
-
-                // Rollback coupon usage
-                if ($order->coupon_id) {
-                    $coupon = Coupon::query()->lockForUpdate()->find($order->coupon_id);
-                    if ($coupon && $coupon->used_count > 0) {
-                        $coupon->decrement('used_count');
-                    }
-                }
-
-                // Update order status
-                $order->update([
-                    'status' => 'cancelled',
-                    'payment_status' => 'failed',
-                ]);
-
-                // Create tracking update
-                OrderTracking::query()->create([
-                    'order_id' => $order->id,
-                    'status' => 'Cancelled',
-                    'location' => 'Mumbai Warehouse',
-                    'message' => 'Payment session abandoned or cancelled by customer. Reserved stock and coupon usage released.',
-                ]);
-            });
+            $this->releasePendingOrderReservation(
+                $order,
+                'Payment session abandoned or cancelled by customer. Reserved stock and coupon usage released.',
+                'failed'
+            );
 
             return response()->json([
                 'success' => true,
@@ -585,43 +652,11 @@ class CheckoutController
                         return;
                     }
 
-                    foreach ($expiredOrder->items as $item) {
-                        if ($item->variant_id) {
-                            $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
-                            if ($variant) {
-                                $variant->increment('stock', $item->quantity);
-                            }
-                        } else {
-                            $product = Product::query()->lockForUpdate()->find($item->product_id);
-                            if ($product) {
-                                $product->increment('stock', $item->quantity);
-                            }
-                        }
-
-                        $product = Product::query()->lockForUpdate()->find($item->product_id);
-                        if ($product && $product->total_sold >= $item->quantity) {
-                            $product->decrement('total_sold', $item->quantity);
-                        }
-                    }
-
-                    if ($expiredOrder->coupon_id) {
-                        $coupon = Coupon::query()->lockForUpdate()->find($expiredOrder->coupon_id);
-                        if ($coupon && $coupon->used_count > 0) {
-                            $coupon->decrement('used_count');
-                        }
-                    }
-
-                    $expiredOrder->update([
-                        'status' => 'cancelled',
-                        'payment_status' => 'failed',
-                    ]);
-
-                    OrderTracking::query()->create([
-                        'order_id' => $expiredOrder->id,
-                        'status' => 'Cancelled',
-                        'location' => 'Mumbai Warehouse',
-                        'message' => 'Pending payment session timed out (15-min limit). Reserved stock and coupon usage released.',
-                    ]);
+                    $this->releasePendingOrderReservation(
+                        $expiredOrder,
+                        'Pending payment session timed out (15-min limit). Reserved stock and coupon usage released.',
+                        'failed'
+                    );
                 });
             }
         } catch (\Throwable $e) {
@@ -689,6 +724,90 @@ class CheckoutController
         }
 
         return (string) $response->json('id');
+    }
+
+    private function markOrderAsPaid(
+        Order $order,
+        string $paymentId,
+        ?string $providerOrderId,
+        string $trackingMessage
+    ): void {
+        DB::transaction(function () use ($order, $paymentId, $providerOrderId, $trackingMessage): void {
+            $lockedOrder = Order::query()->lockForUpdate()->find($order->id);
+
+            if (!$lockedOrder || $lockedOrder->status !== 'payment_pending') {
+                return;
+            }
+
+            $lockedOrder->update([
+                'status' => 'confirmed',
+                'payment_status' => 'paid',
+                'payment_id' => $paymentId,
+                'provider_order_id' => $providerOrderId ?: $lockedOrder->provider_order_id,
+            ]);
+
+            OrderTracking::query()->create([
+                'order_id' => $lockedOrder->id,
+                'status' => 'Placed',
+                'location' => 'Mumbai Warehouse',
+                'message' => $trackingMessage,
+            ]);
+        });
+    }
+
+    private function releasePendingOrderReservation(
+        Order $order,
+        string $trackingMessage,
+        string $paymentStatus
+    ): void {
+        DB::transaction(function () use ($order, $trackingMessage, $paymentStatus): void {
+            $lockedOrder = Order::query()
+                ->with('items')
+                ->lockForUpdate()
+                ->find($order->id);
+
+            if (!$lockedOrder || $lockedOrder->status !== 'payment_pending') {
+                return;
+            }
+
+            foreach ($lockedOrder->items as $item) {
+                if ($item->variant_id) {
+                    $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
+                    if ($variant) {
+                        $variant->increment('stock', $item->quantity);
+                    }
+                } else {
+                    $product = Product::query()->lockForUpdate()->find($item->product_id);
+                    if ($product) {
+                        $product->increment('stock', $item->quantity);
+                    }
+                }
+
+                $product = Product::query()->lockForUpdate()->find($item->product_id);
+                if ($product && $product->total_sold >= $item->quantity) {
+                    $product->decrement('total_sold', $item->quantity);
+                }
+            }
+
+            if ($lockedOrder->coupon_id) {
+                $coupon = Coupon::query()->lockForUpdate()->find($lockedOrder->coupon_id);
+                if ($coupon && $coupon->used_count > 0) {
+                    $coupon->decrement('used_count');
+                }
+            }
+
+            $lockedOrder->update([
+                'status' => 'cancelled',
+                'payment_status' => $paymentStatus,
+            ]);
+
+            OrderTracking::query()->create([
+                'order_id' => $lockedOrder->id,
+                'status' => 'Cancelled',
+                'location' => 'Mumbai Warehouse',
+                'message' => $trackingMessage,
+            ]);
+        });
     }
 
     private function failCheckout(string $message, int $status = 422): never

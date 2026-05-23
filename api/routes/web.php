@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\StoreSettingsController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\EmailOtpVerificationController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderReturnController;
+use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,12 +35,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/dashboard', DashboardController::class)->name('dashboard');
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
         Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::put('/orders/{order}/tracking', [OrderController::class, 'updateTracking'])->name('orders.update-tracking');
         Route::post('/orders/{order}/tracking-logs', [OrderController::class, 'addTrackingLog'])->name('orders.add-tracking-log');
+        Route::get('/returns', [OrderReturnController::class, 'index'])->name('returns.index');
+        Route::get('/returns/{return}', [OrderReturnController::class, 'show'])->name('returns.show');
+        Route::put('/returns/{return}', [OrderReturnController::class, 'update'])->name('returns.update');
 
         Route::get('/settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings/store', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');

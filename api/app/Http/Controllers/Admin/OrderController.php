@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderTracking;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +69,15 @@ class OrderController extends Controller
         ]);
     }
 
+    public function invoice(Order $order): View
+    {
+        $order->load(['items.product']);
+
+        return view('admin.orders.invoice', [
+            'order' => $order,
+        ]);
+    }
+
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([
@@ -77,6 +89,14 @@ class OrderController extends Controller
         $newStatus = $validated['status'];
 
         DB::transaction(function () use ($order, $validated, $oldStatus, $newStatus): void {
+            if (
+                !in_array($oldStatus, ['cancelled', 'refunded'], true)
+                && in_array($newStatus, ['cancelled', 'refunded'], true)
+            ) {
+                $this->restoreInventoryForOrder($order);
+                $this->restoreCouponUsageForOrder($order);
+            }
+
             $order->update([
                 'status' => $newStatus,
                 'payment_status' => $validated['payment_status']
@@ -168,5 +188,41 @@ class OrderController extends Controller
         ]);
 
         return back()->with('status', 'Manual order tracking milestone added successfully.');
+    }
+
+    private function restoreInventoryForOrder(Order $order): void
+    {
+        $order->loadMissing('items');
+
+        foreach ($order->items as $item) {
+            if ($item->variant_id) {
+                $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
+                if ($variant) {
+                    $variant->increment('stock', $item->quantity);
+                }
+            } else {
+                $product = Product::query()->lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $product->increment('stock', $item->quantity);
+                }
+            }
+
+            $product = Product::query()->lockForUpdate()->find($item->product_id);
+            if ($product && $product->total_sold >= $item->quantity) {
+                $product->decrement('total_sold', $item->quantity);
+            }
+        }
+    }
+
+    private function restoreCouponUsageForOrder(Order $order): void
+    {
+        if (!$order->coupon_id) {
+            return;
+        }
+
+        $coupon = Coupon::query()->lockForUpdate()->find($order->coupon_id);
+        if ($coupon && $coupon->used_count > 0) {
+            $coupon->decrement('used_count');
+        }
     }
 }

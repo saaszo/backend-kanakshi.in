@@ -30,6 +30,10 @@
                         <p class="lead mb-0" style="margin-top: 8px;">Received on {{ $order->created_at->format('M d, Y') }} at {{ $order->created_at->format('h:i A') }}</p>
                     </div>
                     <div class="toolbar-actions">
+                        <a href="{{ route('admin.orders.invoice', $order) }}" target="_blank" class="button small">
+                            <i class="bi bi-printer"></i>
+                            <span>Invoice</span>
+                        </a>
                         <a href="{{ route('admin.orders.index') }}" class="button secondary small">
                             <i class="bi bi-arrow-left"></i>
                             <span>Back to Orders</span>

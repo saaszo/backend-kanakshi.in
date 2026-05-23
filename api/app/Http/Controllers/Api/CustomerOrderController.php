@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Order;
 use App\Models\CustomerAccessToken;
+use App\Models\OrderReturn;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class CustomerOrderController
 {
@@ -54,7 +56,7 @@ class CustomerOrderController
         }
 
         $order = Order::query()
-            ->with(['items', 'trackingUpdates' => function ($q) {
+            ->with(['items', 'returns', 'trackingUpdates' => function ($q) {
                 $q->orderByDesc('created_at');
             }])
             ->where('user_id', $user->id)
@@ -73,6 +75,113 @@ class CustomerOrderController
             'message' => 'Order details retrieved successfully.',
             'data' => $this->formatOrderDetails($order),
         ]);
+    }
+
+    public function requestReturn(Request $request, string $order_number): JsonResponse
+    {
+        $user = $this->resolveCustomerFromRequest($request);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized customer session.',
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'max:150'],
+            'customer_notes' => ['nullable', 'string'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => ['required', 'integer'],
+            'items.*.variant_id' => ['nullable', 'integer'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'images' => ['nullable', 'array', 'max:4'],
+            'images.*' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $order = Order::query()
+            ->with('items')
+            ->where('user_id', $user->id)
+            ->where('order_number', $order_number)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found.',
+            ], 404);
+        }
+
+        if (!in_array($order->status, ['delivered', 'shipped'], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Return requests can only be created for shipped or delivered orders.',
+            ], 422);
+        }
+
+        $normalizedItems = [];
+        $requestedAmount = 0;
+
+        foreach ($validated['items'] as $requestItem) {
+            $orderItem = $order->items->first(function ($item) use ($requestItem) {
+                return (int) $item->product_id === (int) $requestItem['product_id']
+                    && (int) ($item->variant_id ?? 0) === (int) ($requestItem['variant_id'] ?? 0);
+            });
+
+            if (!$orderItem) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'One or more return items do not belong to this order.',
+                ], 422);
+            }
+
+            if ((int) $requestItem['quantity'] > (int) $orderItem->quantity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Return quantity cannot exceed delivered quantity.',
+                ], 422);
+            }
+
+            $normalizedItems[] = [
+                'product_id' => $orderItem->product_id,
+                'variant_id' => $orderItem->variant_id,
+                'name' => $orderItem->name,
+                'quantity' => (int) $requestItem['quantity'],
+                'price' => (float) $orderItem->price,
+                'image' => $orderItem->image,
+                'sku' => $orderItem->sku,
+            ];
+
+            $requestedAmount += ((float) $orderItem->price * (int) $requestItem['quantity']);
+        }
+
+        $returnRequest = OrderReturn::query()->create([
+            'order_id' => $order->id,
+            'user_id' => $user->id,
+            'return_number' => 'RET-' . now()->format('Ymd') . '-' . Str::upper(Str::random(5)),
+            'status' => 'requested',
+            'reason' => $validated['reason'],
+            'customer_notes' => $validated['customer_notes'] ?? null,
+            'requested_items' => $normalizedItems,
+            'images' => $validated['images'] ?? [],
+            'requested_amount' => $requestedAmount,
+            'requested_at' => now(),
+        ]);
+
+        $order->trackingUpdates()->create([
+            'status' => 'Return Requested',
+            'location' => 'Customer Portal',
+            'message' => 'Customer created return request ' . $returnRequest->return_number . '.',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Return request submitted successfully.',
+            'data' => [
+                'return_number' => $returnRequest->return_number,
+                'status' => $returnRequest->status,
+            ],
+        ], 201);
     }
 
     /**
@@ -150,6 +259,18 @@ class CustomerOrderController
                     'location' => $track->location,
                     'message' => $track->message,
                     'created_at' => $track->created_at->toIso8601String(),
+                ];
+            }),
+            'returns' => $order->returns->map(function ($return) {
+                return [
+                    'id' => $return->id,
+                    'return_number' => $return->return_number,
+                    'status' => $return->status,
+                    'reason' => $return->reason,
+                    'requested_amount' => (float) $return->requested_amount,
+                    'approved_amount' => (float) $return->approved_amount,
+                    'requested_at' => optional($return->requested_at)->toIso8601String(),
+                    'resolved_at' => optional($return->resolved_at)->toIso8601String(),
                 ];
             }),
         ];

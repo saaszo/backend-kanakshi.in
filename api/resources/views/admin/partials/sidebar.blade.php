@@ -56,6 +56,10 @@
                 <i class="bi bi-grid-1x2"></i>
                 <span>Dashboard</span>
             </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" href="{{ route('admin.reports.index') }}">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>Reports</span>
+            </a>
         </nav>
     </div>
 
@@ -65,6 +69,10 @@
             <a class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
                 <i class="bi bi-cart-check"></i>
                 <span>Orders Management</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.returns.*') ? 'active' : '' }}" href="{{ route('admin.returns.index') }}">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Returns & Refunds</span>
             </a>
         </nav>
     </div>
