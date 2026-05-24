@@ -22,16 +22,14 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
-    Route::middleware('guest')->group(function (): void {
-        Route::get('/', [AdminAuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AdminAuthController::class, 'login'])->name('login.attempt');
-        Route::get('/verify-otp', [AdminAuthController::class, 'showVerifyOtp'])->name('verify-otp.form');
-        Route::post('/verify-otp', [AdminAuthController::class, 'verifyOtp'])->name('verify-otp.attempt');
-        Route::get('/forgot-password', [AdminAuthController::class, 'showForgotPassword'])->name('forgot-password.form');
-        Route::post('/forgot-password', [AdminAuthController::class, 'sendForgotPasswordOtp'])->name('forgot-password.send');
-        Route::get('/reset-password', [AdminAuthController::class, 'showResetPassword'])->name('reset-password.form');
-        Route::post('/reset-password', [AdminAuthController::class, 'resetPassword'])->name('reset-password.attempt');
-    });
+    Route::get('/', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.attempt');
+    Route::get('/verify-otp', [AdminAuthController::class, 'showVerifyOtp'])->name('verify-otp.form');
+    Route::post('/verify-otp', [AdminAuthController::class, 'verifyOtp'])->name('verify-otp.attempt');
+    Route::get('/forgot-password', [AdminAuthController::class, 'showForgotPassword'])->name('forgot-password.form');
+    Route::post('/forgot-password', [AdminAuthController::class, 'sendForgotPasswordOtp'])->name('forgot-password.send');
+    Route::get('/reset-password', [AdminAuthController::class, 'showResetPassword'])->name('reset-password.form');
+    Route::post('/reset-password', [AdminAuthController::class, 'resetPassword'])->name('reset-password.attempt');
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/dashboard', DashboardController::class)->name('dashboard');

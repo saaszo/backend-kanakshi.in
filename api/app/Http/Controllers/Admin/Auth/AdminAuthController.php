@@ -20,7 +20,11 @@ class AdminAuthController extends Controller
     public function showLogin(Request $request): View|RedirectResponse
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            if ($this->authenticatedUserCanAccessAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            $this->clearAuthenticatedSession($request);
         }
 
         return view('admin.auth.login');
@@ -236,6 +240,24 @@ class AdminAuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('admin.login');
+    }
+
+    private function authenticatedUserCanAccessAdmin(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            return false;
+        }
+
+        return in_array($user->role, ['super_admin', 'admin', 'manager', 'staff'], true);
+    }
+
+    private function clearAuthenticatedSession(Request $request): void
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
     }
 
     private function createOtp(int $userId, string $email, string $purpose): string
