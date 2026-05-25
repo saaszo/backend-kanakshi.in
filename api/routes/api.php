@@ -68,5 +68,22 @@ Route::prefix('v1')->group(function (): void {
 
     // Public Newsletter Signup
     Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterController::class, 'subscribe']);
+
+    // Warranty & Buyback Registry Routes
+    Route::prefix('registry')->group(function (): void {
+        Route::get('/products', [\App\Http\Controllers\Api\RegistryApiController::class, 'getProducts']);
+        Route::post('/register', [\App\Http\Controllers\Api\RegistryApiController::class, 'register']);
+        Route::get('/status', [\App\Http\Controllers\Api\RegistryApiController::class, 'getStatus']);
+        Route::post('/warranty-claim', [\App\Http\Controllers\Api\RegistryApiController::class, 'submitClaim']);
+        Route::post('/buyback-request', [\App\Http\Controllers\Api\RegistryApiController::class, 'submitBuyback']);
+    });
+
+    // Live Auctions Public API
+    Route::prefix('auctions')->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\Api\AuctionController::class, 'index']);
+        Route::get('/{id}', [\App\Http\Controllers\Api\AuctionController::class, 'show']);
+        Route::get('/{id}/bids', [\App\Http\Controllers\Api\AuctionController::class, 'bids']);
+        Route::post('/{id}/bid', [\App\Http\Controllers\Api\AuctionController::class, 'placeBid']);
+    });
 });
 

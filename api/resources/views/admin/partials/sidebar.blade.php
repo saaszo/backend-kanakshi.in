@@ -78,6 +78,38 @@
     </div>
 
     <div class="sidebar-group">
+        <div class="sidebar-label">Guarantees & Buybacks</div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.registry.registrations.*') ? 'active' : '' }}" href="{{ route('admin.registry.registrations.index') }}">
+                <i class="bi bi-shield-check"></i>
+                <span>Registrations</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.registry.claims.*') ? 'active' : '' }}" href="{{ route('admin.registry.claims.index') }}">
+                <i class="bi bi-wrench-adjustable"></i>
+                <span>Claims Queue</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.registry.buybacks.*') ? 'active' : '' }}" href="{{ route('admin.registry.buybacks.index') }}">
+                <i class="bi bi-safe2"></i>
+                <span>Buybacks Queue</span>
+            </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.registry.settings.*') ? 'active' : '' }}" href="{{ route('admin.registry.settings.edit') }}">
+                <i class="bi bi-sliders"></i>
+                <span>Registry Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="sidebar-group">
+        <div class="sidebar-label">Live Auctions</div>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link {{ request()->routeIs('admin.auctions.*') ? 'active' : '' }}" href="{{ route('admin.auctions.index') }}">
+                <i class="bi bi-gavel"></i>
+                <span>Auctions</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="sidebar-group">
         <div class="sidebar-label">Storefront Content</div>
         <nav class="sidebar-nav">
             <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.hero.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.hero.edit') }}">

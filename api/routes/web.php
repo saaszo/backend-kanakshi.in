@@ -76,6 +76,37 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/coupons', [CouponController::class, 'store'])->name('coupons.store');
         Route::put('/coupons/{coupon}', [CouponController::class, 'update'])->name('coupons.update');
         Route::delete('/coupons/{coupon}', [CouponController::class, 'destroy'])->name('coupons.destroy');
+
+        // Warranty & Buyback Registry Routes
+        Route::prefix('registry')->name('registry.')->group(function (): void {
+            Route::get('/registrations', [\App\Http\Controllers\Admin\RegistryController::class, 'index'])->name('registrations.index');
+            Route::get('/registrations/{registration}', [\App\Http\Controllers\Admin\RegistryController::class, 'show'])->name('registrations.show');
+            Route::post('/registrations/{registration}/verify', [\App\Http\Controllers\Admin\RegistryController::class, 'verify'])->name('registrations.verify');
+            Route::post('/registrations/{registration}/reject', [\App\Http\Controllers\Admin\RegistryController::class, 'reject'])->name('registrations.reject');
+            Route::put('/registrations/{registration}/notes', [\App\Http\Controllers\Admin\RegistryController::class, 'updateNotes'])->name('registrations.update-notes');
+
+            Route::get('/claims', [\App\Http\Controllers\Admin\RegistryController::class, 'claimsIndex'])->name('claims.index');
+            Route::get('/claims/{claim}', [\App\Http\Controllers\Admin\RegistryController::class, 'claimShow'])->name('claims.show');
+            Route::put('/claims/{claim}', [\App\Http\Controllers\Admin\RegistryController::class, 'updateClaim'])->name('claims.update');
+
+            Route::get('/buybacks', [\App\Http\Controllers\Admin\RegistryController::class, 'buybacksIndex'])->name('buybacks.index');
+            Route::get('/buybacks/{buyback}', [\App\Http\Controllers\Admin\RegistryController::class, 'buybackShow'])->name('buybacks.show');
+            Route::put('/buybacks/{buyback}', [\App\Http\Controllers\Admin\RegistryController::class, 'updateBuyback'])->name('buybacks.update');
+
+            Route::get('/settings', [\App\Http\Controllers\Admin\RegistryController::class, 'editSettings'])->name('settings.edit');
+            Route::put('/settings', [\App\Http\Controllers\Admin\RegistryController::class, 'updateSettings'])->name('settings.update');
+        });
+        // Live Auctions Admin Routes
+        Route::prefix('auctions')->name('auctions.')->group(function (): void {
+            Route::get('/', [\App\Http\Controllers\Admin\AuctionController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Admin\AuctionController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\AuctionController::class, 'store'])->name('store');
+            Route::get('/{auction}/edit', [\App\Http\Controllers\Admin\AuctionController::class, 'edit'])->name('edit');
+            Route::put('/{auction}', [\App\Http\Controllers\Admin\AuctionController::class, 'update'])->name('update');
+            Route::post('/{auction}/end', [\App\Http\Controllers\Admin\AuctionController::class, 'end'])->name('end');
+            Route::post('/{auction}/cancel', [\App\Http\Controllers\Admin\AuctionController::class, 'cancel'])->name('cancel');
+            Route::get('/{auction}/bids', [\App\Http\Controllers\Admin\AuctionController::class, 'bids'])->name('bids');
+        });
         Route::get('/homepage-products', [HomepageProductController::class, 'index'])->name('homepage-products.index');
         Route::put('/homepage-products/{sectionKey}', [HomepageProductController::class, 'update'])->name('homepage-products.update');
 
