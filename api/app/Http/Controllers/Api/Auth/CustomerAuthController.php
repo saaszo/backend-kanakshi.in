@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use RuntimeException;
 
@@ -53,7 +54,7 @@ class CustomerAuthController
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
@@ -64,6 +65,29 @@ class CustomerAuthController
 
             if ($requiresEmailVerification) {
                 $this->ensureCustomerVerificationCanSend('verification');
+                $email = strtolower($validated['email']);
+                $this->upsertPendingRegistration($validated);
+                DB::table('otp_codes')
+                    ->whereNull('user_id')
+                    ->where('email', $email)
+                    ->where('purpose', self::EMAIL_VERIFICATION_OTP_PURPOSE)
+                    ->delete();
+
+                $otp = $this->createOtp(null, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
+                $this->sendCustomerMail(
+                    $email,
+                    'Verify your Little Divinity account',
+                    "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Registration received. Please verify your email with the OTP we sent before your account is created.',
+                    'data' => [
+                        'user' => null,
+                        'requires_verification' => true,
+                    ],
+                ], 201);
             }
 
             $user = User::query()->create([
@@ -75,49 +99,27 @@ class CustomerAuthController
                 'is_active' => true,
                 'two_factor_enabled' => false,
                 'password' => $validated['password'],
-                'email_verified_at' => $requiresEmailVerification ? null : now(),
+                'email_verified_at' => now(),
             ]);
 
-            try {
-                if ($requiresEmailVerification) {
-                    $otp = $this->createOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
-                    $this->sendCustomerMail(
-                        $user->email,
-                        'Verify your Little Divinity account',
-                        "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
-                    );
-                } elseif ($this->canSendCustomerMail('account_creation')) {
+            if ($this->canSendCustomerMail('account_creation')) {
+                try {
                     $this->sendCustomerMail(
                         $user->email,
                         'Welcome to Little Divinity',
                         "Your account has been created successfully.\n\nTeam Little Divinity"
                     );
+                } catch (RuntimeException) {
+                    // Non-critical welcome email failures should not invalidate a successful account creation.
                 }
-            } catch (RuntimeException $exception) {
-                if ($requiresEmailVerification) {
-                    DB::table('otp_codes')
-                        ->where('user_id', $user->id)
-                        ->where('purpose', self::EMAIL_VERIFICATION_OTP_PURPOSE)
-                        ->delete();
-                    $user->delete();
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => $exception->getMessage(),
-                    ], 503);
-                }
-
-                // Non-critical welcome email failures should not invalidate a successful account creation.
             }
 
             return response()->json([
                 'success' => true,
-                'message' => $requiresEmailVerification
-                    ? 'Account created. Please verify your email with the OTP we sent.'
-                    : 'Account created successfully.',
+                'message' => 'Account created successfully.',
                 'data' => [
                     'user' => $this->serializeUser($user->fresh()),
-                    'requires_verification' => $requiresEmailVerification,
+                    'requires_verification' => false,
                 ],
             ], 201);
         } catch (RuntimeException $exception) {
@@ -220,19 +222,21 @@ class CustomerAuthController
             'email' => ['required', 'email'],
         ]);
 
+        $email = strtolower($validated['email']);
+        $pending = $this->pendingRegistration($email);
         $user = User::query()
-            ->where('email', strtolower($validated['email']))
+            ->where('email', $email)
             ->where('role', 'customer')
             ->first();
 
-        if (! $user) {
+        if (! $pending && ! $user) {
             return response()->json([
                 'success' => true,
                 'message' => 'If this email is eligible, a fresh verification OTP has been sent.',
             ]);
         }
 
-        if ($user->email_verified_at) {
+        if ($user?->email_verified_at) {
             return response()->json([
                 'success' => false,
                 'message' => 'This email is already verified.',
@@ -241,11 +245,11 @@ class CustomerAuthController
 
         try {
             $this->ensureCustomerVerificationCanSend('verification');
-            $this->ensureOtpResendCooldown($user->id, self::EMAIL_VERIFICATION_OTP_PURPOSE);
+            $this->ensureOtpResendCooldown($user?->id, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
 
-            $otp = $this->createOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
+            $otp = $this->createOtp($user?->id, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
             $this->sendCustomerMail(
-                $user->email,
+                $email,
                 'Verify your Little Divinity account',
                 "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
             );
@@ -269,19 +273,21 @@ class CustomerAuthController
             'code' => ['required', 'string'],
         ]);
 
+        $email = strtolower($validated['email']);
+        $pending = $this->pendingRegistration($email);
         $user = User::query()
-            ->where('email', strtolower($validated['email']))
+            ->where('email', $email)
             ->where('role', 'customer')
             ->first();
 
-        if (! $user) {
+        if (! $pending && ! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'The OTP is invalid or expired.',
             ], 422);
         }
 
-        $otp = $this->resolveValidOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE, $validated['code']);
+        $otp = $this->resolveValidOtp($user?->id, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE, $validated['code']);
 
         if (! $otp) {
             return response()->json([
@@ -290,9 +296,38 @@ class CustomerAuthController
             ], 422);
         }
 
-        $user->forceFill([
-            'email_verified_at' => now(),
-        ])->save();
+        if (! $user) {
+            if (! $pending) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The OTP is invalid or expired.',
+                ], 422);
+            }
+
+            $user = DB::transaction(function () use ($pending): User {
+                $createdUser = User::query()->create([
+                    'name' => $pending->name,
+                    'email' => $pending->email,
+                    'phone' => $pending->phone,
+                    'role' => 'customer',
+                    'status' => 'active',
+                    'is_active' => true,
+                    'two_factor_enabled' => false,
+                    'password' => $pending->password_hash,
+                    'email_verified_at' => now(),
+                ]);
+
+                DB::table('pending_customer_registrations')
+                    ->where('id', $pending->id)
+                    ->delete();
+
+                return $createdUser;
+            });
+        } else {
+            $user->forceFill([
+                'email_verified_at' => now(),
+            ])->save();
+        }
 
         $this->markOtpUsed((int) $otp->id);
         [$plainTextToken, $token] = $this->issueToken($user);
@@ -490,7 +525,7 @@ class CustomerAuthController
         return (int) ($this->verificationSettings()?->resend_wait_seconds ?? 60);
     }
 
-    private function createOtp(int $userId, string $email, string $purpose): string
+    private function createOtp(?int $userId, string $email, string $purpose): string
     {
         $length = max(4, min(8, $this->otpLength()));
         $min = 10 ** ($length - 1);
@@ -512,13 +547,20 @@ class CustomerAuthController
         return $code;
     }
 
-    private function ensureOtpResendCooldown(int $userId, string $purpose): void
+    private function ensureOtpResendCooldown(?int $userId, string $email, string $purpose): void
     {
-        $lastOtp = DB::table('otp_codes')
-            ->where('user_id', $userId)
+        $query = DB::table('otp_codes')
+            ->where('email', $email)
             ->where('purpose', $purpose)
-            ->orderByDesc('id')
-            ->first();
+            ->orderByDesc('id');
+
+        if ($userId === null) {
+            $query->whereNull('user_id');
+        } else {
+            $query->where('user_id', $userId);
+        }
+
+        $lastOtp = $query->first();
 
         if (! $lastOtp) {
             return;
@@ -536,30 +578,42 @@ class CustomerAuthController
         }
     }
 
-    private function findOtp(int $userId, string $email, string $purpose, string $code): ?object
+    private function findOtp(?int $userId, string $email, string $purpose, string $code): ?object
     {
-        return DB::table('otp_codes')
-            ->where('user_id', $userId)
+        $query = DB::table('otp_codes')
             ->where('email', $email)
             ->where('purpose', $purpose)
             ->where('code', $code)
             ->whereNull('used_at')
             ->where('expires_at', '>', now())
             ->whereColumn('attempts', '<', 'max_attempts')
-            ->orderByDesc('id')
-            ->first();
+            ->orderByDesc('id');
+
+        if ($userId === null) {
+            $query->whereNull('user_id');
+        } else {
+            $query->where('user_id', $userId);
+        }
+
+        return $query->first();
     }
 
-    private function resolveValidOtp(int $userId, string $email, string $purpose, string $code): ?object
+    private function resolveValidOtp(?int $userId, string $email, string $purpose, string $code): ?object
     {
-        $latestOtp = DB::table('otp_codes')
-            ->where('user_id', $userId)
+        $query = DB::table('otp_codes')
             ->where('email', $email)
             ->where('purpose', $purpose)
             ->whereNull('used_at')
             ->where('expires_at', '>', now())
-            ->orderByDesc('id')
-            ->first();
+            ->orderByDesc('id');
+
+        if ($userId === null) {
+            $query->whereNull('user_id');
+        } else {
+            $query->where('user_id', $userId);
+        }
+
+        $latestOtp = $query->first();
 
         if (! $latestOtp) {
             return null;
@@ -628,5 +682,31 @@ class CustomerAuthController
     private function sendCustomerMail(string $email, string $subject, string $body): void
     {
         app(CustomerEmailService::class)->sendAuthMail($email, $subject, $body);
+    }
+
+    private function pendingRegistration(string $email): ?object
+    {
+        return DB::table('pending_customer_registrations')
+            ->where('email', $email)
+            ->where('expires_at', '>', now())
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    private function upsertPendingRegistration(array $validated): void
+    {
+        $email = strtolower($validated['email']);
+
+        DB::table('pending_customer_registrations')->updateOrInsert(
+            ['email' => $email],
+            [
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null,
+                'password_hash' => Hash::make($validated['password']),
+                'expires_at' => now()->addMinutes($this->otpExpiryMinutes()),
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
     }
 }
