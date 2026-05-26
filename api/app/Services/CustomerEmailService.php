@@ -9,6 +9,14 @@ use RuntimeException;
 
 class CustomerEmailService
 {
+    public const AUTH_FROM_NAME = 'Little Divinity';
+
+    public const AUTH_FROM_EMAIL = 'noreply@littledivinity.com';
+
+    public const ORDER_FROM_NAME = 'Little Divinity Orders';
+
+    public const ORDER_FROM_EMAIL = 'order@littledivinity.com';
+
     public function canSendAuthEvent(string $event): bool
     {
         $settings = CustomerEmailSetting::query()->first();
@@ -104,34 +112,26 @@ class CustomerEmailService
     private function resolveProfile(CustomerEmailSetting $settings, string $channel): array
     {
         $legacySettings = EmailSetting::query()->first();
-        $defaultFromName = config('mail.from.name', 'Little Divinity');
-        $defaultFromEmail = config('mail.from.address');
         $defaultHost = config('mail.mailers.smtp.host');
         $defaultPort = config('mail.mailers.smtp.port');
         $defaultEncryption = config('mail.mailers.smtp.encryption');
         $defaultUsername = config('mail.mailers.smtp.username');
         $defaultPassword = config('mail.mailers.smtp.password');
 
-        $legacyFromName = $legacySettings?->from_name ?: $defaultFromName;
-        $legacyFromEmail = $legacySettings?->from_email ?: $defaultFromEmail;
-        $legacyReplyToEmail = $legacySettings?->reply_to_email ?: $legacyFromEmail;
         $legacyHost = $legacySettings?->smtp_host ?: $defaultHost;
         $legacyPort = $legacySettings?->smtp_port ?: $defaultPort;
         $legacyEncryption = $legacySettings?->smtp_encryption ?: $defaultEncryption;
         $legacyUsername = $legacySettings?->smtp_username ?: $defaultUsername;
         $legacyPassword = $legacySettings?->smtp_password ?: $defaultPassword;
 
-        $hasDedicatedAuthIdentity = filled($settings->from_email);
         $hasDedicatedAuthTransport = filled($settings->smtp_host)
             && filled($settings->smtp_port)
             && filled($settings->smtp_username)
             && filled($settings->smtp_password);
 
-        $authFromName = $hasDedicatedAuthIdentity ? ($settings->from_name ?: $legacyFromName) : $legacyFromName;
-        $authFromEmail = $hasDedicatedAuthIdentity ? $settings->from_email : $legacyFromEmail;
-        $authReplyToEmail = $hasDedicatedAuthIdentity
-            ? ($settings->reply_to_email ?: $authFromEmail ?: $legacyReplyToEmail)
-            : $legacyReplyToEmail;
+        $authFromName = self::AUTH_FROM_NAME;
+        $authFromEmail = self::AUTH_FROM_EMAIL;
+        $authReplyToEmail = self::AUTH_FROM_EMAIL;
         $authUsername = $hasDedicatedAuthTransport
             ? ($settings->smtp_username ?: $authFromEmail ?: $legacyUsername)
             : $legacyUsername;
@@ -153,17 +153,14 @@ class CustomerEmailService
             ];
         }
 
-        $hasDedicatedOrderIdentity = filled($settings->order_from_email);
         $hasDedicatedOrderTransport = filled($settings->smtp_host)
             && filled($settings->smtp_port)
             && filled($settings->order_smtp_username)
             && filled($settings->order_smtp_password);
 
-        $orderFromName = $hasDedicatedOrderIdentity ? ($settings->order_from_name ?: $authFromName) : $authFromName;
-        $orderFromEmail = $hasDedicatedOrderIdentity ? $settings->order_from_email : $authFromEmail;
-        $orderReplyToEmail = $hasDedicatedOrderIdentity
-            ? ($settings->order_reply_to_email ?: $orderFromEmail ?: $authReplyToEmail)
-            : $authReplyToEmail;
+        $orderFromName = self::ORDER_FROM_NAME;
+        $orderFromEmail = self::ORDER_FROM_EMAIL;
+        $orderReplyToEmail = self::ORDER_FROM_EMAIL;
         $orderUsername = $hasDedicatedOrderTransport
             ? ($settings->order_smtp_username ?: $orderFromEmail ?: $authUsername)
             : $authUsername;

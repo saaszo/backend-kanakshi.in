@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerEmailSetting;
 use App\Models\OtpProviderSetting;
 use App\Models\OtpVerificationSetting;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,6 +19,16 @@ class EmailOtpVerificationController extends Controller
             'emailSettings' => CustomerEmailSetting::query()->first(),
             'verificationSettings' => OtpVerificationSetting::query()->first(),
             'providers' => OtpProviderSetting::query()->orderByDesc('is_default')->orderBy('display_name')->get(),
+            'lockedMailRoutes' => [
+                'auth' => [
+                    'name' => CustomerEmailService::AUTH_FROM_NAME,
+                    'email' => CustomerEmailService::AUTH_FROM_EMAIL,
+                ],
+                'order' => [
+                    'name' => CustomerEmailService::ORDER_FROM_NAME,
+                    'email' => CustomerEmailService::ORDER_FROM_EMAIL,
+                ],
+            ],
         ]);
     }
 
@@ -25,28 +36,7 @@ class EmailOtpVerificationController extends Controller
     {
         $existing = CustomerEmailSetting::query()->first();
         $validated = $request->validate([
-            'from_name' => ['nullable', 'string', 'max:150'],
-            'from_email' => ['nullable', 'email', 'max:150'],
-            'reply_to_email' => ['nullable', 'email', 'max:150'],
-            'order_from_name' => ['nullable', 'string', 'max:150'],
-            'order_from_email' => ['nullable', 'email', 'max:150'],
-            'order_reply_to_email' => ['nullable', 'email', 'max:150'],
-            'smtp_host' => ['nullable', 'string', 'max:150'],
-            'smtp_port' => ['nullable', 'integer'],
-            'smtp_encryption' => ['nullable', 'string', 'max:20'],
-            'smtp_username' => ['nullable', 'string', 'max:150'],
-            'smtp_password' => ['nullable', 'string'],
-            'order_smtp_username' => ['nullable', 'string', 'max:150'],
-            'order_smtp_password' => ['nullable', 'string'],
         ]);
-
-        if (($validated['smtp_password'] ?? null) === null || $validated['smtp_password'] === '') {
-            $validated['smtp_password'] = $existing?->smtp_password;
-        }
-
-        if (($validated['order_smtp_password'] ?? null) === null || $validated['order_smtp_password'] === '') {
-            $validated['order_smtp_password'] = $existing?->order_smtp_password;
-        }
 
         $validated['send_account_creation_emails'] = $request->boolean('send_account_creation_emails');
         $validated['send_email_verification_emails'] = $request->boolean('send_email_verification_emails');
@@ -54,9 +44,26 @@ class EmailOtpVerificationController extends Controller
         $validated['send_order_emails'] = $request->boolean('send_order_emails');
         $validated['is_active'] = $request->boolean('is_active');
 
-        CustomerEmailSetting::query()->updateOrCreate(['id' => 1], $validated);
+        CustomerEmailSetting::query()->updateOrCreate(
+            ['id' => 1],
+            $validated + [
+                'from_name' => CustomerEmailService::AUTH_FROM_NAME,
+                'from_email' => CustomerEmailService::AUTH_FROM_EMAIL,
+                'reply_to_email' => CustomerEmailService::AUTH_FROM_EMAIL,
+                'order_from_name' => CustomerEmailService::ORDER_FROM_NAME,
+                'order_from_email' => CustomerEmailService::ORDER_FROM_EMAIL,
+                'order_reply_to_email' => CustomerEmailService::ORDER_FROM_EMAIL,
+                'smtp_host' => $existing?->smtp_host,
+                'smtp_port' => $existing?->smtp_port,
+                'smtp_encryption' => $existing?->smtp_encryption,
+                'smtp_username' => $existing?->smtp_username,
+                'smtp_password' => $existing?->smtp_password,
+                'order_smtp_username' => $existing?->order_smtp_username,
+                'order_smtp_password' => $existing?->order_smtp_password,
+            ]
+        );
 
-        return back()->with('status', 'Customer email settings updated successfully.');
+        return back()->with('status', 'Customer email routing and delivery toggles updated successfully.');
     }
 
     public function updateVerification(Request $request): RedirectResponse

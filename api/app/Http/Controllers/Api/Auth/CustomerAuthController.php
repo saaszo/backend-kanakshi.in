@@ -376,7 +376,7 @@ class CustomerAuthController
 
         try {
             $this->ensureCustomerVerificationCanSend('password_reset');
-            $this->ensureOtpResendCooldown($user->id, self::PASSWORD_RESET_OTP_PURPOSE);
+            $this->ensureOtpResendCooldown($user->id, $user->email, self::PASSWORD_RESET_OTP_PURPOSE);
 
             $otp = $this->createOtp($user->id, $user->email, self::PASSWORD_RESET_OTP_PURPOSE);
             $this->sendCustomerMail(
