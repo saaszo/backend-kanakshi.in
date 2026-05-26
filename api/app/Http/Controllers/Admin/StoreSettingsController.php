@@ -103,6 +103,8 @@ class StoreSettingsController extends Controller
             'sort_order' => ['nullable', 'integer'],
             'extra_config_text' => ['nullable', 'string'],
         ]);
+        $isActive = $request->boolean('is_active');
+        $isTestMode = $request->boolean('is_test_mode');
 
         $extraConfig = trim((string) ($validated['extra_config_text'] ?? ''));
         unset($validated['extra_config_text']);
@@ -122,9 +124,19 @@ class StoreSettingsController extends Controller
             }
         }
 
+        if ($gateway->provider === 'razorpay' && $isActive && ! $isTestMode) {
+            if (blank($validated['public_key']) || blank($validated['secret_key']) || blank($validated['webhook_secret'])) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'public_key' => 'Razorpay live mode requires Key ID, Key Secret, and Webhook Secret.',
+                    ]);
+            }
+        }
+
         $gateway->update($validated + [
-            'is_active' => $request->boolean('is_active'),
-            'is_test_mode' => $request->boolean('is_test_mode'),
+            'is_active' => $isActive,
+            'is_test_mode' => $isTestMode,
         ]);
 
         return back()->with('status', "{$gateway->display_name} settings updated.");

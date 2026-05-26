@@ -6,6 +6,7 @@ use App\Models\CustomerAccessToken;
 use App\Models\CustomerEmailSetting;
 use App\Models\OtpProviderSetting;
 use App\Models\OtpVerificationSetting;
+use App\Services\CustomerEmailService;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,9 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use RuntimeException;
 
@@ -620,57 +619,11 @@ class CustomerAuthController
 
     private function canSendCustomerMail(string $event): bool
     {
-        $emailSettings = CustomerEmailSetting::query()->first();
-
-        if (! $emailSettings?->is_active) {
-            return false;
-        }
-
-        return match ($event) {
-            'account_creation' => (bool) $emailSettings->send_account_creation_emails,
-            'verification' => (bool) $emailSettings->send_email_verification_emails,
-            'password_reset' => (bool) $emailSettings->send_password_reset_emails,
-            default => false,
-        };
+        return app(CustomerEmailService::class)->canSendAuthEvent($event);
     }
 
     private function sendCustomerMail(string $email, string $subject, string $body): void
     {
-        $settings = CustomerEmailSetting::query()->first();
-
-        if (! $settings?->is_active) {
-            throw new RuntimeException('Customer email delivery is not configured right now.');
-        }
-
-        $smtpPassword = $settings->smtp_password;
-        $smtpScheme = match (strtolower((string) $settings->smtp_encryption)) {
-            'ssl' => 'smtps',
-            'tls' => 'tls',
-            default => null,
-        };
-
-        config([
-            'mail.default' => 'smtp',
-            'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $settings->smtp_host,
-            'mail.mailers.smtp.port' => $settings->smtp_port,
-            'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $settings->smtp_encryption,
-            'mail.mailers.smtp.username' => $settings->smtp_username,
-            'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $settings->from_email,
-            'mail.from.name' => $settings->from_name ?: 'Little Divinity',
-        ]);
-
-        try {
-            Mail::raw($body, function ($message) use ($email, $settings, $subject): void {
-                $message->to($email)
-                    ->from($settings->from_email, $settings->from_name ?: 'Little Divinity')
-                    ->replyTo($settings->reply_to_email ?: $settings->from_email)
-                    ->subject($subject);
-            });
-        } catch (\Throwable $throwable) {
-            throw new RuntimeException('Unable to send customer email right now. Please verify email and OTP settings.');
-        }
+        app(CustomerEmailService::class)->sendAuthMail($email, $subject, $body);
     }
 }

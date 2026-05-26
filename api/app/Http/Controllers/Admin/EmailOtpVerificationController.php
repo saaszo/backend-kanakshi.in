@@ -28,15 +28,24 @@ class EmailOtpVerificationController extends Controller
             'from_name' => ['nullable', 'string', 'max:150'],
             'from_email' => ['nullable', 'email', 'max:150'],
             'reply_to_email' => ['nullable', 'email', 'max:150'],
+            'order_from_name' => ['nullable', 'string', 'max:150'],
+            'order_from_email' => ['nullable', 'email', 'max:150'],
+            'order_reply_to_email' => ['nullable', 'email', 'max:150'],
             'smtp_host' => ['nullable', 'string', 'max:150'],
             'smtp_port' => ['nullable', 'integer'],
             'smtp_encryption' => ['nullable', 'string', 'max:20'],
             'smtp_username' => ['nullable', 'string', 'max:150'],
             'smtp_password' => ['nullable', 'string'],
+            'order_smtp_username' => ['nullable', 'string', 'max:150'],
+            'order_smtp_password' => ['nullable', 'string'],
         ]);
 
         if (($validated['smtp_password'] ?? null) === null || $validated['smtp_password'] === '') {
             $validated['smtp_password'] = $existing?->smtp_password;
+        }
+
+        if (($validated['order_smtp_password'] ?? null) === null || $validated['order_smtp_password'] === '') {
+            $validated['order_smtp_password'] = $existing?->order_smtp_password;
         }
 
         $validated['send_account_creation_emails'] = $request->boolean('send_account_creation_emails');

@@ -39,6 +39,7 @@ class Order extends Model
             'tax' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'pending_access_expires_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

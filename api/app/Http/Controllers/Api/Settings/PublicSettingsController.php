@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Settings;
 
 use App\Models\MenuItem;
+use App\Models\PaymentGatewaySetting;
 use App\Models\SocialLink;
 use App\Models\Setting;
 use App\Models\StoreSetting;
@@ -33,6 +34,12 @@ class PublicSettingsController
                 : collect();
             $socialLinks = Schema::hasTable('social_links')
                 ? SocialLink::query()->where('is_active', true)->orderBy('sort_order')->get()
+                : collect();
+            $paymentGateways = Schema::hasTable('payment_gateway_settings')
+                ? PaymentGatewaySetting::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->get(['provider', 'display_name', 'is_test_mode'])
                 : collect();
             $topbarOffers = collect(json_decode($store?->topbar_offers ?? '[]', true) ?: [])
                 ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
@@ -68,6 +75,7 @@ class PublicSettingsController
                     'header_menu' => $headerMenu->values(),
                     'footer_menu' => $footerMenu->values(),
                     'social_links' => $socialLinks->values(),
+                    'payment_gateways' => $paymentGateways->values(),
                     'min_order_free_shipping' => '499',
                 ],
             ]);

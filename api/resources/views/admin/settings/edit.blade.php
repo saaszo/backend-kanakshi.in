@@ -209,7 +209,7 @@
                                             </small>
                                         @elseif ($gateway->provider === 'razorpay')
                                             <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">
-                                                Razorpay live mode needs Key ID in <code>public_key</code>, Key Secret in <code>secret_key</code>, and Webhook Secret in <code>webhook_secret</code>.
+                                                Razorpay live mode needs Key ID in <code>public_key</code>, Key Secret in <code>secret_key</code>, and Webhook Secret in <code>webhook_secret</code>. Webhook URL: <code>{{ url('/api/v1/checkout/webhooks/razorpay') }}</code>. Orders from this storefront are sent with receipts like <code>LD-20260525-ABCDE</code>.
                                             </small>
                                         @endif
                                     </div>

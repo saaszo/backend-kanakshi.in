@@ -8,9 +8,11 @@ use App\Models\Order;
 use App\Models\OrderTracking;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -130,6 +132,19 @@ class OrderController extends Controller
             }
         });
 
+        if ($oldStatus !== $newStatus) {
+            $freshOrder = $order->fresh('items');
+            $this->sendOrderMailSafely(
+                $freshOrder,
+                'Your Little Divinity order status was updated',
+                $this->buildOrderMailBody(
+                    $freshOrder,
+                    ($freshOrder ? ucfirst($freshOrder->status) : ucfirst($newStatus)) . ' update: '
+                    . ($freshOrder?->trackingUpdates()->latest()->value('message') ?: 'Your order status has changed.')
+                )
+            );
+        }
+
         return back()->with('status', 'Order and payment status updated successfully.');
     }
 
@@ -169,6 +184,17 @@ class OrderController extends Controller
             ]);
         });
 
+        $freshOrder = $order->fresh('items');
+        $trackingUrl = $freshOrder?->tracking_url ? "\nTracking URL: {$freshOrder->tracking_url}" : '';
+        $this->sendOrderMailSafely(
+            $freshOrder,
+            'Your Little Divinity order has been shipped',
+            $this->buildOrderMailBody(
+                $freshOrder,
+                "Your order has been shipped.\nTracking Number: {$freshOrder?->tracking_number}{$trackingUrl}"
+            )
+        );
+
         return back()->with('status', 'Courier tracking information assigned and order marked as shipped.');
     }
 
@@ -187,7 +213,73 @@ class OrderController extends Controller
             'message' => $validated['message'],
         ]);
 
+        $freshOrder = $order->fresh('items');
+        $this->sendOrderMailSafely(
+            $freshOrder,
+            'A new Little Divinity tracking update is available',
+            $this->buildOrderMailBody(
+                $freshOrder,
+                ($validated['message'] ?: 'A new manual tracking milestone was added to your order.')
+                . "\nStatus: {$validated['status']}"
+                . ($validated['location'] ? "\nLocation: {$validated['location']}" : '')
+            )
+        );
+
         return back()->with('status', 'Manual order tracking milestone added successfully.');
+    }
+
+    private function buildOrderMailBody(?Order $order, string $headline): string
+    {
+        if (! $order) {
+            return $headline . "\n\nTeam Little Divinity";
+        }
+
+        $itemsSummary = $order->relationLoaded('items')
+            ? $order->items->map(fn ($item) => "{$item->name} x {$item->quantity}")->implode("\n")
+            : '';
+
+        $lines = [
+            "Hello {$order->ship_name},",
+            '',
+            $headline,
+            '',
+            "Order Number: {$order->order_number}",
+            "Order Status: " . ucfirst((string) $order->status),
+            "Payment Status: " . ucfirst((string) $order->payment_status),
+        ];
+
+        if ($itemsSummary !== '') {
+            $lines[] = '';
+            $lines[] = 'Items:';
+            $lines[] = $itemsSummary;
+        }
+
+        $lines[] = '';
+        $lines[] = 'Team Little Divinity';
+
+        return implode("\n", $lines);
+    }
+
+    private function sendOrderMailSafely(?Order $order, string $subject, string $body): void
+    {
+        if (! $order) {
+            return;
+        }
+
+        try {
+            $service = app(CustomerEmailService::class);
+            if (! $service->canSendOrderEmails()) {
+                return;
+            }
+
+            $service->sendOrderMail($order->ship_email, $subject, $body);
+        } catch (\Throwable $throwable) {
+            Log::warning('Order stage email delivery failed.', [
+                'order_number' => $order->order_number,
+                'subject' => $subject,
+                'error' => $throwable->getMessage(),
+            ]);
+        }
     }
 
     private function restoreInventoryForOrder(Order $order): void

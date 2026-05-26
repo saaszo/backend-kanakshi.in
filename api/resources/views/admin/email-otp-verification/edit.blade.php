@@ -34,19 +34,37 @@
                 <div class="section-grid">
                     <section class="panel">
                         <h3>Customer Email Delivery</h3>
-                        <p>Leave these fields blank until Little Divinity shares the official sending email account. These settings will be used for customer signup, verification, forgot password, and order emails only.</p>
+                        <p>Use the customer auth sender for signup, verification, and forgot password. Use the order sender for invoice, order confirmation, shipping, and delivery updates. Admin OTP stays on the separate Saaszo-managed mailbox.</p>
                         <form method="POST" action="{{ route('admin.email-otp.email.update') }}" class="section-grid">
                             @csrf
                             @method('PUT')
+                            <h4 style="margin:0;">Customer Auth Sender</h4>
                             <div class="form-grid">
                                 <div class="field"><label>From Name</label><input name="from_name" value="{{ old('from_name', $emailSettings?->from_name) }}" placeholder="Little Divinity" /></div>
-                                <div class="field"><label>From Email</label><input type="email" name="from_email" value="{{ old('from_email', $emailSettings?->from_email) }}" placeholder="support@littledivinity.com" /></div>
-                                <div class="field"><label>Reply To Email</label><input type="email" name="reply_to_email" value="{{ old('reply_to_email', $emailSettings?->reply_to_email) }}" placeholder="support@littledivinity.com" /></div>
+                                <div class="field"><label>From Email</label><input type="email" name="from_email" value="{{ old('from_email', $emailSettings?->from_email) }}" placeholder="noreply@littledivinity.com" /></div>
+                                <div class="field"><label>Reply To Email</label><input type="email" name="reply_to_email" value="{{ old('reply_to_email', $emailSettings?->reply_to_email) }}" placeholder="noreply@littledivinity.com" /></div>
+                            </div>
+                            <h4 style="margin:8px 0 0;">Shared SMTP</h4>
+                            <div class="form-grid">
                                 <div class="field"><label>SMTP Host</label><input name="smtp_host" value="{{ old('smtp_host', $emailSettings?->smtp_host) }}" placeholder="smtp.example.com" /></div>
                                 <div class="field"><label>SMTP Port</label><input name="smtp_port" value="{{ old('smtp_port', $emailSettings?->smtp_port) }}" placeholder="465" /></div>
                                 <div class="field"><label>SMTP Encryption</label><input name="smtp_encryption" value="{{ old('smtp_encryption', $emailSettings?->smtp_encryption) }}" placeholder="ssl / tls" /></div>
-                                <div class="field"><label>SMTP Username</label><input name="smtp_username" value="{{ old('smtp_username', $emailSettings?->smtp_username) }}" placeholder="support@littledivinity.com" /></div>
+                            </div>
+                            <h4 style="margin:8px 0 0;">Auth SMTP Login</h4>
+                            <div class="form-grid">
+                                <div class="field"><label>SMTP Username</label><input name="smtp_username" value="{{ old('smtp_username', $emailSettings?->smtp_username) }}" placeholder="noreply@littledivinity.com" /></div>
                                 <div class="field"><label>SMTP Password</label><input type="password" name="smtp_password" value="{{ old('smtp_password') }}" placeholder="Saved password stays unchanged if left blank" /></div>
+                            </div>
+                            <h4 style="margin:8px 0 0;">Order Sender</h4>
+                            <div class="form-grid">
+                                <div class="field"><label>From Name</label><input name="order_from_name" value="{{ old('order_from_name', $emailSettings?->order_from_name) }}" placeholder="Little Divinity Orders" /></div>
+                                <div class="field"><label>From Email</label><input type="email" name="order_from_email" value="{{ old('order_from_email', $emailSettings?->order_from_email) }}" placeholder="order@littledivinity.com" /></div>
+                                <div class="field"><label>Reply To Email</label><input type="email" name="order_reply_to_email" value="{{ old('order_reply_to_email', $emailSettings?->order_reply_to_email) }}" placeholder="order@littledivinity.com" /></div>
+                            </div>
+                            <h4 style="margin:8px 0 0;">Order SMTP Login</h4>
+                            <div class="form-grid">
+                                <div class="field"><label>SMTP Username</label><input name="order_smtp_username" value="{{ old('order_smtp_username', $emailSettings?->order_smtp_username) }}" placeholder="order@littledivinity.com" /></div>
+                                <div class="field"><label>SMTP Password</label><input type="password" name="order_smtp_password" value="{{ old('order_smtp_password') }}" placeholder="Leave blank to keep saved password" /></div>
                             </div>
                             <div class="button-row" style="flex-wrap:wrap;">
                                 <label class="checkbox-row"><input type="checkbox" name="send_account_creation_emails" value="1" @checked(old('send_account_creation_emails', $emailSettings?->send_account_creation_emails))> <span>Account creation emails</span></label>
@@ -56,7 +74,7 @@
                                 <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $emailSettings?->is_active))> <span>Email delivery active</span></label>
                             </div>
                             <div class="button-row">
-                                <button type="submit" class="button small">Save Customer Email Settings</button>
+                                <button type="submit" class="button small">Save Customer Mail Settings</button>
                             </div>
                         </form>
                     </section>

@@ -11,6 +11,7 @@ use App\Models\Coupon;
 use App\Models\CustomerAccessToken;
 use App\Models\PaymentGatewaySetting;
 use App\Models\User;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -186,9 +187,8 @@ class CheckoutController
                 }
 
                 // Step 3: Shipping calculations
-                // Flat ₹99 shipping, free for net totals of ₹999 or more
                 $netSubtotal = $subtotal - $discount;
-                $shippingCost = $netSubtotal >= 999 ? 0.00 : 99.00;
+                $shippingCost = $netSubtotal >= $this->shippingThreshold() ? 0.00 : $this->defaultShippingCost();
                 
                 // Final order amount
                 $totalAmount = $netSubtotal + $shippingCost;
@@ -245,11 +245,14 @@ class CheckoutController
                 }
 
                 if ($validated['payment_method'] === 'razorpay' && $gatewaySetting) {
+                    $pendingAccessToken = $this->issuePendingOrderAccessToken($order);
+
                     $gatewayConfig = [
                         'public_key' => $gatewaySetting->public_key,
                         'merchant_id' => $gatewaySetting->merchant_id,
                         'is_test_mode' => (bool) $gatewaySetting->is_test_mode,
                         'provider_order_id' => null,
+                        'pending_access_token' => $pendingAccessToken,
                     ];
 
                     if (!$gatewaySetting->is_test_mode) {
@@ -263,16 +266,19 @@ class CheckoutController
                         ])->save();
                     }
                 } elseif ($validated['payment_method'] === 'phonepe' && $gatewaySetting) {
+                    $pendingAccessToken = $this->issuePendingOrderAccessToken($order);
+
                     $gatewayConfig = [
                         'public_key' => $gatewaySetting->public_key,
                         'merchant_id' => $gatewaySetting->merchant_id,
                         'is_test_mode' => (bool) $gatewaySetting->is_test_mode,
                         'provider_order_id' => null,
                         'checkout_url' => null,
+                        'pending_access_token' => $pendingAccessToken,
                     ];
 
                     if (!$gatewaySetting->is_test_mode) {
-                        $phonePeCheckout = $this->createPhonePeCheckoutSession($order, $gatewaySetting);
+                        $phonePeCheckout = $this->createPhonePeCheckoutSession($order, $gatewaySetting, $pendingAccessToken);
                         $gatewayConfig['provider_order_id'] = $phonePeCheckout['provider_order_id'];
                         $gatewayConfig['checkout_url'] = $phonePeCheckout['checkout_url'];
                         $order->forceFill([
@@ -290,6 +296,17 @@ class CheckoutController
                         ? 'Order initialized. Awaiting secure online payment confirmation.' 
                         : 'Order has been successfully placed. COD verification or payment authorization complete.',
                 ]);
+
+                if ($orderStatus !== 'payment_pending') {
+                    $this->sendOrderMailSafely(
+                        $order->fresh('items'),
+                        'Your Little Divinity order has been placed',
+                        $this->buildOrderMailBody(
+                            $order->fresh('items'),
+                            'Your order has been placed successfully. We will share each fulfillment stage with you on this email.'
+                        )
+                    );
+                }
 
                 return response()->json([
                     'success' => true,
@@ -332,7 +349,7 @@ class CheckoutController
         $validated = $request->validate([
             'order_number' => ['required', 'string', 'exists:orders,order_number'],
             'payment_method' => ['required', 'string', 'in:razorpay,phonepe'],
-            'order_contact' => ['nullable', 'string', 'max:150'],
+            'access_token' => ['nullable', 'string', 'max:255'],
             // Razorpay specific inputs
             'razorpay_payment_id' => ['nullable', 'string'],
             'razorpay_order_id' => ['nullable', 'string'],
@@ -361,7 +378,7 @@ class CheckoutController
             ], 422);
         }
 
-        if (!$this->canAccessPendingOrder($request, $order, $validated['order_contact'] ?? null)) {
+        if (! $this->canAccessPendingOrder($request, $order, $validated['access_token'] ?? null)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not authorized to update this order.',
@@ -577,7 +594,7 @@ class CheckoutController
     {
         $validated = $request->validate([
             'order_number' => ['required', 'string', 'exists:orders,order_number'],
-            'order_contact' => ['nullable', 'string', 'max:150'],
+            'access_token' => ['nullable', 'string', 'max:255'],
         ]);
 
         $order = Order::query()
@@ -592,7 +609,7 @@ class CheckoutController
             ], 404);
         }
 
-        if (!$this->canAccessPendingOrder($request, $order, $validated['order_contact'] ?? null)) {
+        if (! $this->canAccessPendingOrder($request, $order, $validated['access_token'] ?? null)) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not authorized to cancel this order.',
@@ -688,7 +705,7 @@ class CheckoutController
         }
     }
 
-    private function canAccessPendingOrder(Request $request, Order $order, ?string $contact): bool
+    private function canAccessPendingOrder(Request $request, Order $order, ?string $accessToken): bool
     {
         $user = $this->resolveCustomerFromRequest($request);
 
@@ -696,31 +713,12 @@ class CheckoutController
             return true;
         }
 
-        if (!$contact) {
+        if (! $accessToken || ! $order->pending_access_token_hash || ! $order->pending_access_expires_at) {
             return false;
         }
 
-        $normalizedInput = $this->normalizeContact($contact);
-
-        return $normalizedInput !== '' && in_array($normalizedInput, [
-            $this->normalizeContact($order->ship_email),
-            $this->normalizeContact($order->ship_phone),
-        ], true);
-    }
-
-    private function normalizeContact(?string $value): string
-    {
-        if (!$value) {
-            return '';
-        }
-
-        $trimmed = trim(strtolower($value));
-
-        if (filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
-            return $trimmed;
-        }
-
-        return preg_replace('/\D+/', '', $trimmed) ?: '';
+        return hash_equals($order->pending_access_token_hash, hash('sha256', $accessToken))
+            && now()->lt($order->pending_access_expires_at);
     }
 
     private function createRazorpayOrder(Order $order, PaymentGatewaySetting $gateway): string
@@ -750,12 +748,12 @@ class CheckoutController
         return (string) $response->json('id');
     }
 
-    private function createPhonePeCheckoutSession(Order $order, PaymentGatewaySetting $gateway): array
+    private function createPhonePeCheckoutSession(Order $order, PaymentGatewaySetting $gateway, string $pendingAccessToken): array
     {
         $token = $this->fetchPhonePeAccessToken($gateway);
         $extraConfig = $this->phonePeExtraConfig($gateway);
         $apiBaseUrl = rtrim((string) ($extraConfig['api_base_url'] ?? 'https://api.phonepe.com/apis/pg'), '/');
-        $redirectUrl = $this->buildPhonePeReturnUrl($order);
+        $redirectUrl = $this->buildPhonePeReturnUrl($order, $pendingAccessToken);
         $providerOrderId = $order->order_number;
 
         $response = Http::withHeaders([
@@ -917,13 +915,13 @@ class CheckoutController
         return $accessToken;
     }
 
-    private function buildPhonePeReturnUrl(Order $order): string
+    private function buildPhonePeReturnUrl(Order $order, string $accessToken): string
     {
         $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
 
         return $frontendUrl . '/checkout/phonepe-return?order_number='
             . urlencode($order->order_number)
-            . '&contact=' . urlencode($order->ship_email);
+            . '&access_token=' . urlencode($accessToken);
     }
 
     private function phonePeExtraConfig(PaymentGatewaySetting $gateway): array
@@ -949,6 +947,8 @@ class CheckoutController
                 'payment_status' => 'paid',
                 'payment_id' => $paymentId,
                 'provider_order_id' => $providerOrderId ?: $lockedOrder->provider_order_id,
+                'pending_access_token_hash' => null,
+                'pending_access_expires_at' => null,
             ]);
 
             OrderTracking::query()->create([
@@ -958,6 +958,16 @@ class CheckoutController
                 'message' => $trackingMessage,
             ]);
         });
+
+        $this->sendOrderMailSafely(
+            $order->fresh('items'),
+            'Your Little Divinity order is confirmed',
+            $this->buildOrderMailBody(
+                $order->fresh('items'),
+                'Your payment has been verified and your order is now confirmed.',
+                true
+            )
+        );
     }
 
     private function releasePendingOrderReservation(
@@ -1004,6 +1014,8 @@ class CheckoutController
             $lockedOrder->update([
                 'status' => 'cancelled',
                 'payment_status' => $paymentStatus,
+                'pending_access_token_hash' => null,
+                'pending_access_expires_at' => null,
             ]);
 
             OrderTracking::query()->create([
@@ -1013,6 +1025,81 @@ class CheckoutController
                 'message' => $trackingMessage,
             ]);
         });
+    }
+
+    private function issuePendingOrderAccessToken(Order $order): string
+    {
+        $plainTextToken = Str::random(64);
+
+        $order->forceFill([
+            'pending_access_token_hash' => hash('sha256', $plainTextToken),
+            'pending_access_expires_at' => now()->addMinutes(30),
+        ])->save();
+
+        return $plainTextToken;
+    }
+
+    private function shippingThreshold(): float
+    {
+        return 499.0;
+    }
+
+    private function defaultShippingCost(): float
+    {
+        return 99.0;
+    }
+
+    private function buildOrderMailBody(Order $order, string $headline, bool $includePaymentSummary = false): string
+    {
+        $itemsSummary = $order->relationLoaded('items')
+            ? $order->items->map(fn ($item) => "{$item->name} x {$item->quantity}")->implode("\n")
+            : '';
+
+        $lines = [
+            "Hello {$order->ship_name},",
+            '',
+            $headline,
+            '',
+            "Order Number: {$order->order_number}",
+            "Order Status: " . ucfirst((string) $order->status),
+            "Payment Status: " . ucfirst((string) $order->payment_status),
+            "Order Total: INR " . number_format((float) $order->total_amount, 2),
+        ];
+
+        if ($includePaymentSummary) {
+            $lines[] = "Payment Method: " . strtoupper((string) $order->payment_method);
+        }
+
+        if ($itemsSummary !== '') {
+            $lines[] = '';
+            $lines[] = "Items:";
+            $lines[] = $itemsSummary;
+        }
+
+        $lines[] = '';
+        $lines[] = 'We will continue sending you order stage updates on this email address.';
+        $lines[] = '';
+        $lines[] = 'Team Little Divinity';
+
+        return implode("\n", $lines);
+    }
+
+    private function sendOrderMailSafely(Order $order, string $subject, string $body): void
+    {
+        try {
+            $service = app(CustomerEmailService::class);
+            if (! $service->canSendOrderEmails()) {
+                return;
+            }
+
+            $service->sendOrderMail($order->ship_email, $subject, $body);
+        } catch (\Throwable $throwable) {
+            Log::warning('Order email delivery failed.', [
+                'order_number' => $order->order_number,
+                'subject' => $subject,
+                'error' => $throwable->getMessage(),
+            ]);
+        }
     }
 
     private function failCheckout(string $message, int $status = 422): never

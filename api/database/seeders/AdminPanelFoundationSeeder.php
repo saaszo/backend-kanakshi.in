@@ -92,19 +92,24 @@ class AdminPanelFoundationSeeder extends Seeder
         DB::table('customer_email_settings')->updateOrInsert(
             ['id' => 1],
             [
-                'from_name' => null,
-                'from_email' => null,
-                'reply_to_email' => null,
-                'smtp_host' => null,
-                'smtp_port' => null,
-                'smtp_encryption' => null,
-                'smtp_username' => null,
-                'smtp_password' => null,
-                'send_account_creation_emails' => false,
-                'send_email_verification_emails' => false,
-                'send_password_reset_emails' => false,
-                'send_order_emails' => false,
-                'is_active' => false,
+                'from_name' => env('CUSTOMER_AUTH_FROM_NAME', 'Little Divinity'),
+                'from_email' => env('CUSTOMER_AUTH_FROM_EMAIL', 'noreply@littledivinity.com'),
+                'reply_to_email' => env('CUSTOMER_AUTH_REPLY_TO_EMAIL', env('CUSTOMER_AUTH_FROM_EMAIL', 'noreply@littledivinity.com')),
+                'order_from_name' => env('CUSTOMER_ORDER_FROM_NAME', 'Little Divinity Orders'),
+                'order_from_email' => env('CUSTOMER_ORDER_FROM_EMAIL', 'order@littledivinity.com'),
+                'order_reply_to_email' => env('CUSTOMER_ORDER_REPLY_TO_EMAIL', env('CUSTOMER_ORDER_FROM_EMAIL', 'order@littledivinity.com')),
+                'smtp_host' => env('CUSTOMER_SMTP_HOST', 'smtp.hostinger.com'),
+                'smtp_port' => (int) env('CUSTOMER_SMTP_PORT', 465),
+                'smtp_encryption' => env('CUSTOMER_SMTP_ENCRYPTION', 'ssl'),
+                'smtp_username' => env('CUSTOMER_AUTH_SMTP_USERNAME', env('CUSTOMER_AUTH_FROM_EMAIL', 'noreply@littledivinity.com')),
+                'smtp_password' => env('CUSTOMER_AUTH_SMTP_PASSWORD') ?: env('CUSTOMER_SMTP_PASSWORD') ?: null,
+                'order_smtp_username' => env('CUSTOMER_ORDER_SMTP_USERNAME', env('CUSTOMER_ORDER_FROM_EMAIL', 'order@littledivinity.com')),
+                'order_smtp_password' => env('CUSTOMER_ORDER_SMTP_PASSWORD') ?: env('CUSTOMER_SMTP_PASSWORD') ?: null,
+                'send_account_creation_emails' => true,
+                'send_email_verification_emails' => true,
+                'send_password_reset_emails' => true,
+                'send_order_emails' => true,
+                'is_active' => true,
                 'updated_at' => now(),
                 'created_at' => now(),
             ]
@@ -152,7 +157,17 @@ class AdminPanelFoundationSeeder extends Seeder
         }
 
         $paymentGateways = [
-            ['provider' => 'razorpay', 'display_name' => 'Razorpay', 'sort_order' => 1],
+            [
+                'provider' => 'razorpay',
+                'display_name' => 'Razorpay',
+                'sort_order' => 1,
+                'merchant_id' => env('RAZORPAY_MERCHANT_ID'),
+                'public_key' => env('RAZORPAY_KEY_ID'),
+                'secret_key' => env('RAZORPAY_KEY_SECRET'),
+                'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
+                'is_active' => filter_var(env('RAZORPAY_ACTIVE', false), FILTER_VALIDATE_BOOL),
+                'is_test_mode' => filter_var(env('RAZORPAY_TEST_MODE', true), FILTER_VALIDATE_BOOL),
+            ],
             ['provider' => 'phonepe', 'display_name' => 'PhonePe', 'sort_order' => 2],
             ['provider' => 'paytm', 'display_name' => 'Paytm', 'sort_order' => 3],
             ['provider' => 'cod', 'display_name' => 'Cash on Delivery', 'sort_order' => 4, 'is_active' => true, 'is_test_mode' => false],
@@ -218,7 +233,9 @@ class AdminPanelFoundationSeeder extends Seeder
             ['location' => 'footer', 'title' => 'Terms & Conditions', 'url' => '/pages/terms-conditions', 'sort_order' => 4],
             ['location' => 'footer', 'title' => 'Refund Policy', 'url' => '/pages/refund-policy', 'sort_order' => 5],
             ['location' => 'footer', 'title' => 'Track Your Order', 'url' => '/track-order', 'sort_order' => 6],
-            ['location' => 'footer', 'title' => 'Blog', 'url' => '/blog', 'sort_order' => 7],
+            ['location' => 'footer', 'title' => 'Warranty & Buyback', 'url' => '/warranty-portal', 'sort_order' => 7],
+            ['location' => 'footer', 'title' => 'Live Auctions', 'url' => '/live-auctions', 'sort_order' => 8],
+            ['location' => 'footer', 'title' => 'Blog', 'url' => '/blog', 'sort_order' => 9],
         ];
 
 

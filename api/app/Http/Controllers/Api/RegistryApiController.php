@@ -10,14 +10,12 @@ use App\Models\RegistrationActivityLog;
 use App\Models\Setting;
 use App\Models\Product;
 use App\Models\Order;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use App\Models\CustomerEmailSetting;
 
 class RegistryApiController extends Controller
 {
@@ -144,8 +142,8 @@ class RegistryApiController extends Controller
 
             if ($order) {
                 // Match email or phone for verification signal
-                $emailMatch = strtolower($order->user?->email ?? '') === strtolower($request->input('email'));
-                $phoneMatch = preg_replace('/\D/', '', $order->phone ?? '') === preg_replace('/\D/', '', $request->input('phone'));
+                $emailMatch = strtolower((string) $order->ship_email) === strtolower((string) $request->input('email'));
+                $phoneMatch = preg_replace('/\D/', '', (string) $order->ship_phone) === preg_replace('/\D/', '', (string) $request->input('phone'));
 
                 if ($emailMatch || $phoneMatch) {
                     $status = 'verified';
@@ -256,7 +254,7 @@ class RegistryApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide a registration code, order/bill number, or email and phone to lookup.'
-            ], 420);
+            ], 422);
         }
 
         $registrations = $query->with(['claims', 'buybacks'])->get();
@@ -340,6 +338,17 @@ class RegistryApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'A warranty claim can only be submitted for verified and active registrations. Please wait for our team to verify your warranty.'
+            ], 403);
+        }
+
+        if (
+            ! $reg->warranty_start_date ||
+            ! $reg->warranty_end_date ||
+            ! now()->between($reg->warranty_start_date, $reg->warranty_end_date)
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This warranty is no longer active. Service claims are only accepted during the active coverage period.'
             ], 403);
         }
 
@@ -509,39 +518,14 @@ class RegistryApiController extends Controller
      */
     private function sendNotificationMail(string $email, string $subject, string $body): void
     {
-        $settings = CustomerEmailSetting::query()->first();
-
-        if (!$settings || !$settings->is_active) {
-            return;
-        }
-
-        $smtpPassword = $settings->smtp_password;
-        $smtpScheme = match (strtolower((string) $settings->smtp_encryption)) {
-            'ssl' => 'smtps',
-            'tls' => 'tls',
-            default => null,
-        };
-
-        config([
-            'mail.default' => 'smtp',
-            'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $settings->smtp_host,
-            'mail.mailers.smtp.port' => $settings->smtp_port,
-            'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $settings->smtp_encryption,
-            'mail.mailers.smtp.username' => $settings->smtp_username,
-            'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $settings->from_email,
-            'mail.from.name' => $settings->from_name ?: 'Little Divinity',
-        ]);
-
         try {
-            Mail::raw($body, function ($message) use ($email, $settings, $subject): void {
-                $message->to($email)
-                    ->from($settings->from_email, $settings->from_name ?: 'Little Divinity')
-                    ->replyTo($settings->reply_to_email ?: $settings->from_email)
-                    ->subject($subject);
-            });
+            $service = app(CustomerEmailService::class);
+
+            if (! $service->canSendOrderEmails()) {
+                return;
+            }
+
+            $service->sendOrderMail($email, $subject, $body);
         } catch (\Throwable $throwable) {
             Log::error("Registry notification email failed to send to {$email}: " . $throwable->getMessage());
         }
