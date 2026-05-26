@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Marketing\PublicCouponsController;
 use App\Http\Controllers\Api\Settings\PublicHomepageSectionsController;
 use App\Http\Controllers\Api\Settings\PublicSettingsController;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\CustomerAddressController;
 use App\Http\Controllers\Api\CustomerOrderController;
 use App\Http\Controllers\Api\OrderTrackingController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,10 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
     Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
     Route::post('/customer/orders/{order_number}/returns', [CustomerOrderController::class, 'requestReturn']);
+    Route::get('/customer/addresses', [CustomerAddressController::class, 'index']);
+    Route::post('/customer/addresses', [CustomerAddressController::class, 'store']);
+    Route::put('/customer/addresses/{id}', [CustomerAddressController::class, 'update']);
+    Route::delete('/customer/addresses/{id}', [CustomerAddressController::class, 'destroy']);
 
     // Storefront Blog APIs
     Route::prefix('blog')->group(function (): void {
@@ -86,4 +91,3 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/{id}/bid', [\App\Http\Controllers\Api\AuctionController::class, 'placeBid']);
     });
 });
-

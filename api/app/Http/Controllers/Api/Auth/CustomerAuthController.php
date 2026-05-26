@@ -426,6 +426,13 @@ class CustomerAuthController
             ], 422);
         }
 
+        if (Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please choose a new password instead of reusing your current one.',
+            ], 422);
+        }
+
         $user->forceFill([
             'password' => $validated['password'],
             'login_attempts' => 0,
@@ -492,6 +499,10 @@ class CustomerAuthController
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
+            'address' => $user->address,
+            'city' => $user->city,
+            'state' => $user->state,
+            'pincode' => $user->pincode,
             'email_verified_at' => optional($user->email_verified_at)?->toIso8601String(),
             'role' => $user->role,
         ];
