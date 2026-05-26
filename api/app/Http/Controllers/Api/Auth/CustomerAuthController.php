@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Models\CustomerAccessToken;
-use App\Models\CustomerEmailSetting;
 use App\Models\OtpProviderSetting;
 use App\Models\OtpVerificationSetting;
 use App\Services\CustomerEmailService;
@@ -27,8 +26,8 @@ class CustomerAuthController
     public function config(): JsonResponse
     {
         $verification = $this->verificationSettings();
-        $emailSettings = CustomerEmailSetting::query()->first();
         $hasMobileProvider = $this->hasActiveMobileProvider();
+        $customerEmailService = new CustomerEmailService();
 
         return response()->json([
             'success' => true,
@@ -45,7 +44,7 @@ class CustomerAuthController
                 'otp_length' => (int) ($verification?->otp_length ?? 6),
                 'otp_expiry_minutes' => (int) ($verification?->otp_expiry_minutes ?? 10),
                 'resend_wait_seconds' => (int) ($verification?->resend_wait_seconds ?? 60),
-                'customer_email_active' => (bool) ($emailSettings?->is_active ?? false),
+                'customer_email_active' => $customerEmailService->isCustomerEmailDeliveryActive(),
             ],
         ]);
     }

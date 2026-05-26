@@ -53,6 +53,13 @@ class CustomerEmailService
         return (bool) ($settings?->is_active && $settings->send_order_emails);
     }
 
+    public function isCustomerEmailDeliveryActive(): bool
+    {
+        $settings = CustomerEmailSetting::query()->first();
+
+        return (bool) ($settings?->is_active && $this->profileHasTransport($this->resolveProfile('auth')));
+    }
+
     public function sendAuthMail(string $email, string $subject, string $body): void
     {
         $this->sendMail($email, $subject, $body, 'auth');
