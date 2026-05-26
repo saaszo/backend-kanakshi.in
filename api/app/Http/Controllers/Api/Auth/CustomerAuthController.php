@@ -20,6 +20,9 @@ use RuntimeException;
 
 class CustomerAuthController
 {
+    private const EMAIL_VERIFICATION_OTP_PURPOSE = 'email_verification';
+    private const PASSWORD_RESET_OTP_PURPOSE = 'forgot_password';
+
     public function config(): JsonResponse
     {
         $verification = $this->verificationSettings();
@@ -77,7 +80,7 @@ class CustomerAuthController
 
             try {
                 if ($requiresEmailVerification) {
-                    $otp = $this->createOtp($user->id, $user->email, 'customer_email_verification');
+                    $otp = $this->createOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
                     $this->sendCustomerMail(
                         $user->email,
                         'Verify your Little Divinity account',
@@ -94,7 +97,7 @@ class CustomerAuthController
                 if ($requiresEmailVerification) {
                     DB::table('otp_codes')
                         ->where('user_id', $user->id)
-                        ->where('purpose', 'customer_email_verification')
+                        ->where('purpose', self::EMAIL_VERIFICATION_OTP_PURPOSE)
                         ->delete();
                     $user->delete();
 
@@ -238,9 +241,9 @@ class CustomerAuthController
 
         try {
             $this->ensureCustomerVerificationCanSend('verification');
-            $this->ensureOtpResendCooldown($user->id, 'customer_email_verification');
+            $this->ensureOtpResendCooldown($user->id, self::EMAIL_VERIFICATION_OTP_PURPOSE);
 
-            $otp = $this->createOtp($user->id, $user->email, 'customer_email_verification');
+            $otp = $this->createOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
             $this->sendCustomerMail(
                 $user->email,
                 'Verify your Little Divinity account',
@@ -278,7 +281,7 @@ class CustomerAuthController
             ], 422);
         }
 
-        $otp = $this->resolveValidOtp($user->id, $user->email, 'customer_email_verification', $validated['code']);
+        $otp = $this->resolveValidOtp($user->id, $user->email, self::EMAIL_VERIFICATION_OTP_PURPOSE, $validated['code']);
 
         if (! $otp) {
             return response()->json([
@@ -338,9 +341,9 @@ class CustomerAuthController
 
         try {
             $this->ensureCustomerVerificationCanSend('password_reset');
-            $this->ensureOtpResendCooldown($user->id, 'customer_forgot_password');
+            $this->ensureOtpResendCooldown($user->id, self::PASSWORD_RESET_OTP_PURPOSE);
 
-            $otp = $this->createOtp($user->id, $user->email, 'customer_forgot_password');
+            $otp = $this->createOtp($user->id, $user->email, self::PASSWORD_RESET_OTP_PURPOSE);
             $this->sendCustomerMail(
                 $user->email,
                 'Your Little Divinity password reset OTP',
@@ -379,7 +382,7 @@ class CustomerAuthController
             ], 422);
         }
 
-        $otp = $this->resolveValidOtp($user->id, $user->email, 'customer_forgot_password', $validated['code']);
+        $otp = $this->resolveValidOtp($user->id, $user->email, self::PASSWORD_RESET_OTP_PURPOSE, $validated['code']);
 
         if (! $otp) {
             return response()->json([
