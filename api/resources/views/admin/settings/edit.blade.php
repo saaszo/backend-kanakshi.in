@@ -49,6 +49,14 @@
                                     <label for="custom_domain">Custom Domain</label>
                                     <input id="custom_domain" name="custom_domain" value="{{ old('custom_domain', $store?->custom_domain) }}" />
                                 </div>
+                                <div class="field">
+                                    <label for="google_tag_manager_id">Google Tag Manager ID</label>
+                                    <input id="google_tag_manager_id" name="google_tag_manager_id" value="{{ old('google_tag_manager_id', $store?->google_tag_manager_id) }}" placeholder="GTM-XXXXXXX" />
+                                </div>
+                                <div class="field">
+                                    <label for="facebook_pixel_id">Facebook Pixel ID</label>
+                                    <input id="facebook_pixel_id" name="facebook_pixel_id" value="{{ old('facebook_pixel_id', $store?->facebook_pixel_id) }}" placeholder="123456789012345" />
+                                </div>
                                 <div class="checkbox-row">
                                     <input id="show_topbar" type="checkbox" name="show_topbar" value="1" @checked(old('show_topbar', $store?->show_topbar))>
                                     <label for="show_topbar" style="margin:0;">Enable top offer bar</label>
@@ -171,6 +179,20 @@
                                 <div class="field">
                                     <label for="terms_conditions">Terms & Conditions</label>
                                     <textarea id="terms_conditions" name="terms_conditions">{{ old('terms_conditions', $store?->terms_conditions) }}</textarea>
+                                </div>
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="custom_header_scripts">Header Scripts</label>
+                                    <textarea id="custom_header_scripts" name="custom_header_scripts" placeholder="<script>/* custom script */</script>">{{ old('custom_header_scripts', $store?->custom_header_scripts) }}</textarea>
+                                    <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">
+                                        Use this for script snippets that should load near the top of the storefront body. GTM and Facebook Pixel IDs above are rendered automatically.
+                                    </small>
+                                </div>
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="custom_footer_scripts">Footer Scripts</label>
+                                    <textarea id="custom_footer_scripts" name="custom_footer_scripts" placeholder="<script>/* footer script */</script>">{{ old('custom_footer_scripts', $store?->custom_footer_scripts) }}</textarea>
+                                    <small style="display:block;margin-top:8px;color:rgba(25,25,25,.58);">
+                                        Use this for chat widgets, tracking snippets, or other code that should render near the end of the page.
+                                    </small>
                                 </div>
                             </div>
                             <div class="button-row">

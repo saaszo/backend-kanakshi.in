@@ -45,6 +45,8 @@ class StoreSettingsController extends Controller
             'favicon_url' => ['nullable', 'string', 'max:255'],
             'favicon_file' => ['nullable', 'image', 'max:5120'],
             'custom_domain' => ['nullable', 'string', 'max:180'],
+            'google_tag_manager_id' => ['nullable', 'string', 'max:80'],
+            'facebook_pixel_id' => ['nullable', 'string', 'max:80'],
             'show_topbar' => ['nullable', 'boolean'],
             'topbar_bg_color' => ['nullable', 'string', 'max:20'],
             'topbar_text_color' => ['nullable', 'string', 'max:20'],
@@ -66,6 +68,8 @@ class StoreSettingsController extends Controller
             'return_policy' => ['nullable', 'string'],
             'privacy_policy' => ['nullable', 'string'],
             'terms_conditions' => ['nullable', 'string'],
+            'custom_header_scripts' => ['nullable', 'string'],
+            'custom_footer_scripts' => ['nullable', 'string'],
         ]);
 
         $validated['show_logo_on_invoice'] = $request->boolean('show_logo_on_invoice');
