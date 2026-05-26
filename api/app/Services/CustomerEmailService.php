@@ -102,20 +102,28 @@ class CustomerEmailService
 
     private function resolveProfile(CustomerEmailSetting $settings, string $channel): array
     {
-        $authFromName = $settings->from_name ?: 'Little Divinity';
-        $authFromEmail = $settings->from_email ?: null;
-        $authReplyToEmail = $settings->reply_to_email ?: $authFromEmail;
-        $authUsername = $settings->smtp_username ?: $authFromEmail;
-        $authPassword = $settings->smtp_password ?: null;
+        $defaultFromName = config('mail.from.name', 'Little Divinity');
+        $defaultFromEmail = config('mail.from.address');
+        $defaultHost = config('mail.mailers.smtp.host');
+        $defaultPort = config('mail.mailers.smtp.port');
+        $defaultEncryption = config('mail.mailers.smtp.encryption');
+        $defaultUsername = config('mail.mailers.smtp.username');
+        $defaultPassword = config('mail.mailers.smtp.password');
+
+        $authFromName = $settings->from_name ?: $defaultFromName;
+        $authFromEmail = $settings->from_email ?: $defaultFromEmail;
+        $authReplyToEmail = $settings->reply_to_email ?: $authFromEmail ?: $defaultFromEmail;
+        $authUsername = $settings->smtp_username ?: $authFromEmail ?: $defaultUsername;
+        $authPassword = $settings->smtp_password ?: $defaultPassword;
 
         if ($channel !== 'order') {
             return [
                 'from_name' => $authFromName,
                 'from_email' => $authFromEmail,
                 'reply_to_email' => $authReplyToEmail,
-                'smtp_host' => $settings->smtp_host ?: null,
-                'smtp_port' => $settings->smtp_port ?: null,
-                'smtp_encryption' => $settings->smtp_encryption ?: null,
+                'smtp_host' => $settings->smtp_host ?: $defaultHost,
+                'smtp_port' => $settings->smtp_port ?: $defaultPort,
+                'smtp_encryption' => $settings->smtp_encryption ?: $defaultEncryption,
                 'smtp_username' => $authUsername,
                 'smtp_password' => $authPassword,
             ];
@@ -131,9 +139,9 @@ class CustomerEmailService
             'from_name' => $orderFromName,
             'from_email' => $orderFromEmail,
             'reply_to_email' => $orderReplyToEmail,
-            'smtp_host' => $settings->smtp_host ?: null,
-            'smtp_port' => $settings->smtp_port ?: null,
-            'smtp_encryption' => $settings->smtp_encryption ?: null,
+            'smtp_host' => $settings->smtp_host ?: $defaultHost,
+            'smtp_port' => $settings->smtp_port ?: $defaultPort,
+            'smtp_encryption' => $settings->smtp_encryption ?: $defaultEncryption,
             'smtp_username' => $orderUsername,
             'smtp_password' => $orderPassword,
         ];
