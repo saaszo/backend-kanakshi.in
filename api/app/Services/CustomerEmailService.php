@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CustomerEmailSetting;
+use App\Models\EmailSetting;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
 
@@ -102,6 +103,7 @@ class CustomerEmailService
 
     private function resolveProfile(CustomerEmailSetting $settings, string $channel): array
     {
+        $legacySettings = EmailSetting::query()->first();
         $defaultFromName = config('mail.from.name', 'Little Divinity');
         $defaultFromEmail = config('mail.from.address');
         $defaultHost = config('mail.mailers.smtp.host');
@@ -110,20 +112,29 @@ class CustomerEmailService
         $defaultUsername = config('mail.mailers.smtp.username');
         $defaultPassword = config('mail.mailers.smtp.password');
 
-        $authFromName = $settings->from_name ?: $defaultFromName;
-        $authFromEmail = $settings->from_email ?: $defaultFromEmail;
-        $authReplyToEmail = $settings->reply_to_email ?: $authFromEmail ?: $defaultFromEmail;
-        $authUsername = $settings->smtp_username ?: $authFromEmail ?: $defaultUsername;
-        $authPassword = $settings->smtp_password ?: $defaultPassword;
+        $legacyFromName = $legacySettings?->from_name ?: $defaultFromName;
+        $legacyFromEmail = $legacySettings?->from_email ?: $defaultFromEmail;
+        $legacyReplyToEmail = $legacySettings?->reply_to_email ?: $legacyFromEmail;
+        $legacyHost = $legacySettings?->smtp_host ?: $defaultHost;
+        $legacyPort = $legacySettings?->smtp_port ?: $defaultPort;
+        $legacyEncryption = $legacySettings?->smtp_encryption ?: $defaultEncryption;
+        $legacyUsername = $legacySettings?->smtp_username ?: $defaultUsername;
+        $legacyPassword = $legacySettings?->smtp_password ?: $defaultPassword;
+
+        $authFromName = $settings->from_name ?: $legacyFromName;
+        $authFromEmail = $settings->from_email ?: $legacyFromEmail;
+        $authReplyToEmail = $settings->reply_to_email ?: $authFromEmail ?: $legacyReplyToEmail;
+        $authUsername = $settings->smtp_username ?: $authFromEmail ?: $legacyUsername;
+        $authPassword = $settings->smtp_password ?: $legacyPassword;
 
         if ($channel !== 'order') {
             return [
                 'from_name' => $authFromName,
                 'from_email' => $authFromEmail,
                 'reply_to_email' => $authReplyToEmail,
-                'smtp_host' => $settings->smtp_host ?: $defaultHost,
-                'smtp_port' => $settings->smtp_port ?: $defaultPort,
-                'smtp_encryption' => $settings->smtp_encryption ?: $defaultEncryption,
+                'smtp_host' => $settings->smtp_host ?: $legacyHost,
+                'smtp_port' => $settings->smtp_port ?: $legacyPort,
+                'smtp_encryption' => $settings->smtp_encryption ?: $legacyEncryption,
                 'smtp_username' => $authUsername,
                 'smtp_password' => $authPassword,
             ];
@@ -139,9 +150,9 @@ class CustomerEmailService
             'from_name' => $orderFromName,
             'from_email' => $orderFromEmail,
             'reply_to_email' => $orderReplyToEmail,
-            'smtp_host' => $settings->smtp_host ?: $defaultHost,
-            'smtp_port' => $settings->smtp_port ?: $defaultPort,
-            'smtp_encryption' => $settings->smtp_encryption ?: $defaultEncryption,
+            'smtp_host' => $settings->smtp_host ?: $legacyHost,
+            'smtp_port' => $settings->smtp_port ?: $legacyPort,
+            'smtp_encryption' => $settings->smtp_encryption ?: $legacyEncryption,
             'smtp_username' => $orderUsername,
             'smtp_password' => $orderPassword,
         ];
