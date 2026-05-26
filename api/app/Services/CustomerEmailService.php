@@ -121,38 +121,61 @@ class CustomerEmailService
         $legacyUsername = $legacySettings?->smtp_username ?: $defaultUsername;
         $legacyPassword = $legacySettings?->smtp_password ?: $defaultPassword;
 
-        $authFromName = $settings->from_name ?: $legacyFromName;
-        $authFromEmail = $settings->from_email ?: $legacyFromEmail;
-        $authReplyToEmail = $settings->reply_to_email ?: $authFromEmail ?: $legacyReplyToEmail;
-        $authUsername = $settings->smtp_username ?: $authFromEmail ?: $legacyUsername;
-        $authPassword = $settings->smtp_password ?: $legacyPassword;
+        $hasDedicatedAuthProfile = filled($settings->from_email)
+            && filled($settings->smtp_host)
+            && filled($settings->smtp_port)
+            && filled($settings->smtp_username)
+            && filled($settings->smtp_password);
+
+        $authFromName = $hasDedicatedAuthProfile ? ($settings->from_name ?: $legacyFromName) : $legacyFromName;
+        $authFromEmail = $hasDedicatedAuthProfile ? $settings->from_email : $legacyFromEmail;
+        $authReplyToEmail = $hasDedicatedAuthProfile
+            ? ($settings->reply_to_email ?: $authFromEmail ?: $legacyReplyToEmail)
+            : $legacyReplyToEmail;
+        $authUsername = $hasDedicatedAuthProfile
+            ? ($settings->smtp_username ?: $authFromEmail ?: $legacyUsername)
+            : $legacyUsername;
+        $authPassword = $hasDedicatedAuthProfile ? ($settings->smtp_password ?: $legacyPassword) : $legacyPassword;
+        $authHost = $hasDedicatedAuthProfile ? ($settings->smtp_host ?: $legacyHost) : $legacyHost;
+        $authPort = $hasDedicatedAuthProfile ? ($settings->smtp_port ?: $legacyPort) : $legacyPort;
+        $authEncryption = $hasDedicatedAuthProfile ? ($settings->smtp_encryption ?: $legacyEncryption) : $legacyEncryption;
 
         if ($channel !== 'order') {
             return [
                 'from_name' => $authFromName,
                 'from_email' => $authFromEmail,
                 'reply_to_email' => $authReplyToEmail,
-                'smtp_host' => $settings->smtp_host ?: $legacyHost,
-                'smtp_port' => $settings->smtp_port ?: $legacyPort,
-                'smtp_encryption' => $settings->smtp_encryption ?: $legacyEncryption,
+                'smtp_host' => $authHost,
+                'smtp_port' => $authPort,
+                'smtp_encryption' => $authEncryption,
                 'smtp_username' => $authUsername,
                 'smtp_password' => $authPassword,
             ];
         }
 
-        $orderFromName = $settings->order_from_name ?: $authFromName;
-        $orderFromEmail = $settings->order_from_email ?: $authFromEmail;
-        $orderReplyToEmail = $settings->order_reply_to_email ?: $orderFromEmail ?: $authReplyToEmail;
-        $orderUsername = $settings->order_smtp_username ?: $orderFromEmail ?: $authUsername;
-        $orderPassword = $settings->order_smtp_password ?: $authPassword;
+        $hasDedicatedOrderProfile = filled($settings->order_from_email)
+            && filled($settings->smtp_host)
+            && filled($settings->smtp_port)
+            && filled($settings->order_smtp_username)
+            && filled($settings->order_smtp_password);
+
+        $orderFromName = $hasDedicatedOrderProfile ? ($settings->order_from_name ?: $authFromName) : $authFromName;
+        $orderFromEmail = $hasDedicatedOrderProfile ? $settings->order_from_email : $authFromEmail;
+        $orderReplyToEmail = $hasDedicatedOrderProfile
+            ? ($settings->order_reply_to_email ?: $orderFromEmail ?: $authReplyToEmail)
+            : $authReplyToEmail;
+        $orderUsername = $hasDedicatedOrderProfile
+            ? ($settings->order_smtp_username ?: $orderFromEmail ?: $authUsername)
+            : $authUsername;
+        $orderPassword = $hasDedicatedOrderProfile ? ($settings->order_smtp_password ?: $authPassword) : $authPassword;
 
         return [
             'from_name' => $orderFromName,
             'from_email' => $orderFromEmail,
             'reply_to_email' => $orderReplyToEmail,
-            'smtp_host' => $settings->smtp_host ?: $legacyHost,
-            'smtp_port' => $settings->smtp_port ?: $legacyPort,
-            'smtp_encryption' => $settings->smtp_encryption ?: $legacyEncryption,
+            'smtp_host' => $hasDedicatedOrderProfile ? ($settings->smtp_host ?: $legacyHost) : $authHost,
+            'smtp_port' => $hasDedicatedOrderProfile ? ($settings->smtp_port ?: $legacyPort) : $authPort,
+            'smtp_encryption' => $hasDedicatedOrderProfile ? ($settings->smtp_encryption ?: $legacyEncryption) : $authEncryption,
             'smtp_username' => $orderUsername,
             'smtp_password' => $orderPassword,
         ];
