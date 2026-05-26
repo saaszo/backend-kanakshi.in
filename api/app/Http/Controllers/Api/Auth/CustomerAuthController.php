@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Models\CustomerAccessToken;
+use App\Models\CustomerEmailSetting;
 use App\Models\OtpProviderSetting;
 use App\Models\OtpVerificationSetting;
 use App\Services\CustomerEmailService;
