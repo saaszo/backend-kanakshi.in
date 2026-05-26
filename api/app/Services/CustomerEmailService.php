@@ -58,15 +58,10 @@ class CustomerEmailService
             throw new RuntimeException('Customer email delivery is not configured right now.');
         }
 
-        $profile = $this->resolveProfile($settings, $channel);
+        $profiles = $this->resolveProfiles($settings, $channel);
+        $profile = $profiles['primary'];
 
-        if (
-            $profile['from_email'] === null ||
-            $profile['smtp_host'] === null ||
-            $profile['smtp_port'] === null ||
-            $profile['smtp_username'] === null ||
-            $profile['smtp_password'] === null
-        ) {
+        if (! $this->profileHasTransport($profile)) {
             throw new RuntimeException(
                 $channel === 'order'
                     ? 'Order email delivery is not configured right now.'
@@ -74,33 +69,25 @@ class CustomerEmailService
             );
         }
 
-        $smtpScheme = match (strtolower((string) $profile['smtp_encryption'])) {
-            'ssl' => 'smtps',
-            'tls' => 'tls',
-            default => null,
-        };
-
-        config([
-            'mail.default' => 'smtp',
-            'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $profile['smtp_host'],
-            'mail.mailers.smtp.port' => $profile['smtp_port'],
-            'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $profile['smtp_encryption'],
-            'mail.mailers.smtp.username' => $profile['smtp_username'],
-            'mail.mailers.smtp.password' => $profile['smtp_password'],
-            'mail.from.address' => $profile['from_email'],
-            'mail.from.name' => $profile['from_name'],
-        ]);
-
         try {
-            Mail::raw($body, function ($message) use ($email, $profile, $subject): void {
-                $message->to($email)
-                    ->from($profile['from_email'], $profile['from_name'])
-                    ->replyTo($profile['reply_to_email'], $profile['from_name'])
-                    ->subject($subject);
-            });
+            $this->sendViaProfile($email, $subject, $body, $profile);
+            return;
         } catch (\Throwable $throwable) {
+            $fallbackProfile = $profiles['fallback'] ?? null;
+
+            if (
+                $fallbackProfile !== null &&
+                $this->profileHasTransport($fallbackProfile) &&
+                $this->profilesUseDifferentTransport($profile, $fallbackProfile)
+            ) {
+                try {
+                    $this->sendViaProfile($email, $subject, $body, $fallbackProfile);
+                    return;
+                } catch (\Throwable) {
+                    // Fall through to the user-facing transport error below.
+                }
+            }
+
             throw new RuntimeException(
                 $channel === 'order'
                     ? 'Unable to send order email right now. Please verify order email settings.'
@@ -109,7 +96,7 @@ class CustomerEmailService
         }
     }
 
-    private function resolveProfile(CustomerEmailSetting $settings, string $channel): array
+    private function resolveProfiles(CustomerEmailSetting $settings, string $channel): array
     {
         $legacySettings = EmailSetting::query()->first();
         $defaultHost = config('mail.mailers.smtp.host');
@@ -139,17 +126,30 @@ class CustomerEmailService
         $authHost = $hasDedicatedAuthTransport ? ($settings->smtp_host ?: $legacyHost) : $legacyHost;
         $authPort = $hasDedicatedAuthTransport ? ($settings->smtp_port ?: $legacyPort) : $legacyPort;
         $authEncryption = $hasDedicatedAuthTransport ? ($settings->smtp_encryption ?: $legacyEncryption) : $legacyEncryption;
+        $authFallback = [
+            'from_name' => $authFromName,
+            'from_email' => $authFromEmail,
+            'reply_to_email' => $authReplyToEmail,
+            'smtp_host' => $legacyHost,
+            'smtp_port' => $legacyPort,
+            'smtp_encryption' => $legacyEncryption,
+            'smtp_username' => $legacyUsername,
+            'smtp_password' => $legacyPassword,
+        ];
 
         if ($channel !== 'order') {
             return [
-                'from_name' => $authFromName,
-                'from_email' => $authFromEmail,
-                'reply_to_email' => $authReplyToEmail,
-                'smtp_host' => $authHost,
-                'smtp_port' => $authPort,
-                'smtp_encryption' => $authEncryption,
-                'smtp_username' => $authUsername,
-                'smtp_password' => $authPassword,
+                'primary' => [
+                    'from_name' => $authFromName,
+                    'from_email' => $authFromEmail,
+                    'reply_to_email' => $authReplyToEmail,
+                    'smtp_host' => $authHost,
+                    'smtp_port' => $authPort,
+                    'smtp_encryption' => $authEncryption,
+                    'smtp_username' => $authUsername,
+                    'smtp_password' => $authPassword,
+                ],
+                'fallback' => $authFallback,
             ];
         }
 
@@ -167,14 +167,73 @@ class CustomerEmailService
         $orderPassword = $hasDedicatedOrderTransport ? ($settings->order_smtp_password ?: $authPassword) : $authPassword;
 
         return [
-            'from_name' => $orderFromName,
-            'from_email' => $orderFromEmail,
-            'reply_to_email' => $orderReplyToEmail,
-            'smtp_host' => $hasDedicatedOrderTransport ? ($settings->smtp_host ?: $legacyHost) : $authHost,
-            'smtp_port' => $hasDedicatedOrderTransport ? ($settings->smtp_port ?: $legacyPort) : $authPort,
-            'smtp_encryption' => $hasDedicatedOrderTransport ? ($settings->smtp_encryption ?: $legacyEncryption) : $authEncryption,
-            'smtp_username' => $orderUsername,
-            'smtp_password' => $orderPassword,
+            'primary' => [
+                'from_name' => $orderFromName,
+                'from_email' => $orderFromEmail,
+                'reply_to_email' => $orderReplyToEmail,
+                'smtp_host' => $hasDedicatedOrderTransport ? ($settings->smtp_host ?: $legacyHost) : $authHost,
+                'smtp_port' => $hasDedicatedOrderTransport ? ($settings->smtp_port ?: $legacyPort) : $authPort,
+                'smtp_encryption' => $hasDedicatedOrderTransport ? ($settings->smtp_encryption ?: $legacyEncryption) : $authEncryption,
+                'smtp_username' => $orderUsername,
+                'smtp_password' => $orderPassword,
+            ],
+            'fallback' => [
+                'from_name' => $orderFromName,
+                'from_email' => $orderFromEmail,
+                'reply_to_email' => $orderReplyToEmail,
+                'smtp_host' => $legacyHost,
+                'smtp_port' => $legacyPort,
+                'smtp_encryption' => $legacyEncryption,
+                'smtp_username' => $legacyUsername,
+                'smtp_password' => $legacyPassword,
+            ],
         ];
+    }
+
+    private function sendViaProfile(string $email, string $subject, string $body, array $profile): void
+    {
+        $smtpScheme = match (strtolower((string) $profile['smtp_encryption'])) {
+            'ssl' => 'smtps',
+            'tls' => 'tls',
+            default => null,
+        };
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => $profile['smtp_host'],
+            'mail.mailers.smtp.port' => $profile['smtp_port'],
+            'mail.mailers.smtp.scheme' => $smtpScheme,
+            'mail.mailers.smtp.encryption' => $profile['smtp_encryption'],
+            'mail.mailers.smtp.username' => $profile['smtp_username'],
+            'mail.mailers.smtp.password' => $profile['smtp_password'],
+            'mail.from.address' => $profile['from_email'],
+            'mail.from.name' => $profile['from_name'],
+        ]);
+
+        Mail::raw($body, function ($message) use ($email, $profile, $subject): void {
+            $message->to($email)
+                ->from($profile['from_email'], $profile['from_name'])
+                ->replyTo($profile['reply_to_email'], $profile['from_name'])
+                ->subject($subject);
+        });
+    }
+
+    private function profileHasTransport(array $profile): bool
+    {
+        return $profile['from_email'] !== null
+            && $profile['smtp_host'] !== null
+            && $profile['smtp_port'] !== null
+            && $profile['smtp_username'] !== null
+            && $profile['smtp_password'] !== null;
+    }
+
+    private function profilesUseDifferentTransport(array $primary, array $fallback): bool
+    {
+        return $primary['smtp_host'] !== $fallback['smtp_host']
+            || (string) $primary['smtp_port'] !== (string) $fallback['smtp_port']
+            || $primary['smtp_username'] !== $fallback['smtp_username']
+            || $primary['smtp_password'] !== $fallback['smtp_password']
+            || $primary['smtp_encryption'] !== $fallback['smtp_encryption'];
     }
 }
