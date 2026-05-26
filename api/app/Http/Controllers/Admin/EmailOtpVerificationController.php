@@ -34,7 +34,6 @@ class EmailOtpVerificationController extends Controller
 
     public function updateEmail(Request $request): RedirectResponse
     {
-        $existing = CustomerEmailSetting::query()->first();
         $validated = $request->validate([
         ]);
 
@@ -53,13 +52,13 @@ class EmailOtpVerificationController extends Controller
                 'order_from_name' => CustomerEmailService::ORDER_FROM_NAME,
                 'order_from_email' => CustomerEmailService::ORDER_FROM_EMAIL,
                 'order_reply_to_email' => CustomerEmailService::ORDER_FROM_EMAIL,
-                'smtp_host' => $existing?->smtp_host,
-                'smtp_port' => $existing?->smtp_port,
-                'smtp_encryption' => $existing?->smtp_encryption,
-                'smtp_username' => $existing?->smtp_username,
-                'smtp_password' => $existing?->smtp_password,
-                'order_smtp_username' => $existing?->order_smtp_username,
-                'order_smtp_password' => $existing?->order_smtp_password,
+                'smtp_host' => CustomerEmailService::SMTP_HOST,
+                'smtp_port' => CustomerEmailService::SMTP_PORT,
+                'smtp_encryption' => CustomerEmailService::SMTP_ENCRYPTION,
+                'smtp_username' => CustomerEmailService::AUTH_SMTP_USERNAME,
+                'smtp_password' => CustomerEmailService::AUTH_SMTP_PASSWORD,
+                'order_smtp_username' => CustomerEmailService::ORDER_SMTP_USERNAME,
+                'order_smtp_password' => CustomerEmailService::ORDER_SMTP_PASSWORD,
             ]
         );
 
