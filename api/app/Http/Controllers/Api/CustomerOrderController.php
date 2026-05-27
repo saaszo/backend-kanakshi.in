@@ -26,15 +26,11 @@ class CustomerOrderController
             ], 401);
         }
 
+        $this->claimLegacyOrdersForCustomer($user);
+
         $orders = Order::query()
             ->with(['items'])
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->orWhere('ship_email', $user->email);
-                if ($user->phone) {
-                    $query->orWhere('ship_phone', $user->phone);
-                }
-            })
+            ->where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->get();
 
@@ -61,17 +57,13 @@ class CustomerOrderController
             ], 401);
         }
 
+        $this->claimLegacyOrdersForCustomer($user);
+
         $order = Order::query()
             ->with(['items', 'returns', 'trackingUpdates' => function ($q) {
                 $q->orderByDesc('created_at');
             }])
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->orWhere('ship_email', $user->email);
-                if ($user->phone) {
-                    $query->orWhere('ship_phone', $user->phone);
-                }
-            })
+            ->where('user_id', $user->id)
             ->where('order_number', $order_number)
             ->first();
 
@@ -100,6 +92,8 @@ class CustomerOrderController
             ], 401);
         }
 
+        $this->claimLegacyOrdersForCustomer($user);
+
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:150'],
             'customer_notes' => ['nullable', 'string'],
@@ -113,13 +107,7 @@ class CustomerOrderController
 
         $order = Order::query()
             ->with('items')
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->orWhere('ship_email', $user->email);
-                if ($user->phone) {
-                    $query->orWhere('ship_phone', $user->phone);
-                }
-            })
+            ->where('user_id', $user->id)
             ->where('order_number', $order_number)
             ->first();
 
@@ -324,5 +312,21 @@ class CustomerOrderController
         ])->save();
 
         return $token->user;
+    }
+
+    private function claimLegacyOrdersForCustomer(User $user): void
+    {
+        $email = strtolower((string) $user->email);
+
+        if ($email === '') {
+            return;
+        }
+
+        Order::query()
+            ->whereNull('user_id')
+            ->whereRaw('LOWER(ship_email) = ?', [$email])
+            ->update([
+                'user_id' => $user->id,
+            ]);
     }
 }
