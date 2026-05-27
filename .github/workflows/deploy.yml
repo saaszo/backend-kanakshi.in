@@ -56,9 +56,19 @@ jobs:
             ./api/deploy/hostinger-public/ "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:${{ secrets.HOSTINGER_PUBLIC_PATH }}/"
 
       - name: Run remote deployment steps
+        env:
+          RAZORPAY_MERCHANT_ID: ${{ secrets.RAZORPAY_MERCHANT_ID }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
         run: |
           ssh -o StrictHostKeyChecking=no -p "${{ secrets.HOSTINGER_PORT }}" -i ~/.ssh/id_ed25519 \
-            "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}" 'bash -se' <<EOF
+            "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}" \
+            RAZORPAY_MERCHANT_ID="${RAZORPAY_MERCHANT_ID}" \
+            RAZORPAY_KEY_ID="${RAZORPAY_KEY_ID}" \
+            RAZORPAY_KEY_SECRET="${RAZORPAY_KEY_SECRET}" \
+            RAZORPAY_WEBHOOK_SECRET="${RAZORPAY_WEBHOOK_SECRET}" \
+            'bash -se' <<EOF
           set -e
           APP_PATH="${{ secrets.HOSTINGER_APP_PATH }}"
           PUBLIC_PATH="${{ secrets.HOSTINGER_PUBLIC_PATH }}"
@@ -74,6 +84,31 @@ jobs:
 
           cd "\$APP_PATH"
           php artisan migrate --seed --force
+          php artisan tinker --execute='
+            \$cod = App\Models\PaymentGatewaySetting::query()->firstOrNew(["provider" => "cod"]);
+            \$cod->fill([
+              "display_name" => \$cod->display_name ?: "Cash on Delivery",
+              "sort_order" => \$cod->sort_order ?: 4,
+              "is_active" => true,
+              "is_test_mode" => false,
+            ])->save();
+
+            if (filled(env("RAZORPAY_KEY_ID")) && filled(env("RAZORPAY_KEY_SECRET")) && filled(env("RAZORPAY_WEBHOOK_SECRET"))) {
+              App\Models\PaymentGatewaySetting::query()->updateOrCreate(
+                ["provider" => "razorpay"],
+                [
+                  "display_name" => "Razorpay",
+                  "merchant_id" => env("RAZORPAY_MERCHANT_ID"),
+                  "public_key" => env("RAZORPAY_KEY_ID"),
+                  "secret_key" => env("RAZORPAY_KEY_SECRET"),
+                  "webhook_secret" => env("RAZORPAY_WEBHOOK_SECRET"),
+                  "sort_order" => 1,
+                  "is_active" => true,
+                  "is_test_mode" => false,
+                ]
+              );
+            }
+          '
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
