@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Coupon;
 use App\Models\CustomerAccessToken;
+use App\Models\CustomerAddress;
 use App\Models\PaymentGatewaySetting;
 use App\Models\User;
 use App\Services\CustomerEmailService;
@@ -16,6 +17,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -53,6 +55,7 @@ class CheckoutController
 
         try {
             return DB::transaction(function () use ($validated, $user, $request): JsonResponse {
+                $checkoutCustomer = $this->resolveCheckoutCustomer($validated, $user);
                 $subtotal = 0.00;
                 $totalTax = 0.00;
                 $customShippingCost = 0.00;
@@ -228,7 +231,7 @@ class CheckoutController
 
                 // Step 5: Save Order
                 $order = Order::query()->create([
-                    'user_id' => $user ? $user->id : null,
+                    'user_id' => $checkoutCustomer?->id,
                     'status' => $orderStatus,
                     'subtotal' => $subtotal,
                     'discount' => $discount,
@@ -248,6 +251,10 @@ class CheckoutController
                     'notes' => $validated['notes'] ?? null,
                     'coupon_id' => $coupon ? $coupon->id : null,
                 ]);
+
+                if ($checkoutCustomer) {
+                    $this->syncCheckoutCustomerAddress($checkoutCustomer, $validated);
+                }
 
                 // Save Order Items
                 foreach ($orderItemsData as $orderItemData) {
@@ -319,6 +326,17 @@ class CheckoutController
                     );
                 }
 
+                $customerAuth = null;
+                if ($checkoutCustomer && ! $user) {
+                    [$plainTextToken, $tokenModel] = $this->issueCustomerToken($checkoutCustomer);
+                    $customerAuth = [
+                        'token' => $plainTextToken,
+                        'token_type' => 'Bearer',
+                        'expires_at' => optional($tokenModel->expires_at)?->toIso8601String(),
+                        'user' => $this->serializeCustomer($checkoutCustomer->fresh()),
+                    ];
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => $orderStatus === 'payment_pending' 
@@ -333,7 +351,8 @@ class CheckoutController
                         'ship_email' => $order->ship_email,
                         'ship_phone' => $order->ship_phone,
                         'estimated_delivery' => now()->addDays(5)->format('d M, Y'),
-                        'gateway_config' => $orderStatus === 'payment_pending' ? $gatewayConfig : null
+                        'gateway_config' => $orderStatus === 'payment_pending' ? $gatewayConfig : null,
+                        'customer_auth' => $customerAuth,
                     ]
                 ], 201);
             });
@@ -679,6 +698,140 @@ class CheckoutController
         ])->save();
 
         return $token->user;
+    }
+
+    private function resolveCheckoutCustomer(array $validated, ?User $authenticatedUser): ?User
+    {
+        if ($authenticatedUser) {
+            $authenticatedUser->forceFill([
+                'name' => $validated['ship_name'],
+                'email' => strtolower($validated['ship_email']),
+                'phone' => $validated['ship_phone'],
+                'address' => $validated['ship_address'],
+                'city' => $validated['ship_city'],
+                'state' => $validated['ship_state'],
+                'pincode' => $validated['ship_pincode'],
+                'role' => 'customer',
+                'status' => $authenticatedUser->status ?: 'active',
+                'is_active' => true,
+                'email_verified_at' => $authenticatedUser->email_verified_at ?: now(),
+            ])->save();
+
+            return $authenticatedUser;
+        }
+
+        $email = strtolower($validated['ship_email']);
+        $existingCustomer = User::query()
+            ->where('email', $email)
+            ->where('role', 'customer')
+            ->first();
+
+        if ($existingCustomer) {
+            $existingCustomer->forceFill([
+                'name' => $validated['ship_name'],
+                'phone' => $validated['ship_phone'],
+                'address' => $validated['ship_address'],
+                'city' => $validated['ship_city'],
+                'state' => $validated['ship_state'],
+                'pincode' => $validated['ship_pincode'],
+                'status' => $existingCustomer->status ?: 'active',
+                'is_active' => true,
+                'email_verified_at' => $existingCustomer->email_verified_at ?: now(),
+            ])->save();
+
+            return $existingCustomer;
+        }
+
+        if (User::query()->where('email', $email)->exists()) {
+            return null;
+        }
+
+        return User::query()->create([
+            'name' => $validated['ship_name'],
+            'email' => $email,
+            'phone' => $validated['ship_phone'],
+            'address' => $validated['ship_address'],
+            'city' => $validated['ship_city'],
+            'state' => $validated['ship_state'],
+            'pincode' => $validated['ship_pincode'],
+            'role' => 'customer',
+            'status' => 'active',
+            'is_active' => true,
+            'two_factor_enabled' => false,
+            'email_verified_at' => now(),
+            'password' => Hash::make(Str::password(16)),
+        ]);
+    }
+
+    private function syncCheckoutCustomerAddress(User $user, array $validated): void
+    {
+        $addressAttributes = [
+            'recipient_name' => $validated['ship_name'],
+            'phone' => $validated['ship_phone'],
+            'address_line1' => $validated['ship_address'],
+            'city' => $validated['ship_city'],
+            'state' => $validated['ship_state'],
+            'pincode' => $validated['ship_pincode'],
+        ];
+
+        $existingAddress = CustomerAddress::query()
+            ->where('user_id', $user->id)
+            ->where('address_line1', $validated['ship_address'])
+            ->where('city', $validated['ship_city'])
+            ->where('state', $validated['ship_state'])
+            ->where('pincode', $validated['ship_pincode'])
+            ->first();
+
+        if ($existingAddress) {
+            $existingAddress->update(array_merge($addressAttributes, [
+                'type' => $existingAddress->type ?: 'home',
+                'is_default' => $existingAddress->is_default ?: ! CustomerAddress::query()->where('user_id', $user->id)->where('is_default', true)->exists(),
+            ]));
+            return;
+        }
+
+        $hasDefault = CustomerAddress::query()
+            ->where('user_id', $user->id)
+            ->where('is_default', true)
+            ->exists();
+
+        CustomerAddress::query()->create(array_merge($addressAttributes, [
+            'user_id' => $user->id,
+            'type' => 'home',
+            'label' => 'Checkout Address',
+            'address_line2' => null,
+            'landmark' => null,
+            'is_default' => ! $hasDefault,
+        ]));
+    }
+
+    private function issueCustomerToken(User $user): array
+    {
+        $plainTextToken = Str::random(64);
+        $token = CustomerAccessToken::query()->create([
+            'user_id' => $user->id,
+            'name' => 'checkout-auto-login',
+            'token_hash' => hash('sha256', $plainTextToken),
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        return [$plainTextToken, $token];
+    }
+
+    private function serializeCustomer(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'city' => $user->city,
+            'state' => $user->state,
+            'pincode' => $user->pincode,
+            'email_verified_at' => optional($user->email_verified_at)?->toIso8601String(),
+            'role' => $user->role,
+        ];
     }
 
     private function cleanupExpiredPendingOrders(): void
