@@ -12,7 +12,7 @@ class AuctionController
 {
     public function index(): View
     {
-        $auctions = Auction::with('winner', 'createdBy')
+        $auctions = Auction::with(['product', 'winner', 'createdBy'])
             ->orderByDesc('created_at')
             ->get();
 
@@ -21,7 +21,9 @@ class AuctionController
             $auction->syncStatus();
         }
 
-        $auctions = Auction::with('winner')->orderByDesc('created_at')->get();
+        $auctions = Auction::with(['product', 'winner'])
+            ->orderByDesc('created_at')
+            ->get();
 
         return view('admin.auctions.index', compact('auctions'));
     }

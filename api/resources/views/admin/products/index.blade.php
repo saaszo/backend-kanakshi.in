@@ -86,6 +86,7 @@
                                         <th>Qty</th>
                                         <th>Price</th>
                                         <th>Sale Price</th>
+                                        <th>Delivery</th>
                                         <th>Status</th>
                                         <th style="width: 220px;">Actions</th>
                                     </tr>
@@ -129,6 +130,25 @@
                                             </td>
                                             <td>
                                                 <div class="admin-status-stack">
+                                                    <select name="shipping_type" form="product-update-{{ $product->id }}" class="table-input">
+                                                        <option value="default" @selected(($product->shipping_type ?? 'default') === 'default')>Global rule</option>
+                                                        <option value="custom" @selected($product->shipping_type === 'custom')>Custom charge</option>
+                                                        <option value="free" @selected($product->shipping_type === 'free')>Free delivery</option>
+                                                    </select>
+                                                    <input
+                                                        name="shipping_fee"
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.01"
+                                                        value="{{ old('shipping_fee', $product->shipping_fee) }}"
+                                                        form="product-update-{{ $product->id }}"
+                                                        class="table-input"
+                                                        placeholder="Charge"
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="admin-status-stack">
                                                     <span class="admin-badge {{ $product->is_active ? 'success' : 'muted' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>
                                                     <span class="admin-badge {{ $product->is_featured ? 'primary' : 'muted' }}">{{ $product->is_featured ? 'Featured' : 'Standard' }}</span>
                                                     <div class="admin-product-flags">
@@ -162,7 +182,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="muted">No products found for this filter.</td>
+                                            <td colspan="8" class="muted">No products found for this filter.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -211,6 +231,15 @@
                                 <div class="field"><label>SKU</label><input name="sku" /></div>
                                 <div class="field"><label>Price</label><input name="price" /></div>
                                 <div class="field"><label>Sale Price</label><input name="sale_price" /></div>
+                                <div class="field">
+                                    <label>Delivery Rule</label>
+                                    <select name="shipping_type">
+                                        <option value="default" selected>Use store-wide shipping</option>
+                                        <option value="custom">Set product-specific charge</option>
+                                        <option value="free">Always free delivery</option>
+                                    </select>
+                                </div>
+                                <div class="field"><label>Delivery Charge</label><input name="shipping_fee" value="0" /></div>
                                 <div class="field"><label>Stock</label><input name="stock" value="0" /></div>
                                 <div class="field"><label>Video URL</label><input name="video_url" /></div>
                                 <div class="field"><label>Meta Title</label><input name="meta_title" data-meta-title-target /></div>

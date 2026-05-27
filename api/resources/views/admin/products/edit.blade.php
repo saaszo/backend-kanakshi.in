@@ -42,6 +42,15 @@
                             <div class="field"><label>SKU</label><input name="sku" value="{{ old('sku', $product->sku) }}" /></div>
                             <div class="field"><label>Price</label><input name="price" value="{{ old('price', $product->price) }}" /></div>
                             <div class="field"><label>Sale Price</label><input name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" /></div>
+                            <div class="field">
+                                <label>Delivery Rule</label>
+                                <select name="shipping_type">
+                                    <option value="default" @selected(old('shipping_type', $product->shipping_type ?? 'default') === 'default')>Use store-wide shipping</option>
+                                    <option value="custom" @selected(old('shipping_type', $product->shipping_type) === 'custom')>Set product-specific charge</option>
+                                    <option value="free" @selected(old('shipping_type', $product->shipping_type) === 'free')>Always free delivery</option>
+                                </select>
+                            </div>
+                            <div class="field"><label>Delivery Charge</label><input name="shipping_fee" value="{{ old('shipping_fee', $product->shipping_fee) }}" /></div>
                             <div class="field"><label>Stock</label><input name="stock" value="{{ old('stock', $product->stock) }}" /></div>
                             <div class="field"><label>Video URL</label><input name="video_url" value="{{ old('video_url', $product->video_url) }}" /></div>
                             <div class="field"><label>Meta Title</label><input name="meta_title" value="{{ old('meta_title', $product->meta_title) }}" data-meta-title-target /></div>

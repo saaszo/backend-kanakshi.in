@@ -55,6 +55,8 @@ class CheckoutController
             return DB::transaction(function () use ($validated, $user, $request): JsonResponse {
                 $subtotal = 0.00;
                 $totalTax = 0.00;
+                $customShippingCost = 0.00;
+                $hasDefaultShippingItem = false;
                 $orderItemsData = [];
 
                 // Step 1: Process each item in the cart
@@ -114,6 +116,13 @@ class CheckoutController
                     // Calculate pricing
                     $lineTotal = $price * $itemData['quantity'];
                     $subtotal += $lineTotal;
+
+                    $shippingType = (string) ($product->shipping_type ?: 'default');
+                    if ($shippingType === 'custom') {
+                        $customShippingCost += ((float) $product->shipping_fee) * $itemData['quantity'];
+                    } elseif ($shippingType === 'default') {
+                        $hasDefaultShippingItem = true;
+                    }
 
                     // Tax calculation (GST is inclusive in price)
                     $gstPercent = $product->gst_percent ?: 3.00;
@@ -188,7 +197,12 @@ class CheckoutController
 
                 // Step 3: Shipping calculations
                 $netSubtotal = $subtotal - $discount;
-                $shippingCost = $netSubtotal >= $this->shippingThreshold() ? 0.00 : $this->defaultShippingCost();
+                $defaultShippingCost = 0.00;
+                if ($hasDefaultShippingItem && $netSubtotal < $this->shippingThreshold()) {
+                    $defaultShippingCost = $this->defaultShippingCost();
+                }
+
+                $shippingCost = $defaultShippingCost + $customShippingCost;
                 
                 // Final order amount
                 $totalAmount = $netSubtotal + $shippingCost;
