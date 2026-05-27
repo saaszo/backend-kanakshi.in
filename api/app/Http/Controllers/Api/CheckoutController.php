@@ -197,10 +197,7 @@ class CheckoutController
                 $gatewayConfig = null;
 
                 if ($validated['payment_method'] !== 'cod') {
-                    $gatewaySetting = PaymentGatewaySetting::query()
-                        ->where('provider', $validated['payment_method'])
-                        ->where('is_active', true)
-                        ->first();
+                    $gatewaySetting = $this->resolveStorefrontGateway($validated['payment_method']);
 
                     if (!$gatewaySetting) {
                         $this->failCheckout('This payment method is currently unavailable.');
@@ -746,6 +743,31 @@ class CheckoutController
         }
 
         return (string) $response->json('id');
+    }
+
+    private function resolveStorefrontGateway(string $provider): ?PaymentGatewaySetting
+    {
+        $gateway = PaymentGatewaySetting::query()
+            ->where('provider', $provider)
+            ->first();
+
+        if (! $gateway) {
+            return null;
+        }
+
+        if ($gateway->is_active) {
+            return $gateway;
+        }
+
+        if ($provider === 'razorpay' && (filled($gateway->public_key) || filled($gateway->secret_key) || filled($gateway->webhook_secret))) {
+            return $gateway;
+        }
+
+        if ($provider === 'phonepe' && (filled($gateway->merchant_id) || filled($gateway->public_key) || filled($gateway->secret_key))) {
+            return $gateway;
+        }
+
+        return null;
     }
 
     private function createPhonePeCheckoutSession(Order $order, PaymentGatewaySetting $gateway, string $pendingAccessToken): array

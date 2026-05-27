@@ -37,9 +37,15 @@ class PublicSettingsController
                 : collect();
             $paymentGateways = Schema::hasTable('payment_gateway_settings')
                 ? PaymentGatewaySetting::query()
-                    ->where('is_active', true)
                     ->orderBy('sort_order')
-                    ->get(['provider', 'display_name', 'is_test_mode'])
+                    ->get()
+                    ->filter(fn (PaymentGatewaySetting $gateway) => $this->gatewayVisibleOnStorefront($gateway))
+                    ->map(fn (PaymentGatewaySetting $gateway) => [
+                        'provider' => $gateway->provider,
+                        'display_name' => $gateway->display_name,
+                        'is_test_mode' => (bool) $gateway->is_test_mode,
+                    ])
+                    ->values()
                 : collect();
             $topbarOffers = collect(json_decode($store?->topbar_offers ?? '[]', true) ?: [])
                 ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
@@ -104,5 +110,26 @@ class PublicSettingsController
             'message' => 'Public settings fetched successfully.',
             'data' => $settings,
         ]);
+    }
+
+    private function gatewayVisibleOnStorefront(PaymentGatewaySetting $gateway): bool
+    {
+        if ($gateway->provider === 'cod') {
+            return true;
+        }
+
+        if ($gateway->is_active) {
+            return true;
+        }
+
+        if ($gateway->provider === 'razorpay') {
+            return filled($gateway->public_key) || filled($gateway->secret_key) || filled($gateway->webhook_secret);
+        }
+
+        if ($gateway->provider === 'phonepe') {
+            return filled($gateway->merchant_id) || filled($gateway->public_key) || filled($gateway->secret_key);
+        }
+
+        return false;
     }
 }
