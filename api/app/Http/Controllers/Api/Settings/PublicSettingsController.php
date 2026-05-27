@@ -86,6 +86,7 @@ class PublicSettingsController
                     'footer_menu' => $footerMenu->values(),
                     'social_links' => $socialLinks->values(),
                     'payment_gateways' => $paymentGateways->values(),
+                    'default_shipping_cost' => '99',
                     'min_order_free_shipping' => '499',
                 ],
             ]);
