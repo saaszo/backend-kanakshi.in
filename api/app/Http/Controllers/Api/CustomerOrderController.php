@@ -28,7 +28,13 @@ class CustomerOrderController
 
         $orders = Order::query()
             ->with(['items'])
-            ->where('user_id', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('ship_email', $user->email);
+                if ($user->phone) {
+                    $query->orWhere('ship_phone', $user->phone);
+                }
+            })
             ->orderByDesc('created_at')
             ->get();
 
@@ -59,7 +65,13 @@ class CustomerOrderController
             ->with(['items', 'returns', 'trackingUpdates' => function ($q) {
                 $q->orderByDesc('created_at');
             }])
-            ->where('user_id', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('ship_email', $user->email);
+                if ($user->phone) {
+                    $query->orWhere('ship_phone', $user->phone);
+                }
+            })
             ->where('order_number', $order_number)
             ->first();
 
@@ -101,7 +113,13 @@ class CustomerOrderController
 
         $order = Order::query()
             ->with('items')
-            ->where('user_id', $user->id)
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('ship_email', $user->email);
+                if ($user->phone) {
+                    $query->orWhere('ship_phone', $user->phone);
+                }
+            })
             ->where('order_number', $order_number)
             ->first();
 
@@ -205,6 +223,8 @@ class CustomerOrderController
             'items_count' => $order->items->sum('quantity'),
             'first_item_image' => $order->items->first()?->image,
             'first_item_name' => $order->items->first()?->name,
+            'tracking_number' => $order->tracking_number,
+            'tracking_url' => $order->tracking_url,
         ];
     }
 
