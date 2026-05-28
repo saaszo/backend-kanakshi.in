@@ -97,14 +97,13 @@
                                 <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="panel" style="padding:18px;">
                                     @csrf
                                     @method('PUT')
-                                    <div @class(['field', 'has-error' => $errors->has('logo_url') || $errors->has('logo_file')])>
-                                        <label for="logo_url">Logo URL</label>
-                                        <input id="logo_url" name="logo_url" value="{{ old('logo_url', $store?->logo_url) }}" />
+                                    <div @class(['field', 'has-error' => $errors->has('logo_file')])>
+                                        <label for="logo_file">Upload Logo</label>
                                         @if ($store?->logo_url)
                                             <img src="{{ $store->logo_url }}" alt="Logo" class="admin-upload-preview" style="margin-top:10px;" />
                                         @endif
-                                        <input type="file" id="logo_file" name="logo_file" accept="image/*" style="margin-top:10px;" />
-                                        @error('logo_url')<div class="field-error">{{ $message }}</div>@enderror
+                                        <div class="setting-note">Supported files: PNG, JPG, JPEG, SVG, WEBP, ICO.</div>
+                                        <input type="file" id="logo_file" name="logo_file" accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" style="margin-top:10px;" />
                                         @error('logo_file')<div class="field-error">{{ $message }}</div>@enderror
                                     </div>
                                     <div class="settings-actions">
@@ -115,14 +114,13 @@
                                 <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="panel" style="padding:18px;">
                                     @csrf
                                     @method('PUT')
-                                    <div @class(['field', 'has-error' => $errors->has('favicon_url') || $errors->has('favicon_file')])>
-                                        <label for="favicon_url">Favicon URL</label>
-                                        <input id="favicon_url" name="favicon_url" value="{{ old('favicon_url', $store?->favicon_url) }}" />
+                                    <div @class(['field', 'has-error' => $errors->has('favicon_file')])>
+                                        <label for="favicon_file">Upload Favicon</label>
                                         @if ($store?->favicon_url)
                                             <img src="{{ $store->favicon_url }}" alt="Favicon" class="admin-upload-preview admin-upload-preview--small" style="margin-top:10px;" />
                                         @endif
-                                        <input type="file" id="favicon_file" name="favicon_file" accept="image/*" style="margin-top:10px;" />
-                                        @error('favicon_url')<div class="field-error">{{ $message }}</div>@enderror
+                                        <div class="setting-note">Supported files: PNG, JPG, JPEG, SVG, WEBP, ICO.</div>
+                                        <input type="file" id="favicon_file" name="favicon_file" accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" style="margin-top:10px;" />
                                         @error('favicon_file')<div class="field-error">{{ $message }}</div>@enderror
                                     </div>
                                     <div class="settings-actions">
@@ -302,7 +300,8 @@
                                         @if ($store?->og_image)
                                             <img src="{{ $store->og_image }}" alt="Open Graph image" class="admin-upload-preview" style="margin-top:10px;" />
                                         @endif
-                                        <input type="file" id="og_image_file" name="og_image_file" accept="image/*" style="margin-top:10px;" />
+                                        <div class="setting-note">Supported files: PNG, JPG, JPEG, SVG, WEBP, ICO.</div>
+                                        <input type="file" id="og_image_file" name="og_image_file" accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" style="margin-top:10px;" />
                                         @error('og_image')<div class="field-error">{{ $message }}</div>@enderror
                                         @error('og_image_file')<div class="field-error">{{ $message }}</div>@enderror
                                     </div>
@@ -329,7 +328,8 @@
                                         @if ($store?->twitter_image)
                                             <img src="{{ $store->twitter_image }}" alt="Twitter image" class="admin-upload-preview" style="margin-top:10px;" />
                                         @endif
-                                        <input type="file" id="twitter_image_file" name="twitter_image_file" accept="image/*" style="margin-top:10px;" />
+                                        <div class="setting-note">Supported files: PNG, JPG, JPEG, SVG, WEBP, ICO.</div>
+                                        <input type="file" id="twitter_image_file" name="twitter_image_file" accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" style="margin-top:10px;" />
                                         @error('twitter_image')<div class="field-error">{{ $message }}</div>@enderror
                                         @error('twitter_image_file')<div class="field-error">{{ $message }}</div>@enderror
                                     </div>
