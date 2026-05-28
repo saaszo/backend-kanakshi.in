@@ -143,6 +143,13 @@ class StoreSettingsController extends Controller
                 $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image', 'twitter_image_file');
             }
 
+            unset(
+                $validated['logo_file'],
+                $validated['favicon_file'],
+                $validated['og_image_file'],
+                $validated['twitter_image_file']
+            );
+
             StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
 
             return back()->with('status', 'Store settings updated successfully.');
