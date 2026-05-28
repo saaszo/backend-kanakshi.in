@@ -129,16 +129,16 @@ class StoreSettingsController extends Controller
         );
         unset($validated['topbar_offers_text']);
         if ($request->hasFile('logo_file')) {
-            $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo');
+            $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo', 'logo_file');
         }
         if ($request->hasFile('favicon_file')) {
-            $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon');
+            $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon', 'favicon_file');
         }
         if ($request->hasFile('og_image_file')) {
-            $validated['og_image'] = $this->storeAdminUpload($request->file('og_image_file'), 'branding', 'Open Graph image');
+            $validated['og_image'] = $this->storeAdminUpload($request->file('og_image_file'), 'branding', 'Open Graph image', 'og_image_file');
         }
         if ($request->hasFile('twitter_image_file')) {
-            $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image');
+            $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image', 'twitter_image_file');
         }
 
         StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
