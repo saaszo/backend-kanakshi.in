@@ -46,7 +46,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/returns/{return}', [OrderReturnController::class, 'update'])->name('returns.update');
 
         Route::get('/settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
-        Route::put('/settings/store', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');
+        Route::put('/settings', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');
+        Route::put('/settings/store', [StoreSettingsController::class, 'updateStore']);
         Route::put('/settings/gateways/{gateway}', [StoreSettingsController::class, 'updateGateway'])->name('settings.gateway.update');
         Route::put('/settings/delivery-partners/{partner}', [StoreSettingsController::class, 'updateDeliveryPartner'])->name('settings.delivery.update');
         Route::get('/email-otp-verification', [EmailOtpVerificationController::class, 'edit'])->name('email-otp.edit');

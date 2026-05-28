@@ -10,6 +10,7 @@ use App\Models\StoreSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Throwable;
 
 class StoreSettingsController extends Controller
 {
@@ -31,119 +32,129 @@ class StoreSettingsController extends Controller
 
     public function updateStore(Request $request): RedirectResponse
     {
-        $store = StoreSetting::query()->first();
+        try {
+            $store = StoreSetting::query()->first();
 
-        $rules = [
-            'site_name' => ['required', 'string', 'max:150'],
-            'site_tagline' => ['nullable', 'string', 'max:255'],
-            'business_name' => ['nullable', 'string', 'max:150'],
-            'business_email' => ['nullable', 'email', 'max:150'],
-            'business_phone' => ['nullable', 'string', 'max:30'],
-            'support_email' => ['nullable', 'email', 'max:150'],
-            'support_phone' => ['nullable', 'string', 'max:30'],
-            'whatsapp_number' => ['nullable', 'string', 'max:30'],
-            'logo_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
-            'favicon_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
-            'custom_domain' => ['nullable', 'string', 'max:180'],
-            'google_tag_manager_id' => ['nullable', 'string', 'max:80'],
-            'facebook_pixel_id' => ['nullable', 'string', 'max:80'],
-            'seasonal_campaign_name' => ['nullable', 'string', 'max:150'],
-            'meta_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string'],
-            'og_title' => ['nullable', 'string', 'max:255'],
-            'og_description' => ['nullable', 'string'],
-            'og_image' => ['nullable', 'string', 'max:255'],
-            'og_image_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
-            'twitter_title' => ['nullable', 'string', 'max:255'],
-            'twitter_description' => ['nullable', 'string'],
-            'twitter_image' => ['nullable', 'string', 'max:255'],
-            'twitter_image_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
-            'twitter_handle' => ['nullable', 'string', 'max:100'],
-            'show_topbar' => ['nullable', 'boolean'],
-            'topbar_bg_color' => ['nullable', 'string', 'max:20'],
-            'topbar_text_color' => ['nullable', 'string', 'max:20'],
-            'topbar_offers_text' => ['nullable', 'string'],
-            'currency' => ['required', 'string', 'max:12'],
-            'currency_symbol' => ['required', 'string', 'max:12'],
-            'timezone' => ['required', 'string', 'max:80'],
-            'language' => ['required', 'string', 'max:12'],
-            'address_line1' => ['nullable', 'string', 'max:255'],
-            'address_line2' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'state' => ['nullable', 'string', 'max:100'],
-            'pincode' => ['nullable', 'string', 'max:20'],
-            'country' => ['required', 'string', 'max:100'],
-            'invoice_prefix' => ['required', 'string', 'max:25'],
-            'invoice_footer_note' => ['nullable', 'string'],
-            'footer_copyright_text' => ['nullable', 'string', 'max:255'],
-            'show_logo_on_invoice' => ['nullable', 'boolean'],
-            'return_policy' => ['nullable', 'string'],
-            'privacy_policy' => ['nullable', 'string'],
-            'terms_conditions' => ['nullable', 'string'],
-            'custom_header_scripts' => ['nullable', 'string'],
-            'custom_footer_scripts' => ['nullable', 'string'],
-        ];
+            $rules = [
+                'site_name' => ['required', 'string', 'max:150'],
+                'site_tagline' => ['nullable', 'string', 'max:255'],
+                'business_name' => ['nullable', 'string', 'max:150'],
+                'business_email' => ['nullable', 'email', 'max:150'],
+                'business_phone' => ['nullable', 'string', 'max:30'],
+                'support_email' => ['nullable', 'email', 'max:150'],
+                'support_phone' => ['nullable', 'string', 'max:30'],
+                'whatsapp_number' => ['nullable', 'string', 'max:30'],
+                'logo_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
+                'favicon_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
+                'custom_domain' => ['nullable', 'string', 'max:180'],
+                'google_tag_manager_id' => ['nullable', 'string', 'max:80'],
+                'facebook_pixel_id' => ['nullable', 'string', 'max:80'],
+                'seasonal_campaign_name' => ['nullable', 'string', 'max:150'],
+                'meta_title' => ['nullable', 'string', 'max:255'],
+                'meta_description' => ['nullable', 'string'],
+                'og_title' => ['nullable', 'string', 'max:255'],
+                'og_description' => ['nullable', 'string'],
+                'og_image' => ['nullable', 'string', 'max:255'],
+                'og_image_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
+                'twitter_title' => ['nullable', 'string', 'max:255'],
+                'twitter_description' => ['nullable', 'string'],
+                'twitter_image' => ['nullable', 'string', 'max:255'],
+                'twitter_image_file' => ['nullable', 'file', 'mimes:png,jpg,jpeg,svg,webp,ico', 'max:5120'],
+                'twitter_handle' => ['nullable', 'string', 'max:100'],
+                'show_topbar' => ['nullable', 'boolean'],
+                'topbar_bg_color' => ['nullable', 'string', 'max:20'],
+                'topbar_text_color' => ['nullable', 'string', 'max:20'],
+                'topbar_offers_text' => ['nullable', 'string'],
+                'currency' => ['required', 'string', 'max:12'],
+                'currency_symbol' => ['required', 'string', 'max:12'],
+                'timezone' => ['required', 'string', 'max:80'],
+                'language' => ['required', 'string', 'max:12'],
+                'address_line1' => ['nullable', 'string', 'max:255'],
+                'address_line2' => ['nullable', 'string', 'max:255'],
+                'city' => ['nullable', 'string', 'max:100'],
+                'state' => ['nullable', 'string', 'max:100'],
+                'pincode' => ['nullable', 'string', 'max:20'],
+                'country' => ['required', 'string', 'max:100'],
+                'invoice_prefix' => ['required', 'string', 'max:25'],
+                'invoice_footer_note' => ['nullable', 'string'],
+                'footer_copyright_text' => ['nullable', 'string', 'max:255'],
+                'show_logo_on_invoice' => ['nullable', 'boolean'],
+                'return_policy' => ['nullable', 'string'],
+                'privacy_policy' => ['nullable', 'string'],
+                'terms_conditions' => ['nullable', 'string'],
+                'custom_header_scripts' => ['nullable', 'string'],
+                'custom_footer_scripts' => ['nullable', 'string'],
+            ];
 
-        $currentValues = $store?->toArray() ?? [];
-        $mergedInput = array_replace($currentValues, $request->except(['_token', '_method']));
+            $currentValues = $store?->toArray() ?? [];
+            $mergedInput = array_replace($currentValues, $request->except(['_token', '_method']));
 
-        foreach ([
-            'site_name',
-            'currency',
-            'currency_symbol',
-            'timezone',
-            'language',
-            'country',
-            'invoice_prefix',
-        ] as $requiredField) {
-            if (! array_key_exists($requiredField, $mergedInput)) {
-                $mergedInput[$requiredField] = $currentValues[$requiredField] ?? '';
+            foreach ([
+                'site_name',
+                'currency',
+                'currency_symbol',
+                'timezone',
+                'language',
+                'country',
+                'invoice_prefix',
+            ] as $requiredField) {
+                if (! array_key_exists($requiredField, $mergedInput)) {
+                    $mergedInput[$requiredField] = $currentValues[$requiredField] ?? '';
+                }
             }
-        }
 
-        foreach (['show_logo_on_invoice', 'show_topbar'] as $booleanField) {
-            if ($request->has($booleanField)) {
-                $mergedInput[$booleanField] = $request->boolean($booleanField);
-            } else {
-                $mergedInput[$booleanField] = (bool) ($currentValues[$booleanField] ?? false);
+            foreach (['show_logo_on_invoice', 'show_topbar'] as $booleanField) {
+                if ($request->has($booleanField)) {
+                    $mergedInput[$booleanField] = $request->boolean($booleanField);
+                } else {
+                    $mergedInput[$booleanField] = (bool) ($currentValues[$booleanField] ?? false);
+                }
             }
-        }
 
-        if (! array_key_exists('topbar_offers_text', $mergedInput)) {
-            $mergedInput['topbar_offers_text'] = collect(json_decode($currentValues['topbar_offers'] ?? '[]', true) ?: [])
-                ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
-                ->implode("\n");
-        }
+            if (! array_key_exists('topbar_offers_text', $mergedInput)) {
+                $mergedInput['topbar_offers_text'] = collect(json_decode($currentValues['topbar_offers'] ?? '[]', true) ?: [])
+                    ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
+                    ->implode("\n");
+            }
 
-        $validated = validator($mergedInput, $rules)->validate();
+            $validated = validator($mergedInput, $rules)->validate();
 
-        $validated['show_logo_on_invoice'] = (bool) ($mergedInput['show_logo_on_invoice'] ?? false);
-        $validated['show_topbar'] = (bool) ($mergedInput['show_topbar'] ?? false);
-        $validated['topbar_offers'] = json_encode(
-            collect(preg_split('/\r\n|\r|\n/', (string) ($mergedInput['topbar_offers_text'] ?? '')) ?: [])
-                ->map(fn ($offer) => trim((string) $offer))
-                ->filter()
-                ->values()
-                ->all(),
-            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-        );
-        unset($validated['topbar_offers_text']);
-        if ($request->hasFile('logo_file')) {
-            $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo', 'logo_file');
-        }
-        if ($request->hasFile('favicon_file')) {
-            $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon', 'favicon_file');
-        }
-        if ($request->hasFile('og_image_file')) {
-            $validated['og_image'] = $this->storeAdminUpload($request->file('og_image_file'), 'branding', 'Open Graph image', 'og_image_file');
-        }
-        if ($request->hasFile('twitter_image_file')) {
-            $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image', 'twitter_image_file');
-        }
+            $validated['show_logo_on_invoice'] = (bool) ($mergedInput['show_logo_on_invoice'] ?? false);
+            $validated['show_topbar'] = (bool) ($mergedInput['show_topbar'] ?? false);
+            $validated['topbar_offers'] = json_encode(
+                collect(preg_split('/\r\n|\r|\n/', (string) ($mergedInput['topbar_offers_text'] ?? '')) ?: [])
+                    ->map(fn ($offer) => trim((string) $offer))
+                    ->filter()
+                    ->values()
+                    ->all(),
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+            unset($validated['topbar_offers_text']);
+            if ($request->hasFile('logo_file')) {
+                $validated['logo_url'] = $this->storeAdminUpload($request->file('logo_file'), 'branding', 'Store logo', 'logo_file');
+            }
+            if ($request->hasFile('favicon_file')) {
+                $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon', 'favicon_file');
+            }
+            if ($request->hasFile('og_image_file')) {
+                $validated['og_image'] = $this->storeAdminUpload($request->file('og_image_file'), 'branding', 'Open Graph image', 'og_image_file');
+            }
+            if ($request->hasFile('twitter_image_file')) {
+                $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image', 'twitter_image_file');
+            }
 
-        StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
+            StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
 
-        return back()->with('status', 'Store settings updated successfully.');
+            return back()->with('status', 'Store settings updated successfully.');
+        } catch (Throwable $throwable) {
+            report($throwable);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'store_settings' => 'Store settings save failed on the server. Please try once more. If the issue continues, the latest file type or filename is likely triggering a server-side error.',
+                ]);
+        }
     }
 
     public function updateGateway(Request $request, PaymentGatewaySetting $gateway): RedirectResponse
