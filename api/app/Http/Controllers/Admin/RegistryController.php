@@ -8,14 +8,13 @@ use App\Models\WarrantyClaim;
 use App\Models\BuybackRequest;
 use App\Models\RegistrationActivityLog;
 use App\Models\Setting;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use App\Models\CustomerEmailSetting;
 
 class RegistryController extends Controller
 {
@@ -426,39 +425,14 @@ class RegistryController extends Controller
      */
     private function sendNotificationMail(string $email, string $subject, string $body): void
     {
-        $settings = CustomerEmailSetting::query()->first();
-
-        if (!$settings || !$settings->is_active) {
-            return;
-        }
-
-        $smtpPassword = $settings->smtp_password;
-        $smtpScheme = match (strtolower((string) $settings->smtp_encryption)) {
-            'ssl' => 'smtps',
-            'tls' => 'tls',
-            default => null,
-        };
-
-        config([
-            'mail.default' => 'smtp',
-            'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $settings->smtp_host,
-            'mail.mailers.smtp.port' => $settings->smtp_port,
-            'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $settings->smtp_encryption,
-            'mail.mailers.smtp.username' => $settings->smtp_username,
-            'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $settings->from_email,
-            'mail.from.name' => $settings->from_name ?: 'Little Divinity',
-        ]);
-
         try {
-            Mail::raw($body, function ($message) use ($email, $settings, $subject): void {
-                $message->to($email)
-                    ->from($settings->from_email, $settings->from_name ?: 'Little Divinity')
-                    ->replyTo($settings->reply_to_email ?: $settings->from_email)
-                    ->subject($subject);
-            });
+            $service = app(CustomerEmailService::class);
+
+            if (! $service->canSendOrderEmails()) {
+                return;
+            }
+
+            $service->sendOrderMail($email, $subject, $body);
         } catch (\Throwable $throwable) {
             Log::error("Registry admin action notification email failed to send to {$email}: " . $throwable->getMessage());
         }

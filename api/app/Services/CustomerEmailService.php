@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\CustomerEmailSetting;
+use App\Models\StoreSetting;
 use Illuminate\Support\Facades\Mail;
 use RuntimeException;
 
@@ -148,7 +149,10 @@ class CustomerEmailService
             'mail.from.name' => $profile['from_name'],
         ]);
 
-        Mail::raw($body, function ($message) use ($email, $profile, $subject): void {
+        $channel = $profile['from_email'] === self::ORDER_FROM_EMAIL ? 'order' : 'auth';
+        $html = view('emails.customer-brand', $this->buildEmailViewData($subject, $body, $channel))->render();
+
+        Mail::html($html, function ($message) use ($email, $profile, $subject): void {
             $message->to($email)
                 ->from($profile['from_email'], $profile['from_name'])
                 ->replyTo($profile['reply_to_email'], $profile['from_name'])
@@ -163,5 +167,189 @@ class CustomerEmailService
             && $profile['smtp_port'] !== null
             && $profile['smtp_username'] !== null
             && $profile['smtp_password'] !== null;
+    }
+
+    private function buildEmailViewData(string $subject, string $body, string $channel): array
+    {
+        $store = StoreSetting::query()->first();
+        $siteName = $store?->site_name ?: 'Little Divinity';
+        $supportEmail = $store?->support_email ?: $store?->business_email ?: self::AUTH_FROM_EMAIL;
+        $supportPhone = $store?->support_phone ?: $store?->business_phone;
+        $siteUrl = $this->resolveSiteUrl($store?->custom_domain);
+        $logoUrl = $this->resolveLogoUrl($store?->logo_url, $siteUrl);
+
+        $parsed = $this->parseBody($subject, $body);
+
+        return [
+            'siteName' => $siteName,
+            'siteUrl' => $siteUrl,
+            'logoUrl' => $logoUrl,
+            'supportEmail' => $supportEmail,
+            'supportPhone' => $supportPhone,
+            'subject' => $subject,
+            'preheader' => $parsed['preheader'],
+            'eyebrow' => $channel === 'order' ? 'Order Update' : 'Account & Security',
+            'accentColor' => '#c5a059',
+            'accentColorSoft' => '#f6efe1',
+            'surfaceColor' => '#ffffff',
+            'backgroundColor' => '#f5f1ea',
+            'textColor' => '#1f1a17',
+            'mutedColor' => '#6f655d',
+            'greeting' => $parsed['greeting'],
+            'paragraphs' => $parsed['paragraphs'],
+            'otpCode' => $parsed['otpCode'],
+            'details' => $parsed['details'],
+            'detailTitle' => $parsed['detailTitle'],
+            'listSections' => $parsed['listSections'],
+            'actionUrl' => $parsed['actionUrl'],
+            'actionLabel' => $parsed['actionLabel'],
+            'closingLines' => $parsed['closingLines'],
+        ];
+    }
+
+    private function parseBody(string $subject, string $body): array
+    {
+        $normalizedBody = trim(str_replace(["\r\n", "\r"], "\n", $body));
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $normalizedBody)), static fn ($line) => $line !== ''));
+
+        $greeting = null;
+        if (! empty($lines) && preg_match('/^(hello|dear)\b/i', $lines[0])) {
+            $greeting = array_shift($lines);
+        }
+
+        $closingLines = [];
+        while (! empty($lines)) {
+            $lastLine = end($lines);
+            if ($lastLine === false) {
+                break;
+            }
+
+            if (preg_match('/^(warm regards|regards|thanks|thank you|team little divinity|littledivinity\.com)$/i', $lastLine)) {
+                array_unshift($closingLines, array_pop($lines));
+                continue;
+            }
+
+            break;
+        }
+
+        $otpCode = null;
+        if (preg_match('/\b(\d{4,8})\b/', $subject . "\n" . $normalizedBody, $otpMatch) && preg_match('/otp|one[- ]time/i', $subject . "\n" . $normalizedBody)) {
+            $otpCode = $otpMatch[1];
+        }
+
+        preg_match('/https?:\/\/[^\s]+/i', $normalizedBody, $urlMatch);
+        $actionUrl = $urlMatch[0] ?? null;
+
+        $detailTitle = null;
+        $details = [];
+        $paragraphs = [];
+        $listSections = [];
+        $activeListTitle = null;
+
+        foreach ($lines as $line) {
+            if (preg_match('/^-{3,}$/', $line)) {
+                continue;
+            }
+
+            if (preg_match('/^(items|claim details|guarantee details|appraisal details|reason for rejection|details):$/i', $line, $headingMatch)) {
+                $heading = strtolower(trim($headingMatch[1]));
+
+                if ($heading === 'items' || $heading === 'reason for rejection') {
+                    $activeListTitle = $headingMatch[1];
+                    continue;
+                }
+
+                $activeListTitle = null;
+                $detailTitle = ucwords($headingMatch[1]);
+                continue;
+            }
+
+            if (preg_match('/^([^:]{2,80}):\s*(.+)$/', $line, $detailMatch) && ! str_contains($line, '://')) {
+                $details[] = [
+                    'label' => trim($detailMatch[1]),
+                    'value' => trim($detailMatch[2]),
+                ];
+                continue;
+            }
+
+            if ($activeListTitle !== null && strtolower($activeListTitle) === 'items' && ! preg_match('/\s+x\s+\d+$/i', $line)) {
+                $activeListTitle = null;
+            }
+
+            if ($activeListTitle !== null) {
+                $sectionKey = strtolower($activeListTitle);
+                if (! isset($listSections[$sectionKey])) {
+                    $listSections[$sectionKey] = [
+                        'title' => ucwords($activeListTitle),
+                        'items' => [],
+                    ];
+                }
+
+                $listSections[$sectionKey]['items'][] = $line;
+                continue;
+            }
+
+            $paragraphs[] = $line;
+        }
+
+        if ($detailTitle === null && ! empty($details)) {
+            $detailTitle = 'Summary';
+        }
+
+        $actionLabel = 'Open Little Divinity';
+        if ($actionUrl) {
+            if (str_contains(strtolower($subject . ' ' . $normalizedBody), 'track')) {
+                $actionLabel = 'Track Status';
+            } elseif (str_contains(strtolower($subject . ' ' . $normalizedBody), 'verify')) {
+                $actionLabel = 'View Verification';
+            } elseif (str_contains(strtolower($subject . ' ' . $normalizedBody), 'warranty')) {
+                $actionLabel = 'Check Warranty Status';
+            } elseif (str_contains(strtolower($subject . ' ' . $normalizedBody), 'buyback')) {
+                $actionLabel = 'Review Request';
+            }
+        }
+
+        return [
+            'greeting' => $greeting,
+            'preheader' => $paragraphs[0] ?? $subject,
+            'paragraphs' => $paragraphs,
+            'otpCode' => $otpCode,
+            'details' => $details,
+            'detailTitle' => $detailTitle,
+            'listSections' => array_values($listSections),
+            'actionUrl' => $actionUrl,
+            'actionLabel' => $actionLabel,
+            'closingLines' => ! empty($closingLines) ? $closingLines : ['Team Little Divinity'],
+        ];
+    }
+
+    private function resolveSiteUrl(?string $customDomain): string
+    {
+        $domain = trim((string) $customDomain);
+
+        if ($domain === '') {
+            return 'https://www.littledivinity.com';
+        }
+
+        if (preg_match('/^https?:\/\//i', $domain)) {
+            return rtrim($domain, '/');
+        }
+
+        return 'https://' . trim($domain, '/');
+    }
+
+    private function resolveLogoUrl(?string $logoUrl, string $siteUrl): string
+    {
+        $logoUrl = trim((string) $logoUrl);
+
+        if ($logoUrl === '') {
+            return $siteUrl . '/logo.jpg';
+        }
+
+        if (preg_match('/^https?:\/\//i', $logoUrl)) {
+            return $logoUrl;
+        }
+
+        return $siteUrl . '/' . ltrim($logoUrl, '/');
     }
 }
