@@ -31,7 +31,9 @@ class StoreSettingsController extends Controller
 
     public function updateStore(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $store = StoreSetting::query()->first();
+
+        $rules = [
             'site_name' => ['required', 'string', 'max:150'],
             'site_tagline' => ['nullable', 'string', 'max:255'],
             'business_name' => ['nullable', 'string', 'max:150'],
@@ -82,12 +84,45 @@ class StoreSettingsController extends Controller
             'terms_conditions' => ['nullable', 'string'],
             'custom_header_scripts' => ['nullable', 'string'],
             'custom_footer_scripts' => ['nullable', 'string'],
-        ]);
+        ];
 
-        $validated['show_logo_on_invoice'] = $request->boolean('show_logo_on_invoice');
-        $validated['show_topbar'] = $request->boolean('show_topbar');
+        $currentValues = $store?->toArray() ?? [];
+        $mergedInput = array_replace($currentValues, $request->except(['_token', '_method']));
+
+        foreach ([
+            'site_name',
+            'currency',
+            'currency_symbol',
+            'timezone',
+            'language',
+            'country',
+            'invoice_prefix',
+        ] as $requiredField) {
+            if (! array_key_exists($requiredField, $mergedInput)) {
+                $mergedInput[$requiredField] = $currentValues[$requiredField] ?? '';
+            }
+        }
+
+        foreach (['show_logo_on_invoice', 'show_topbar'] as $booleanField) {
+            if ($request->has($booleanField)) {
+                $mergedInput[$booleanField] = $request->boolean($booleanField);
+            } else {
+                $mergedInput[$booleanField] = (bool) ($currentValues[$booleanField] ?? false);
+            }
+        }
+
+        if (! array_key_exists('topbar_offers_text', $mergedInput)) {
+            $mergedInput['topbar_offers_text'] = collect(json_decode($currentValues['topbar_offers'] ?? '[]', true) ?: [])
+                ->filter(fn ($offer) => is_string($offer) && trim($offer) !== '')
+                ->implode("\n");
+        }
+
+        $validated = validator($mergedInput, $rules)->validate();
+
+        $validated['show_logo_on_invoice'] = (bool) ($mergedInput['show_logo_on_invoice'] ?? false);
+        $validated['show_topbar'] = (bool) ($mergedInput['show_topbar'] ?? false);
         $validated['topbar_offers'] = json_encode(
-            collect(preg_split('/\r\n|\r|\n/', (string) $request->input('topbar_offers_text', '')) ?: [])
+            collect(preg_split('/\r\n|\r|\n/', (string) ($mergedInput['topbar_offers_text'] ?? '')) ?: [])
                 ->map(fn ($offer) => trim((string) $offer))
                 ->filter()
                 ->values()
