@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\EmailOtpVerificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderReturnController;
+use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/returns', [OrderReturnController::class, 'index'])->name('returns.index');
         Route::get('/returns/{return}', [OrderReturnController::class, 'show'])->name('returns.show');
         Route::put('/returns/{return}', [OrderReturnController::class, 'update'])->name('returns.update');
+        Route::get('/reviews', [ProductReviewController::class, 'index'])->name('reviews.index');
+        Route::put('/reviews/{review}/visibility', [ProductReviewController::class, 'updateVisibility'])->name('reviews.visibility');
+        Route::delete('/reviews/{review}', [ProductReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::get('/settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');

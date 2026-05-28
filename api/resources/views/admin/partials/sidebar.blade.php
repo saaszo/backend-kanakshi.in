@@ -74,6 +74,10 @@
                 <i class="bi bi-arrow-repeat"></i>
                 <span>Returns & Refunds</span>
             </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" href="{{ route('admin.reviews.index') }}">
+                <i class="bi bi-chat-square-quote"></i>
+                <span>Product Reviews</span>
+            </a>
         </nav>
     </div>
 

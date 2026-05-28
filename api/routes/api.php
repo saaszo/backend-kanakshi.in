@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CustomerAddressController;
 use App\Http\Controllers\Api\CustomerOrderController;
 use App\Http\Controllers\Api\OrderTrackingController;
+use App\Http\Controllers\Api\ProductReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -21,6 +22,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/categories', CategoryIndexController::class);
         Route::get('/products', ProductIndexController::class);
         Route::get('/products/{slug}', ProductShowController::class);
+        Route::get('/products/{slug}/reviews', [ProductReviewController::class, 'index']);
+        Route::post('/products/{slug}/reviews', [ProductReviewController::class, 'store']);
     });
 
     Route::prefix('settings')->group(function (): void {
