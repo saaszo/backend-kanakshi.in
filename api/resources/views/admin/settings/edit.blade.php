@@ -57,6 +57,10 @@
                                     <label for="facebook_pixel_id">Facebook Pixel ID</label>
                                     <input id="facebook_pixel_id" name="facebook_pixel_id" value="{{ old('facebook_pixel_id', $store?->facebook_pixel_id) }}" placeholder="123456789012345" />
                                 </div>
+                                <div class="field">
+                                    <label for="seasonal_campaign_name">Occasion / Campaign Name</label>
+                                    <input id="seasonal_campaign_name" name="seasonal_campaign_name" value="{{ old('seasonal_campaign_name', $store?->seasonal_campaign_name) }}" placeholder="Diwali 2026, Wedding Edit, Navratri Collection" />
+                                </div>
                                 <div class="checkbox-row">
                                     <input id="show_topbar" type="checkbox" name="show_topbar" value="1" @checked(old('show_topbar', $store?->show_topbar))>
                                     <label for="show_topbar" style="margin:0;">Enable top offer bar</label>
@@ -164,9 +168,53 @@
                                     <label for="footer_copyright_text">Footer Copyright Text</label>
                                     <input id="footer_copyright_text" name="footer_copyright_text" value="{{ old('footer_copyright_text', $store?->footer_copyright_text) }}" placeholder="© Little Divinity. All rights reserved to Tadpole Story LLP." />
                                 </div>
+                                <div class="field">
+                                    <label for="meta_title">Default Meta Title</label>
+                                    <input id="meta_title" name="meta_title" value="{{ old('meta_title', $store?->meta_title) }}" placeholder="Little Divinity | Handcrafted Brass Decor & Gifting" />
+                                </div>
+                                <div class="field">
+                                    <label for="twitter_handle">Twitter / X Handle</label>
+                                    <input id="twitter_handle" name="twitter_handle" value="{{ old('twitter_handle', $store?->twitter_handle) }}" placeholder="@littledivinity" />
+                                </div>
                                 <div class="checkbox-row">
                                     <input id="show_logo_on_invoice" type="checkbox" name="show_logo_on_invoice" value="1" @checked(old('show_logo_on_invoice', $store?->show_logo_on_invoice))>
                                     <label for="show_logo_on_invoice" style="margin:0;">Show logo on invoices</label>
+                                </div>
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="meta_description">Default Meta Description</label>
+                                    <textarea id="meta_description" name="meta_description" placeholder="Store-wide SEO description for homepage and main social previews.">{{ old('meta_description', $store?->meta_description) }}</textarea>
+                                </div>
+                                <div class="field">
+                                    <label for="og_title">Open Graph Title</label>
+                                    <input id="og_title" name="og_title" value="{{ old('og_title', $store?->og_title) }}" placeholder="Share preview title for Facebook / WhatsApp / LinkedIn" />
+                                </div>
+                                <div class="field">
+                                    <label for="twitter_title">Twitter / X Title</label>
+                                    <input id="twitter_title" name="twitter_title" value="{{ old('twitter_title', $store?->twitter_title) }}" placeholder="Card title for Twitter / X shares" />
+                                </div>
+                                <div class="field">
+                                    <label for="og_image">Open Graph Image URL</label>
+                                    <input id="og_image" name="og_image" value="{{ old('og_image', $store?->og_image) }}" placeholder="/branding/og-diwali.jpg" />
+                                    @if ($store?->og_image)
+                                        <img src="{{ $store->og_image }}" alt="Open Graph image" class="admin-upload-preview" style="margin-top:10px;" />
+                                    @endif
+                                    <input type="file" id="og_image_file" name="og_image_file" accept="image/*" style="margin-top:10px;" />
+                                </div>
+                                <div class="field">
+                                    <label for="twitter_image">Twitter / X Image URL</label>
+                                    <input id="twitter_image" name="twitter_image" value="{{ old('twitter_image', $store?->twitter_image) }}" placeholder="/branding/twitter-festive-card.jpg" />
+                                    @if ($store?->twitter_image)
+                                        <img src="{{ $store->twitter_image }}" alt="Twitter image" class="admin-upload-preview" style="margin-top:10px;" />
+                                    @endif
+                                    <input type="file" id="twitter_image_file" name="twitter_image_file" accept="image/*" style="margin-top:10px;" />
+                                </div>
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="og_description">Open Graph Description</label>
+                                    <textarea id="og_description" name="og_description" placeholder="Occasion-specific share description for social apps.">{{ old('og_description', $store?->og_description) }}</textarea>
+                                </div>
+                                <div class="field" style="grid-column: 1 / -1;">
+                                    <label for="twitter_description">Twitter / X Description</label>
+                                    <textarea id="twitter_description" name="twitter_description" placeholder="Dedicated description for Twitter / X card previews.">{{ old('twitter_description', $store?->twitter_description) }}</textarea>
                                 </div>
                                 <div class="field">
                                     <label for="return_policy">Return Policy</label>

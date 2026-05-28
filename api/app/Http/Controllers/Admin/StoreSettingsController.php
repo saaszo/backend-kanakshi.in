@@ -47,6 +47,18 @@ class StoreSettingsController extends Controller
             'custom_domain' => ['nullable', 'string', 'max:180'],
             'google_tag_manager_id' => ['nullable', 'string', 'max:80'],
             'facebook_pixel_id' => ['nullable', 'string', 'max:80'],
+            'seasonal_campaign_name' => ['nullable', 'string', 'max:150'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'og_title' => ['nullable', 'string', 'max:255'],
+            'og_description' => ['nullable', 'string'],
+            'og_image' => ['nullable', 'string', 'max:255'],
+            'og_image_file' => ['nullable', 'image', 'max:5120'],
+            'twitter_title' => ['nullable', 'string', 'max:255'],
+            'twitter_description' => ['nullable', 'string'],
+            'twitter_image' => ['nullable', 'string', 'max:255'],
+            'twitter_image_file' => ['nullable', 'image', 'max:5120'],
+            'twitter_handle' => ['nullable', 'string', 'max:100'],
             'show_topbar' => ['nullable', 'boolean'],
             'topbar_bg_color' => ['nullable', 'string', 'max:20'],
             'topbar_text_color' => ['nullable', 'string', 'max:20'],
@@ -88,6 +100,12 @@ class StoreSettingsController extends Controller
         }
         if ($request->hasFile('favicon_file')) {
             $validated['favicon_url'] = $this->storeAdminUpload($request->file('favicon_file'), 'branding', 'Store favicon');
+        }
+        if ($request->hasFile('og_image_file')) {
+            $validated['og_image'] = $this->storeAdminUpload($request->file('og_image_file'), 'branding', 'Open Graph image');
+        }
+        if ($request->hasFile('twitter_image_file')) {
+            $validated['twitter_image'] = $this->storeAdminUpload($request->file('twitter_image_file'), 'branding', 'Twitter card image');
         }
 
         StoreSetting::query()->updateOrCreate(['id' => 1], $validated);
