@@ -37,6 +37,8 @@ class CategoryController extends Controller
             $validated['image'] = $this->storeAdminUpload($request->file('image_file'), 'categories', 'Category image');
         }
 
+        unset($validated['image_file']);
+
         Category::query()->create($validated + [
             'slug' => $validated['slug'] ?? null,
             'is_active' => $request->boolean('is_active', true),
@@ -61,6 +63,8 @@ class CategoryController extends Controller
         if ($request->hasFile('image_file')) {
             $validated['image'] = $this->storeAdminUpload($request->file('image_file'), 'categories', 'Category image');
         }
+
+        unset($validated['image_file']);
 
         $category->update($validated + [
             'is_active' => $request->boolean('is_active'),

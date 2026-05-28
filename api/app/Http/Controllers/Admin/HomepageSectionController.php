@@ -98,6 +98,13 @@ class HomepageSectionController extends Controller
             $validated['side_secondary_image_url'] = $this->storeAdminUpload($request->file('side_secondary_image_file'), 'homepage', 'Homepage secondary side image');
         }
 
+        unset(
+            $validated['image_file'],
+            $validated['mobile_image_file'],
+            $validated['side_image_file'],
+            $validated['side_secondary_image_file']
+        );
+
         $homepageSection->update($validated + [
             'is_active' => $request->boolean('is_active'),
             'config' => $config,
