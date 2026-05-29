@@ -17,7 +17,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -64,6 +63,9 @@ class CheckoutController
         try {
             return DB::transaction(function () use ($validated, $user, $request): JsonResponse {
                 $checkoutCustomer = $this->resolveCheckoutCustomer($validated, $user);
+                if (! $checkoutCustomer) {
+                    $this->failCheckout('Please create and verify your customer account before placing the order.');
+                }
                 $subtotal = 0.00;
                 $totalTax = 0.00;
                 $customShippingCost = 0.00;
@@ -743,47 +745,7 @@ class CheckoutController
             return $authenticatedUser;
         }
 
-        $email = strtolower($validated['ship_email']);
-        $existingCustomer = User::query()
-            ->where('email', $email)
-            ->where('role', 'customer')
-            ->first();
-
-        if ($existingCustomer) {
-            $existingCustomer->forceFill([
-                'name' => $validated['ship_name'],
-                'phone' => $validated['ship_phone'],
-                'address' => $validated['ship_address'],
-                'city' => $validated['ship_city'],
-                'state' => $validated['ship_state'],
-                'pincode' => $validated['ship_pincode'],
-                'status' => $existingCustomer->status ?: 'active',
-                'is_active' => true,
-                'email_verified_at' => $existingCustomer->email_verified_at ?: now(),
-            ])->save();
-
-            return $existingCustomer;
-        }
-
-        if (User::query()->where('email', $email)->exists()) {
-            return null;
-        }
-
-        return User::query()->create([
-            'name' => $validated['ship_name'],
-            'email' => $email,
-            'phone' => $validated['ship_phone'],
-            'address' => $validated['ship_address'],
-            'city' => $validated['ship_city'],
-            'state' => $validated['ship_state'],
-            'pincode' => $validated['ship_pincode'],
-            'role' => 'customer',
-            'status' => 'active',
-            'is_active' => true,
-            'two_factor_enabled' => false,
-            'email_verified_at' => now(),
-            'password' => Hash::make(Str::password(16)),
-        ]);
+        return null;
     }
 
     private function syncCheckoutCustomerAddress(User $user, array $validated): void
