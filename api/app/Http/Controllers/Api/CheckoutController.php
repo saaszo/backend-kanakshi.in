@@ -36,7 +36,15 @@ class CheckoutController
             'ship_name' => ['required', 'string', 'max:100'],
             'ship_email' => ['required', 'email', 'max:150'],
             'ship_phone' => ['required', 'string', 'max:20'],
+            'ship_alt_phone' => ['nullable', 'string', 'max:20'],
             'ship_address' => ['required', 'string'],
+            'save_address' => ['nullable', 'boolean'],
+            'address_type' => ['nullable', 'string', 'in:home,office,other'],
+            'address_label' => ['nullable', 'string', 'max:60'],
+            'address_line1' => ['nullable', 'string', 'max:255'],
+            'address_line2' => ['nullable', 'string', 'max:255'],
+            'address_landmark' => ['nullable', 'string', 'max:150'],
+            'address_is_default' => ['nullable', 'boolean'],
             'ship_city' => ['required', 'string', 'max:100'],
             'ship_state' => ['required', 'string', 'max:100'],
             'ship_pincode' => ['required', 'string', 'max:10'],
@@ -244,6 +252,7 @@ class CheckoutController
                     'ship_name' => $validated['ship_name'],
                     'ship_email' => $validated['ship_email'],
                     'ship_phone' => $validated['ship_phone'],
+                    'ship_alt_phone' => $validated['ship_alt_phone'] ?? null,
                     'ship_address' => $validated['ship_address'],
                     'ship_city' => $validated['ship_city'],
                     'ship_state' => $validated['ship_state'],
@@ -252,7 +261,7 @@ class CheckoutController
                     'coupon_id' => $coupon ? $coupon->id : null,
                 ]);
 
-                if ($checkoutCustomer) {
+                if ($checkoutCustomer && ($validated['save_address'] ?? false)) {
                     $this->syncCheckoutCustomerAddress($checkoutCustomer, $validated);
                 }
 
@@ -350,6 +359,7 @@ class CheckoutController
                         'ship_name' => $order->ship_name,
                         'ship_email' => $order->ship_email,
                         'ship_phone' => $order->ship_phone,
+                        'ship_alt_phone' => $order->ship_alt_phone,
                         'estimated_delivery' => now()->addDays(5)->format('d M, Y'),
                         'gateway_config' => $orderStatus === 'payment_pending' ? $gatewayConfig : null,
                         'customer_auth' => $customerAuth,
@@ -391,13 +401,12 @@ class CheckoutController
 
         $order = Order::query()
             ->where('order_number', $validated['order_number'])
-            ->where('status', 'payment_pending')
             ->first();
 
         if (!$order) {
             return response()->json([
                 'success' => false,
-                'message' => 'Order not found or is already processed.',
+                'message' => 'Order not found.',
             ], 404);
         }
 
@@ -413,6 +422,20 @@ class CheckoutController
                 'success' => false,
                 'message' => 'You are not authorized to update this order.',
             ], 403);
+        }
+
+        if ($order->payment_status === 'paid' && $order->status !== 'payment_pending') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment already verified and order already confirmed.',
+            ]);
+        }
+
+        if ($order->status !== 'payment_pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order is no longer awaiting payment verification.',
+            ], 409);
         }
 
         $gateway = PaymentGatewaySetting::query()
@@ -768,26 +791,41 @@ class CheckoutController
         $addressAttributes = [
             'recipient_name' => $validated['ship_name'],
             'phone' => $validated['ship_phone'],
-            'address_line1' => $validated['ship_address'],
+            'alternate_phone' => $validated['ship_alt_phone'] ?? null,
+            'address_line1' => $validated['address_line1'] ?? $validated['ship_address'],
+            'address_line2' => $validated['address_line2'] ?? null,
             'city' => $validated['ship_city'],
             'state' => $validated['ship_state'],
             'pincode' => $validated['ship_pincode'],
+            'landmark' => $validated['address_landmark'] ?? null,
         ];
 
         $existingAddress = CustomerAddress::query()
             ->where('user_id', $user->id)
-            ->where('address_line1', $validated['ship_address'])
+            ->where('address_line1', $validated['address_line1'] ?? $validated['ship_address'])
             ->where('city', $validated['ship_city'])
             ->where('state', $validated['ship_state'])
             ->where('pincode', $validated['ship_pincode'])
             ->first();
 
+        $requestedType = $validated['address_type'] ?? null;
+        $requestedLabel = $validated['address_label'] ?? null;
+        $requestedDefault = (bool) ($validated['address_is_default'] ?? false);
+
         if ($existingAddress) {
             $existingAddress->update(array_merge($addressAttributes, [
-                'type' => $existingAddress->type ?: 'home',
-                'is_default' => $existingAddress->is_default ?: ! CustomerAddress::query()->where('user_id', $user->id)->where('is_default', true)->exists(),
+                'type' => $requestedType ?: ($existingAddress->type ?: 'home'),
+                'alternate_phone' => $validated['ship_alt_phone'] ?? $existingAddress->alternate_phone,
+                'label' => $requestedLabel ?: $existingAddress->label,
+                'is_default' => $requestedDefault || $existingAddress->is_default,
             ]));
             return;
+        }
+
+        if ($requestedDefault) {
+            CustomerAddress::query()
+                ->where('user_id', $user->id)
+                ->update(['is_default' => false]);
         }
 
         $hasDefault = CustomerAddress::query()
@@ -797,11 +835,10 @@ class CheckoutController
 
         CustomerAddress::query()->create(array_merge($addressAttributes, [
             'user_id' => $user->id,
-            'type' => 'home',
-            'label' => 'Checkout Address',
-            'address_line2' => null,
-            'landmark' => null,
-            'is_default' => ! $hasDefault,
+            'type' => $requestedType ?: 'home',
+            'label' => $requestedLabel ?: 'Checkout Address',
+            'alternate_phone' => $validated['ship_alt_phone'] ?? null,
+            'is_default' => $requestedDefault || ! $hasDefault,
         ]));
     }
 
@@ -1124,7 +1161,9 @@ class CheckoutController
         ?string $providerOrderId,
         string $trackingMessage
     ): void {
-        DB::transaction(function () use ($order, $paymentId, $providerOrderId, $trackingMessage): void {
+        $didConfirmOrder = false;
+
+        DB::transaction(function () use ($order, $paymentId, $providerOrderId, $trackingMessage, &$didConfirmOrder): void {
             $lockedOrder = Order::query()->lockForUpdate()->find($order->id);
 
             if (!$lockedOrder || $lockedOrder->status !== 'payment_pending') {
@@ -1146,17 +1185,25 @@ class CheckoutController
                 'location' => 'Mumbai Warehouse',
                 'message' => $trackingMessage,
             ]);
+
+            $didConfirmOrder = true;
         });
 
-        $this->sendOrderMailSafely(
-            $order->fresh('items'),
-            'Your Little Divinity order is confirmed',
-            $this->buildOrderMailBody(
-                $order->fresh('items'),
-                'Your payment has been verified and your order is now confirmed.',
-                true
-            )
-        );
+        if ($didConfirmOrder) {
+            $freshOrder = $order->fresh('items');
+
+            if ($freshOrder) {
+                $this->sendOrderMailSafely(
+                    $freshOrder,
+                    'Your Little Divinity order is confirmed',
+                    $this->buildOrderMailBody(
+                        $freshOrder,
+                        'Your payment has been verified and your order is now confirmed.',
+                        true
+                    )
+                );
+            }
+        }
     }
 
     private function releasePendingOrderReservation(

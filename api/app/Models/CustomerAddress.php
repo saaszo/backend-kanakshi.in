@@ -13,6 +13,7 @@ class CustomerAddress extends Model
         'label',
         'recipient_name',
         'phone',
+        'alternate_phone',
         'address_line1',
         'address_line2',
         'city',

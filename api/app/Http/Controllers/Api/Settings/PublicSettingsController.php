@@ -125,12 +125,12 @@ class PublicSettingsController
 
     private function gatewayVisibleOnStorefront(PaymentGatewaySetting $gateway): bool
     {
-        if ($gateway->provider === 'cod') {
+        if ($gateway->is_active) {
             return true;
         }
 
-        if ($gateway->is_active) {
-            return true;
+        if ($gateway->provider === 'cod') {
+            return false;
         }
 
         if ($gateway->provider === 'razorpay') {

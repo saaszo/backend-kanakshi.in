@@ -236,6 +236,7 @@ class CustomerOrderController
             'ship_name' => $order->ship_name,
             'ship_email' => $order->ship_email,
             'ship_phone' => $order->ship_phone,
+            'ship_alt_phone' => $order->ship_alt_phone,
             'ship_address' => $order->ship_address,
             'ship_city' => $order->ship_city,
             'ship_state' => $order->ship_state,
