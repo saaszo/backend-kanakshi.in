@@ -40,6 +40,10 @@
                     </div>
                 @endif
 
+                <div class="message" style="background: rgba(15, 23, 42, 0.04); color: #334155; border-color: rgba(15, 23, 42, 0.08);">
+                    Dropdown arrow storefront par sirf unhi menu items par dikhega jinke andar actual submenu items honge.
+                </div>
+
                 <div class="row g-4">
                     <div class="col-12 col-xl-4">
                         <section class="panel h-100">
@@ -88,7 +92,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="muted">Parent and child should stay in the same location.</small>
+                                        <small class="muted">Parent and child same location me hone chahiye. Sirf top-level item ko parent banao.</small>
                                     </div>
 
                                     <div class="field">
@@ -164,7 +168,16 @@
                                                     @forelse(($groupedMenuItems->get($location) ?? collect()) as $menuItem)
                                                         <tr>
                                                             <td>
-                                                                <div style="font-weight:700; color:#111827;">{{ $menuItem->title }}</div>
+                                                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700; color:#111827;">
+                                                                    <span>{{ $menuItem->title }}</span>
+                                                                    @if ($menuItem->children_count > 0)
+                                                                        <span class="pill">Dropdown · {{ $menuItem->children_count }}</span>
+                                                                    @elseif ($menuItem->parent_id)
+                                                                        <span class="pill bg-light text-muted">Submenu Item</span>
+                                                                    @else
+                                                                        <span class="pill bg-light text-muted">Single Link</span>
+                                                                    @endif
+                                                                </div>
                                                                 <div class="muted" style="font-size:12px;">
                                                                     {{ $menuItem->target ?: '_self' }}
                                                                     @if ($menuItem->css_class)
@@ -234,6 +247,7 @@
                                                                                     @endif
                                                                                 @endforeach
                                                                             </select>
+                                                                            <small class="muted">Only top-level parent items are allowed for dropdown menus.</small>
                                                                         </div>
                                                                         <div class="field">
                                                                             <label>Target</label>
@@ -290,3 +304,34 @@
         </main>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const createLocation = document.getElementById('location');
+            const createParent = document.getElementById('parent_id');
+
+            if (createLocation && createParent) {
+                const syncParentOptions = () => {
+                    const selectedLocation = createLocation.value;
+
+                    Array.from(createParent.options).forEach((option) => {
+                        if (!option.value) {
+                            option.hidden = false;
+                            return;
+                        }
+
+                        option.hidden = option.dataset.location !== selectedLocation;
+
+                        if (option.hidden && option.selected) {
+                            createParent.value = '';
+                        }
+                    });
+                };
+
+                createLocation.addEventListener('change', syncParentOptions);
+                syncParentOptions();
+            }
+        });
+    </script>
+@endpush

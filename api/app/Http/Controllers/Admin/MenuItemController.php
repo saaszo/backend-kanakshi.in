@@ -15,6 +15,7 @@ class MenuItemController extends Controller
     {
         $menuItems = MenuItem::query()
             ->with('parent:id,title')
+            ->withCount('children')
             ->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")
             ->orderBy('sort_order')
             ->orderBy('title')
@@ -23,7 +24,11 @@ class MenuItemController extends Controller
         return view('admin.menu-items.index', [
             'menuItems' => $menuItems,
             'groupedMenuItems' => $menuItems->groupBy('location'),
-            'parents' => MenuItem::query()->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")->orderBy('title')->get(['id', 'title', 'location']),
+            'parents' => MenuItem::query()
+                ->whereNull('parent_id')
+                ->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")
+                ->orderBy('title')
+                ->get(['id', 'title', 'location']),
         ]);
     }
 
@@ -89,6 +94,12 @@ class MenuItemController extends Controller
             if ($parent && $parent->location !== $validated['location']) {
                 throw ValidationException::withMessages([
                     'parent_id' => 'Parent item must be from the same menu location.',
+                ]);
+            }
+
+            if ($parent && $parent->parent_id) {
+                throw ValidationException::withMessages([
+                    'parent_id' => 'Please choose a top-level menu item as the parent.',
                 ]);
             }
         }

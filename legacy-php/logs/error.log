@@ -1,0 +1,308 @@
+[13-Mar-2026 22:31:29 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[13-Mar-2026 22:31:29 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[13-Mar-2026 22:31:29 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[13-Mar-2026 22:37:41 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[13-Mar-2026 22:37:41 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[13-Mar-2026 22:37:41 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[13-Mar-2026 22:40:46 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[13-Mar-2026 22:40:46 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[13-Mar-2026 22:40:46 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[13-Mar-2026 23:23:42 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[13-Mar-2026 23:23:42 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[13-Mar-2026 23:23:42 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[13-Mar-2026 23:28:08 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[13-Mar-2026 23:28:08 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[13-Mar-2026 23:28:08 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[14-Mar-2026 00:12:25 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 35
+[14-Mar-2026 00:12:25 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[14-Mar-2026 00:12:25 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:35) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 43
+[28-Mar-2026 18:39:07 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Call to undefined function getDB() in /Users/pankaj/Downloads/ecomerce website/config/config.php:91
+Stack trace:
+#0 /Users/pankaj/Downloads/ecomerce website/tmp/update-db.php(2): require_once()
+#1 {main}
+  thrown in /Users/pankaj/Downloads/ecomerce website/config/config.php on line 91
+[28-Mar-2026 18:39:33 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Call to undefined function getDB() in /Users/pankaj/Downloads/ecomerce website/config/config.php:91
+Stack trace:
+#0 /Users/pankaj/Downloads/ecomerce website/tmp/update-db.php(2): require_once()
+#1 {main}
+  thrown in /Users/pankaj/Downloads/ecomerce website/config/config.php on line 91
+[28-Mar-2026 23:14:48 Asia/Kolkata] PHP Fatal error:  Uncaught Error: Call to undefined function getDB() in /Users/pankaj/Downloads/ecomerce website/config/config.php:91
+Stack trace:
+#0 /Users/pankaj/Downloads/ecomerce website/tmp/run_migration.php(3): require_once()
+#1 {main}
+  thrown in /Users/pankaj/Downloads/ecomerce website/config/config.php on line 91
+[28-Mar-2026 23:15:08 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 47
+[28-Mar-2026 23:15:08 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[28-Mar-2026 23:15:08 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:47) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 55
+[28-Mar-2026 23:15:33 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[28-Mar-2026 23:15:33 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[28-Mar-2026 23:15:33 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:46) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 54
+[28-Mar-2026 23:16:42 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[28-Mar-2026 23:16:42 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[28-Mar-2026 23:16:42 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:46) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 54
+[29-Mar-2026 14:54:00 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 14:54:00 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 14:54:00 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Users/pankaj/Downloads/ecomerce website/config/db.php:46) in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 54
+[29-Mar-2026 16:55:56 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:55:56 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:55:56 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:55:56 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:56:15 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:56:15 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:56:15 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:56:15 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:43 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:43 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:43 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:43 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:44 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:44 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:45 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:45 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 16:57:45 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 46
+[29-Mar-2026 16:57:45 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 17:00:25 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Connection refused
+[29-Mar-2026 17:00:25 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Connection refused
+[29-Mar-2026 17:00:27 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Connection refused
+[29-Mar-2026 17:00:27 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Connection refused
+[29-Mar-2026 17:13:53 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 49
+[29-Mar-2026 17:13:53 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[29-Mar-2026 17:13:53 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Users/pankaj/Downloads/ecomerce website/config/db.php on line 49
+[29-Mar-2026 17:13:53 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[30-Mar-2026 00:02:00 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'variant_id' in 'where clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php:49
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php(49): PDO->prepare('SELECT id, quan...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php on line 49
+[30-Mar-2026 00:11:13 Asia/Kolkata] PHP Warning:  session_start(): open(/Applications/XAMPP/xamppfiles/temp//sess_aoeaor8gq7ruiue5et5erbhlbc, O_RDWR) failed: Operation not permitted (1) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[30-Mar-2026 00:11:13 Asia/Kolkata] PHP Warning:  session_start(): Failed to read session data: files (path: /Applications/XAMPP/xamppfiles/temp/) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[30-Mar-2026 00:11:13 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[30-Mar-2026 00:12:00 Asia/Kolkata] PHP Warning:  unlink(/Applications/XAMPP/xamppfiles/htdocs/luxury_store/fix_images_db.php): Permission denied in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/fix_images_db.php on line 61
+[30-Mar-2026 00:15:31 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'variant_id' in 'where clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php:49
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php(49): PDO->prepare('SELECT id, quan...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php on line 49
+[30-Mar-2026 00:18:21 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'variant_id' in 'where clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php:49
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php(49): PDO->prepare('SELECT id, quan...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/ajax/cart.php on line 49
+[30-Mar-2026 00:21:09 Asia/Kolkata] PHP Warning:  unlink(/Applications/XAMPP/xamppfiles/htdocs/luxury_store/fix_images_db.php): Permission denied in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/fix_images_db.php on line 61
+[31-Mar-2026 11:30:23 Asia/Kolkata] PHP Warning:  session_start(): open(/Applications/XAMPP/xamppfiles/temp//sess_dnp3e78a1j2ng54frhca4f8of6, O_RDWR) failed: Operation not permitted (1) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 11:30:23 Asia/Kolkata] PHP Warning:  session_start(): Failed to read session data: files (path: /Applications/XAMPP/xamppfiles/temp/) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 11:30:23 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:30:31 Asia/Kolkata] PHP Warning:  session_start(): open(/Applications/XAMPP/xamppfiles/temp//sess_t2bkpte0pafitpgo0bo94m1mf0, O_RDWR) failed: Operation not permitted (1) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:30:31 Asia/Kolkata] PHP Warning:  session_start(): Failed to read session data: files (path: /Applications/XAMPP/xamppfiles/temp/) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:30:31 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:39:14 Asia/Kolkata] PHP Warning:  session_start(): open(/Applications/XAMPP/xamppfiles/temp//sess_upf678h0be90bdsv1c0rnnqugj, O_RDWR) failed: Operation not permitted (1) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:39:14 Asia/Kolkata] PHP Warning:  session_start(): Failed to read session data: files (path: /Applications/XAMPP/xamppfiles/temp/) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:39:14 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:39:55 Asia/Kolkata] PHP Warning:  session_start(): open(/Applications/XAMPP/xamppfiles/temp//sess_fht0d8m45nefd8fikf6lka9qi0, O_RDWR) failed: Operation not permitted (1) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:39:55 Asia/Kolkata] PHP Warning:  session_start(): Failed to read session data: files (path: /Applications/XAMPP/xamppfiles/temp/) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/config.php on line 65
+[31-Mar-2026 12:39:55 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:44:57 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:45:52 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 12:52:46 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 13:20:59 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 13:25:25 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 13:37:04 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[31-Mar-2026 17:12:24 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/db.php on line 49
+[31-Mar-2026 17:12:24 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[31-Mar-2026 17:12:24 Asia/Kolkata] PHP Warning:  http_response_code(): Cannot set response code - headers already sent (output started at /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/db.php:49) in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/db.php on line 57
+[31-Mar-2026 17:14:10 Asia/Kolkata] PHP Deprecated:  Constant PDO::MYSQL_ATTR_INIT_COMMAND is deprecated since 8.5, use Pdo\Mysql::ATTR_INIT_COMMAND instead in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/db.php on line 49
+[31-Mar-2026 17:14:10 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[31-Mar-2026 17:14:27 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[31-Mar-2026 17:19:25 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[01-Apr-2026 00:29:53 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'luxury_store.reviews' doesn't exist in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/reviews/index.php:37
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/reviews/index.php(37): PDO->query('\n    SELECT r.*...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/reviews/index.php on line 37
+[01-Apr-2026 00:30:55 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'total_amount' in 'field list' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php:68
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php(68): PDO->prepare('SELECT u.*, \n  ...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php on line 68
+[01-Apr-2026 00:30:57 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'total_amount' in 'field list' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php:68
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php(68): PDO->prepare('SELECT u.*, \n  ...')
+#1 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/users/index.php on line 68
+[01-Apr-2026 01:05:16 Asia/Kolkata] PHP Warning:  Undefined array key "cost_price" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 311
+[01-Apr-2026 01:05:16 Asia/Kolkata] PHP Warning:  Undefined array key "weight" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 328
+[01-Apr-2026 01:07:46 Asia/Kolkata] PHP Warning:  Undefined array key "cost_price" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 311
+[01-Apr-2026 01:07:46 Asia/Kolkata] PHP Warning:  Undefined array key "weight" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 328
+[01-Apr-2026 11:51:36 Asia/Kolkata] PHP Warning:  mkdir(): Permission denied in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 63
+[01-Apr-2026 11:51:36 Asia/Kolkata] PHP Warning:  file_put_contents(/Applications/XAMPP/xamppfiles/htdocs/luxury_store/tmp/cache/aa782d45512a8d16123b3917f553d93f.cache): Failed to open stream: No such file or directory in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 72
+[01-Apr-2026 11:58:34 Asia/Kolkata] PHP Warning:  mkdir(): Permission denied in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 63
+[01-Apr-2026 11:58:34 Asia/Kolkata] PHP Warning:  file_put_contents(/Applications/XAMPP/xamppfiles/htdocs/luxury_store/tmp/cache/aa782d45512a8d16123b3917f553d93f.cache): Failed to open stream: No such file or directory in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 72
+[01-Apr-2026 11:58:52 Asia/Kolkata] PHP Warning:  mkdir(): Permission denied in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 63
+[01-Apr-2026 11:58:52 Asia/Kolkata] PHP Warning:  file_put_contents(/Applications/XAMPP/xamppfiles/htdocs/luxury_store/tmp/cache/aa782d45512a8d16123b3917f553d93f.cache): Failed to open stream: No such file or directory in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 72
+[01-Apr-2026 12:18:36 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.tags' in 'where clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:587
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(587): PDO->prepare('SELECT COUNT(*)...')
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 587
+[01-Apr-2026 12:18:41 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'p.tags' in 'where clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:587
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(587): PDO->prepare('SELECT COUNT(*)...')
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 587
+[01-Apr-2026 12:23:14 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1191 Can't find FULLTEXT index matching the column list in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:590
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(590): PDOStatement->execute(Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 590
+[01-Apr-2026 12:23:15 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1191 Can't find FULLTEXT index matching the column list in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:590
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(590): PDOStatement->execute(Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 590
+[01-Apr-2026 12:23:15 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1191 Can't find FULLTEXT index matching the column list in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:590
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(590): PDOStatement->execute(Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 590
+[01-Apr-2026 12:23:18 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error: 1191 Can't find FULLTEXT index matching the column list in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:590
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(590): PDOStatement->execute(Array)
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/products.php(26): getProducts(Array, 1, 12)
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 590
+[01-Apr-2026 12:25:16 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[01-Apr-2026 12:54:41 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[01-Apr-2026 13:44:50 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'c.variant_id' in 'on clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:372
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(372): PDO->prepare('SELECT c.*, p.n...')
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php(9): getCartItems()
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 372
+[01-Apr-2026 13:53:20 Asia/Kolkata] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'c.variant_id' in 'on clause' in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php:372
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php(372): PDO->prepare('SELECT c.*, p.n...')
+#1 /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php(9): getCartItems()
+#2 {main}
+  thrown in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/config/functions.php on line 372
+[01-Apr-2026 14:15:48 Asia/Kolkata] PHP Warning:  Undefined array key "cost_price" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 321
+[01-Apr-2026 14:15:48 Asia/Kolkata] PHP Warning:  Undefined array key "weight" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 338
+[01-Apr-2026 14:17:39 Asia/Kolkata] PHP Warning:  Undefined array key "cost_price" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 321
+[01-Apr-2026 14:17:39 Asia/Kolkata] PHP Warning:  Undefined array key "weight" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/products/edit.php on line 338
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_images" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 87
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "stock" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 88
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "price" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 89
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 96
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 97
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 100
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 101
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 126
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 127
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 130
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 131
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:28:43 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 96
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 97
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 100
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 101
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 126
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 127
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 130
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 131
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:34:49 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:37:29 Asia/Kolkata] [AUTH] registerUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email_verify_token' in 'field list'
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 96
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 97
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 100
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 101
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 104
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 126
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 127
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_slug" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 130
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "product_name" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 131
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "variant_size" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:41:24 Asia/Kolkata] PHP Warning:  Undefined array key "variant_color" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/cart.php on line 133
+[01-Apr-2026 14:42:24 Asia/Kolkata] PHP Warning:  Undefined array key "locked_until" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/auth.php on line 40
+[01-Apr-2026 14:42:25 Asia/Kolkata] PHP Warning:  Undefined array key "login_attempts" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/auth.php on line 50
+[01-Apr-2026 14:42:25 Asia/Kolkata] [AUTH] loginUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'login_attempts' in 'field list'
+[01-Apr-2026 14:44:02 Asia/Kolkata] PHP Warning:  Undefined array key "locked_until" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/auth.php on line 40
+[01-Apr-2026 14:44:02 Asia/Kolkata] [AUTH] loginUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'login_attempts' in 'field list'
+[01-Apr-2026 14:44:28 Asia/Kolkata] [AUTH] registerUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email_verify_token' in 'field list'
+[01-Apr-2026 14:46:14 Asia/Kolkata] PHP Warning:  Undefined array key "locked_until" in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/auth.php on line 40
+[01-Apr-2026 14:46:14 Asia/Kolkata] [AUTH] loginUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'login_attempts' in 'field list'
+[01-Apr-2026 18:59:10 Asia/Kolkata] [AUTH] registerUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email_verify_token' in 'field list'
+[01-Apr-2026 19:00:20 Asia/Kolkata] [AUTH] registerUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email_verify_token' in 'field list'
+[01-Apr-2026 19:02:48 Asia/Kolkata] [AUTH] registerUser: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email_verify_token' in 'field list'
+[01-Apr-2026 21:47:47 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/templates/dynamic-page.php on line 38
+[01-Apr-2026 21:48:27 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:48:27 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:48:27 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:54:54 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:54:54 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:57:19 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:57:19 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/admin/pages/index.php on line 65
+[01-Apr-2026 21:58:54 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/templates/dynamic-page.php on line 38
+[01-Apr-2026 21:58:59 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/luxury_store/includes/templates/dynamic-page.php on line 38
+[07-Apr-2026 12:16:00 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] Operation not permitted
+[07-Apr-2026 14:04:30 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 14:04:38 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 14:05:41 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 14:05:42 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 14:05:42 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 14:05:42 Asia/Kolkata] PHP Warning:  Trying to access array offset on null in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/home/home-marketplace.php on line 19
+[07-Apr-2026 19:43:24 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:43:24 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:43:24 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:43:24 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:43:43 Asia/Kolkata] PHP Fatal error:  Cannot redeclare function requireAdmin() (previously declared in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/auth.php:380) in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/includes/auth.php on line 11
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/subscribers/index.php(47): require_once()
+#1 {main}
+[07-Apr-2026 19:43:47 Asia/Kolkata] PHP Fatal error:  Cannot redeclare function requireAdmin() (previously declared in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /includes/auth.php:380) in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/includes/auth.php on line 11
+Stack trace:
+#0 /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/abandoned-carts/index.php(51): require_once()
+#1 {main}
+[07-Apr-2026 19:46:43 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:46:43 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:46:43 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[07-Apr-2026 19:46:43 Asia/Kolkata] PHP Deprecated:  strtotime(): Passing null to parameter #1 ($datetime) of type string is deprecated in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /admin/pages/index.php on line 65
+[08-Apr-2026 11:44:29 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:44:29 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:44:29 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[08-Apr-2026 11:45:36 Asia/Kolkata] PHP Deprecated:  Function curl_close() is deprecated since 8.5, as it has no effect since PHP 8.0 in /Applications/XAMPP/xamppfiles/htdocs/e commerce project /config/functions.php on line 103
+[18-May-2026 17:35:26 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory
+[18-May-2026 17:35:26 Asia/Kolkata] [DB ERROR] SQLSTATE[HY000] [2002] No such file or directory

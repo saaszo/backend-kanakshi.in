@@ -1,0 +1,6 @@
+[2026-04-01 19:13:29] [INFO] New user registered: boutique_client@test.com {"user_id":2}
+[2026-04-01 20:04:39] [INFO] User logout {"user_id":2}
+[2026-04-01 20:05:32] [INFO] User logout {"user_id":null}
+[2026-04-01 20:05:41] [INFO] User logout {"user_id":null}
+[2026-04-01 20:17:15] [INFO] User logout {"user_id":1}
+[2026-04-01 20:17:31] [INFO] User login: boutique_client@test.com {"user_id":2}

@@ -53,7 +53,7 @@ class AdminPanelFoundationSeeder extends Seeder
                 'pincode' => '201303',
                 'country' => 'India',
                 'invoice_prefix' => 'LD',
-                'footer_copyright_text' => '© Little Divinity. All rights reserved to Tadpole Story LLP.',
+                'footer_copyright_text' => 'Little Divinity. ©All rights reserved to  Tadpole Story LLP.',
                 'show_logo_on_invoice' => true,
                 'custom_header_scripts' => env('STORE_CUSTOM_HEADER_SCRIPTS'),
                 'custom_footer_scripts' => env('STORE_CUSTOM_FOOTER_SCRIPTS'),
