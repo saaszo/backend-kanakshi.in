@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Concerns;
 
 use App\Models\MediaLibrary;
+use App\Services\UploadedImageOptimizer;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -34,7 +35,8 @@ trait HandlesAdminUploads
                 throw new \RuntimeException('Unable to create upload directory.');
             }
 
-            $path = $disk->putFileAs($targetDirectory, $file, $fileName);
+            $stored = app(UploadedImageOptimizer::class)->storePublic($file, $targetDirectory, $fileName);
+            $path = $stored['path'] ?? '';
 
             if (! is_string($path) || $path === '') {
                 throw new \RuntimeException('Unable to store uploaded file.');
@@ -52,9 +54,9 @@ trait HandlesAdminUploads
                     'file_path' => Str::limit($path, 255, ''),
                     'file_url' => Str::limit($url, 255, ''),
                     'folder' => Str::limit($safeFolder, 120, ''),
-                    'mime_type' => Str::limit((string) $file->getClientMimeType(), 120, ''),
-                    'extension' => $extension !== '' ? $extension : null,
-                    'file_size' => $file->getSize() ?: 0,
+                    'mime_type' => Str::limit((string) ($stored['mime_type'] ?? $file->getClientMimeType()), 120, ''),
+                    'extension' => ($stored['extension'] ?? $extension) !== '' ? ($stored['extension'] ?? $extension) : null,
+                    'file_size' => (int) ($stored['size'] ?? ($file->getSize() ?: 0)),
                     'is_active' => true,
                 ]);
             } catch (Throwable $mediaException) {

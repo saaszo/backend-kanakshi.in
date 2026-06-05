@@ -11,11 +11,14 @@ use App\Models\Setting;
 use App\Models\Product;
 use App\Models\Order;
 use App\Services\CustomerEmailService;
+use App\Services\UploadedImageOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class RegistryApiController extends Controller
 {
@@ -125,8 +128,7 @@ class RegistryApiController extends Controller
 
         $productImagePath = null;
         if ($request->hasFile('product_image')) {
-            $productImagePath = $request->file('product_image')->store('registry/products', 'public');
-            $productImagePath = Storage::disk('public')->url($productImagePath);
+            $productImagePath = $this->storeOptimizedRegistryImage($request->file('product_image'), 'registry/products', 'registry-product');
         }
 
         // Default verification configurations
@@ -356,8 +358,9 @@ class RegistryApiController extends Controller
         $imageUrls = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                $path = $file->store('registry/claims', 'public');
-                $imageUrls[] = Storage::disk('public')->url($path);
+                if ($file instanceof UploadedFile) {
+                    $imageUrls[] = $this->storeOptimizedRegistryImage($file, 'registry/claims', 'claim-photo');
+                }
             }
         }
 
@@ -464,8 +467,9 @@ class RegistryApiController extends Controller
         $imageUrls = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                $path = $file->store('registry/buybacks', 'public');
-                $imageUrls[] = Storage::disk('public')->url($path);
+                if ($file instanceof UploadedFile) {
+                    $imageUrls[] = $this->storeOptimizedRegistryImage($file, 'registry/buybacks', 'buyback-photo');
+                }
             }
         }
 
@@ -529,5 +533,17 @@ class RegistryApiController extends Controller
         } catch (\Throwable $throwable) {
             Log::error("Registry notification email failed to send to {$email}: " . $throwable->getMessage());
         }
+    }
+
+    private function storeOptimizedRegistryImage(UploadedFile $file, string $directory, string $prefix): string
+    {
+        $disk = Storage::disk('public');
+        $extension = Str::lower((string) $file->getClientOriginalExtension());
+        $baseName = Str::slug(pathinfo((string) $file->getClientOriginalName(), PATHINFO_FILENAME));
+        $baseName = $baseName !== '' ? $baseName : $prefix;
+        $fileName = Str::limit($baseName, 90, '') . '-' . Str::lower(Str::random(8)) . '.' . $extension;
+        $stored = app(UploadedImageOptimizer::class)->storePublic($file, $directory, $fileName);
+
+        return $disk->url((string) ($stored['path'] ?? ''));
     }
 }

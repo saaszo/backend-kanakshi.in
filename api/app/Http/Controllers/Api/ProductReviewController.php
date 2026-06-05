@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\User;
+use App\Services\UploadedImageOptimizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -228,7 +229,8 @@ class ProductReviewController
         $baseName = Str::slug(pathinfo((string) $file->getClientOriginalName(), PATHINFO_FILENAME));
         $baseName = $baseName !== '' ? $baseName : 'review-image';
         $fileName = Str::limit($baseName, 90, '') . '-' . Str::lower(Str::random(8)) . '.' . $extension;
-        $path = $disk->putFileAs($directory, $file, $fileName);
+        $stored = app(UploadedImageOptimizer::class)->storePublic($file, $directory, $fileName);
+        $path = (string) ($stored['path'] ?? '');
 
         return $disk->url($path);
     }

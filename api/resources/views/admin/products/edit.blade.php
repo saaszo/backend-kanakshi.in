@@ -42,6 +42,29 @@
                             <div class="field"><label>SKU</label><input name="sku" value="{{ old('sku', $product->sku) }}" /></div>
                             <div class="field"><label>Price</label><input name="price" value="{{ old('price', $product->price) }}" /></div>
                             <div class="field"><label>Sale Price</label><input name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" /></div>
+                            <div class="field"><label>Weight</label><input name="weight" value="{{ old('weight', $product->weight) }}" placeholder="e.g. 1.25" /></div>
+                            <div class="field">
+                                <label>Weight Unit</label>
+                                <select name="weight_unit">
+                                    <option value="">Select unit</option>
+                                    <option value="kg" @selected(old('weight_unit', $product->weight_unit ?? 'kg') === 'kg')>kg</option>
+                                    <option value="g" @selected(old('weight_unit', $product->weight_unit) === 'g')>g</option>
+                                </select>
+                            </div>
+                            <div class="field"><label>Length</label><input name="length" value="{{ old('length', $product->length) }}" placeholder="e.g. 12.50" /></div>
+                            <div class="field"><label>Width</label><input name="width" value="{{ old('width', $product->width) }}" placeholder="e.g. 8.00" /></div>
+                            <div class="field"><label>Height</label><input name="height" value="{{ old('height', $product->height) }}" placeholder="e.g. 16.20" /></div>
+                            <div class="field">
+                                <label>Dimension Unit</label>
+                                <select name="dimension_unit">
+                                    <option value="">Select unit</option>
+                                    <option value="cm" @selected(old('dimension_unit', $product->dimension_unit ?? 'cm') === 'cm')>cm</option>
+                                    <option value="in" @selected(old('dimension_unit', $product->dimension_unit) === 'in')>in</option>
+                                    <option value="mm" @selected(old('dimension_unit', $product->dimension_unit) === 'mm')>mm</option>
+                                </select>
+                            </div>
+                            <div class="field"><label>Size Label</label><input name="size_label" value="{{ old('size_label', $product->size_label) }}" placeholder="e.g. Medium / 12 x 8 x 16 cm" /></div>
+                            <div class="field"><label>Material</label><input name="material" value="{{ old('material', $product->material) }}" placeholder="e.g. Solid Brass" /></div>
                             <div class="field">
                                 <label>Delivery Rule</label>
                                 <select name="shipping_type">

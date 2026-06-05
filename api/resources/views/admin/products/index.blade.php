@@ -231,6 +231,27 @@
                                 <div class="field"><label>SKU</label><input name="sku" /></div>
                                 <div class="field"><label>Price</label><input name="price" /></div>
                                 <div class="field"><label>Sale Price</label><input name="sale_price" /></div>
+                                <div class="field"><label>Weight</label><input name="weight" value="0" /></div>
+                                <div class="field">
+                                    <label>Weight Unit</label>
+                                    <select name="weight_unit">
+                                        <option value="kg" selected>kg</option>
+                                        <option value="g">g</option>
+                                    </select>
+                                </div>
+                                <div class="field"><label>Length</label><input name="length" /></div>
+                                <div class="field"><label>Width</label><input name="width" /></div>
+                                <div class="field"><label>Height</label><input name="height" /></div>
+                                <div class="field">
+                                    <label>Dimension Unit</label>
+                                    <select name="dimension_unit">
+                                        <option value="cm" selected>cm</option>
+                                        <option value="in">in</option>
+                                        <option value="mm">mm</option>
+                                    </select>
+                                </div>
+                                <div class="field"><label>Size Label</label><input name="size_label" placeholder="e.g. Medium / 12 x 8 x 16 cm" /></div>
+                                <div class="field"><label>Material</label><input name="material" placeholder="e.g. Solid Brass" /></div>
                                 <div class="field">
                                     <label>Delivery Rule</label>
                                     <select name="shipping_type">

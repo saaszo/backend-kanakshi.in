@@ -58,6 +58,47 @@ class ProductSchemaBuilder
             ];
         }
 
+        $additionalProperty = [];
+
+        if (! blank($product->material)) {
+            $additionalProperty[] = [
+                '@type' => 'PropertyValue',
+                'name' => 'Material',
+                'value' => $product->material,
+            ];
+        }
+
+        if (! blank($product->size_label)) {
+            $additionalProperty[] = [
+                '@type' => 'PropertyValue',
+                'name' => 'Size',
+                'value' => $product->size_label,
+            ];
+        }
+
+        $dimensionUnit = $product->dimension_unit ?: 'cm';
+        foreach (['length' => 'Length', 'width' => 'Width', 'height' => 'Height'] as $field => $label) {
+            if (! blank($product->{$field})) {
+                $additionalProperty[] = [
+                    '@type' => 'PropertyValue',
+                    'name' => $label,
+                    'value' => (string) $product->{$field} . ' ' . $dimensionUnit,
+                ];
+            }
+        }
+
+        if (! blank($product->weight)) {
+            $additionalProperty[] = [
+                '@type' => 'PropertyValue',
+                'name' => 'Weight',
+                'value' => (string) $product->weight . ' ' . ($product->weight_unit ?: 'kg'),
+            ];
+        }
+
+        if ($additionalProperty !== []) {
+            $schema['additionalProperty'] = $additionalProperty;
+        }
+
         return json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
