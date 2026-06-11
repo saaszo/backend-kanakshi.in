@@ -24,7 +24,8 @@ jobs:
         run: composer install --working-dir=api --prefer-dist --no-interaction
 
       - name: Run backend tests
-        run: php api/artisan test
+        working-directory: api
+        run: php artisan test
 
       - name: Prepare SSH key
         env:
