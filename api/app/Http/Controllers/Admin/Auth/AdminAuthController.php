@@ -283,30 +283,23 @@ class AdminAuthController extends Controller
 
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
-        try {
-            $mailProfile = $this->applyMailSettings();
-            $this->deliverOtpMail($email, $subject, $otp, $mailProfile['from_address'], $mailProfile['from_name']);
-            return;
-        } catch (\Throwable $throwable) {
-            Log::error('Admin OTP email delivery failed.', [
-                'to' => $email,
-                'subject' => $subject,
-                'error' => $throwable->getMessage(),
-                'mailer' => 'admin',
-            ]);
-        }
-
-        try {
-            $mailProfile = $this->applyCustomerFallbackMailSettings();
-            $this->deliverOtpMail($email, $subject, $otp, $mailProfile['from_address'], $mailProfile['from_name']);
-            return;
-        } catch (\Throwable $throwable) {
-            Log::error('Admin OTP email delivery fallback failed.', [
-                'to' => $email,
-                'subject' => $subject,
-                'error' => $throwable->getMessage(),
-                'mailer' => 'customer_fallback',
-            ]);
+        foreach ($this->mailProfilesForOtp() as $profile) {
+            try {
+                $this->applyMailerProfile($profile);
+                $this->deliverOtpMail($email, $subject, $otp, $profile['from_address'], $profile['from_name']);
+                return;
+            } catch (\Throwable $throwable) {
+                Log::error('Admin OTP email delivery attempt failed.', [
+                    'to' => $email,
+                    'subject' => $subject,
+                    'mailer' => $profile['label'],
+                    'host' => $profile['smtp_host'],
+                    'port' => $profile['smtp_port'],
+                    'encryption' => $profile['smtp_encryption'],
+                    'username' => $profile['smtp_username'],
+                    'error' => $throwable->getMessage(),
+                ]);
+            }
         }
 
         throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
@@ -324,7 +317,43 @@ class AdminAuthController extends Controller
         );
     }
 
-    private function applyMailSettings(): array
+    private function mailProfilesForOtp(): array
+    {
+        $profiles = [
+            $this->resolveAdminMailProfile(),
+            $this->alternateTransportProfile($this->resolveAdminMailProfile(), 'admin_alt_transport'),
+            $this->resolveCustomerFallbackMailProfile(),
+            $this->alternateTransportProfile($this->resolveCustomerFallbackMailProfile(), 'customer_fallback_alt_transport'),
+        ];
+
+        $uniqueProfiles = [];
+        $seen = [];
+
+        foreach ($profiles as $profile) {
+            if (! is_array($profile)) {
+                continue;
+            }
+
+            $signature = implode('|', [
+                $profile['from_address'] ?? '',
+                $profile['smtp_host'] ?? '',
+                (string) ($profile['smtp_port'] ?? ''),
+                $profile['smtp_encryption'] ?? '',
+                $profile['smtp_username'] ?? '',
+            ]);
+
+            if (isset($seen[$signature])) {
+                continue;
+            }
+
+            $seen[$signature] = true;
+            $uniqueProfiles[] = $profile;
+        }
+
+        return $uniqueProfiles;
+    }
+
+    private function resolveAdminMailProfile(): array
     {
         $emailSettings = EmailSetting::query()
             ->where('is_active', true)
@@ -336,49 +365,62 @@ class AdminAuthController extends Controller
         $fromName = $emailSettings?->from_name
             ?: env('ADMIN_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Little Divinity Admin'));
 
-        if (! $emailSettings) {
-            return [
-                'from_address' => $fromAddress,
-                'from_name' => $fromName,
-            ];
-        }
-
-        $smtpPassword = $emailSettings->smtp_password
-            ?: env('ADMIN_SMTP_PASSWORD')
-            ?: env('SMTP_SETTINGS_PASSWORD')
-            ?: env('MAIL_PASSWORD');
-        $smtpScheme = match (strtolower((string) $emailSettings->smtp_encryption)) {
-            'ssl' => 'smtps',
-            'tls' => 'tls',
-            default => null,
-        };
-
-        config([
-            'mail.default' => $emailSettings->mailer ?: 'smtp',
-            'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $emailSettings->smtp_host,
-            'mail.mailers.smtp.port' => $emailSettings->smtp_port,
-            'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
-            'mail.mailers.smtp.username' => $emailSettings->smtp_username ?: env('ADMIN_SMTP_USERNAME', $fromAddress),
-            'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $fromAddress,
-            'mail.from.name' => $fromName,
-        ]);
-
         return [
+            'label' => 'admin',
             'from_address' => $fromAddress,
             'from_name' => $fromName,
+            'smtp_host' => $emailSettings?->smtp_host ?: 'smtp.hostinger.com',
+            'smtp_port' => (int) ($emailSettings?->smtp_port ?: 465),
+            'smtp_encryption' => $emailSettings?->smtp_encryption ?: 'ssl',
+            'smtp_username' => $emailSettings?->smtp_username ?: env('ADMIN_SMTP_USERNAME', $fromAddress),
+            'smtp_password' => $emailSettings?->smtp_password
+                ?: env('ADMIN_SMTP_PASSWORD')
+                ?: env('SMTP_SETTINGS_PASSWORD')
+                ?: env('MAIL_PASSWORD'),
         ];
     }
 
-    private function applyCustomerFallbackMailSettings(): array
+    private function resolveCustomerFallbackMailProfile(): array
     {
         $settings = CustomerEmailSetting::query()->first();
-        $fromAddress = $settings?->from_email ?: 'noreply@littledivinity.com';
-        $fromName = $settings?->from_name ?: 'Little Divinity';
-        $smtpPassword = $settings?->smtp_password ?: env('CUSTOMER_AUTH_SMTP_PASSWORD') ?: env('CUSTOMER_SMTP_PASSWORD') ?: 'Littledivinity@123';
-        $smtpScheme = match (strtolower((string) ($settings?->smtp_encryption ?: 'ssl'))) {
+
+        return [
+            'label' => 'customer_fallback',
+            'from_address' => $settings?->from_email ?: 'noreply@littledivinity.com',
+            'from_name' => $settings?->from_name ?: 'Little Divinity',
+            'smtp_host' => $settings?->smtp_host ?: 'smtp.hostinger.com',
+            'smtp_port' => (int) ($settings?->smtp_port ?: 465),
+            'smtp_encryption' => $settings?->smtp_encryption ?: 'ssl',
+            'smtp_username' => $settings?->smtp_username ?: ($settings?->from_email ?: 'noreply@littledivinity.com'),
+            'smtp_password' => $settings?->smtp_password
+                ?: env('CUSTOMER_AUTH_SMTP_PASSWORD')
+                ?: env('CUSTOMER_SMTP_PASSWORD')
+                ?: 'Littledivinity@123',
+        ];
+    }
+
+    private function alternateTransportProfile(array $profile, string $label): array
+    {
+        $alternate = $profile;
+        $alternate['label'] = $label;
+
+        $encryption = strtolower((string) ($profile['smtp_encryption'] ?? 'ssl'));
+        $port = (int) ($profile['smtp_port'] ?? 465);
+
+        if ($encryption === 'ssl' || $port === 465) {
+            $alternate['smtp_encryption'] = 'tls';
+            $alternate['smtp_port'] = 587;
+        } else {
+            $alternate['smtp_encryption'] = 'ssl';
+            $alternate['smtp_port'] = 465;
+        }
+
+        return $alternate;
+    }
+
+    private function applyMailerProfile(array $profile): void
+    {
+        $smtpScheme = match (strtolower((string) ($profile['smtp_encryption'] ?? 'ssl'))) {
             'ssl' => 'smtps',
             'tls' => 'tls',
             default => null,
@@ -387,19 +429,14 @@ class AdminAuthController extends Controller
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
-            'mail.mailers.smtp.host' => $settings?->smtp_host ?: 'smtp.hostinger.com',
-            'mail.mailers.smtp.port' => $settings?->smtp_port ?: 465,
+            'mail.mailers.smtp.host' => $profile['smtp_host'],
+            'mail.mailers.smtp.port' => $profile['smtp_port'],
             'mail.mailers.smtp.scheme' => $smtpScheme,
-            'mail.mailers.smtp.encryption' => $settings?->smtp_encryption ?: 'ssl',
-            'mail.mailers.smtp.username' => $settings?->smtp_username ?: $fromAddress,
-            'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $fromAddress,
-            'mail.from.name' => $fromName,
+            'mail.mailers.smtp.encryption' => $profile['smtp_encryption'],
+            'mail.mailers.smtp.username' => $profile['smtp_username'],
+            'mail.mailers.smtp.password' => $profile['smtp_password'],
+            'mail.from.address' => $profile['from_address'],
+            'mail.from.name' => $profile['from_name'],
         ]);
-
-        return [
-            'from_address' => $fromAddress,
-            'from_name' => $fromName,
-        ];
     }
 }
