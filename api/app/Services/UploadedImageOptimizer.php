@@ -11,7 +11,7 @@ class UploadedImageOptimizer
         UploadedFile $file,
         string $directory,
         string $fileName,
-        int $maxDimension = 2200
+        int $maxDimension = 1600
     ): array {
         $disk = Storage::disk('public');
         $extension = strtolower((string) $file->getClientOriginalExtension());
@@ -143,9 +143,9 @@ class UploadedImageOptimizer
         ob_start();
 
         $encoded = match ($extension) {
-            'jpg', 'jpeg' => function_exists('imagejpeg') ? @imagejpeg($resource, null, 82) : false,
-            'png' => function_exists('imagepng') ? @imagepng($resource, null, 7) : false,
-            'webp' => function_exists('imagewebp') ? @imagewebp($resource, null, 82) : false,
+            'jpg', 'jpeg' => function_exists('imagejpeg') ? @imagejpeg($resource, null, 76) : false,
+            'png' => function_exists('imagepng') ? @imagepng($resource, null, 8) : false,
+            'webp' => function_exists('imagewebp') ? @imagewebp($resource, null, 76) : false,
             default => false,
         };
 

@@ -37,7 +37,7 @@ class AdminPanelFoundationSeeder extends Seeder
                 'topbar_bg_color' => '#0f0f0f',
                 'topbar_text_color' => '#ffffff',
                 'topbar_offers' => json_encode([
-                    'Avail 10% Off, Use Code - ADVITYA10',
+                    'Avail 10% Off, Use Code - LITTLEDIVINITY10',
                     'Get Extra 5% on Prepaid Orders',
                     'Free shipping on select festive picks',
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
@@ -203,9 +203,9 @@ class AdminPanelFoundationSeeder extends Seeder
 
         $socialLinks = [
             ['platform' => 'facebook', 'title' => 'Facebook', 'url' => 'https://www.facebook.com/uniquebrasscollection', 'sort_order' => 1],
-            ['platform' => 'instagram', 'title' => 'Instagram', 'url' => 'https://www.instagram.com/the_advitya/', 'sort_order' => 2],
-            ['platform' => 'youtube', 'title' => 'YouTube', 'url' => 'https://www.youtube.com/@the_advitya', 'sort_order' => 3],
-            ['platform' => 'linkedin', 'title' => 'LinkedIn', 'url' => 'https://www.linkedin.com/company/theadvitya/', 'sort_order' => 4],
+            ['platform' => 'instagram', 'title' => 'Instagram', 'url' => 'https://www.instagram.com/littledivinity/', 'sort_order' => 2],
+            ['platform' => 'youtube', 'title' => 'YouTube', 'url' => 'https://www.youtube.com/@littledivinity', 'sort_order' => 3],
+            ['platform' => 'linkedin', 'title' => 'LinkedIn', 'url' => 'https://www.linkedin.com/company/little-divinity/', 'sort_order' => 4],
         ];
 
         DB::table('social_links')
