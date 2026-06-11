@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -281,9 +282,9 @@ class AdminAuthController extends Controller
 
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
-        $this->applyMailSettings();
-        $fromAddress = env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in');
-        $fromName = config('mail.from.name', 'ecomeservice for littledivinity');
+        $mailProfile = $this->applyMailSettings();
+        $fromAddress = $mailProfile['from_address'];
+        $fromName = $mailProfile['from_name'];
 
         try {
             Mail::raw(
@@ -295,19 +296,35 @@ class AdminAuthController extends Controller
                 }
             );
         } catch (\Throwable $throwable) {
+            Log::error('Admin OTP email delivery failed.', [
+                'to' => $email,
+                'subject' => $subject,
+                'from_address' => $fromAddress,
+                'from_name' => $fromName,
+                'error' => $throwable->getMessage(),
+            ]);
+
             throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
         }
     }
 
-    private function applyMailSettings(): void
+    private function applyMailSettings(): array
     {
         $emailSettings = EmailSetting::query()
             ->where('is_active', true)
             ->orderByDesc('id')
             ->first();
 
+        $fromAddress = $emailSettings?->from_email
+            ?: env('STORE_SUPPORT_EMAIL', env('MAIL_FROM_ADDRESS', 'noreply@littledivinity.com'));
+        $fromName = $emailSettings?->from_name
+            ?: env('MAIL_FROM_NAME', 'Little Divinity Admin');
+
         if (! $emailSettings) {
-            return;
+            return [
+                'from_address' => $fromAddress,
+                'from_name' => $fromName,
+            ];
         }
 
         $smtpPassword = $emailSettings->smtp_password ?: env('SMTP_SETTINGS_PASSWORD') ?: env('MAIL_PASSWORD');
@@ -326,8 +343,13 @@ class AdminAuthController extends Controller
             'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
             'mail.mailers.smtp.username' => $emailSettings->smtp_username,
             'mail.mailers.smtp.password' => $smtpPassword,
-            'mail.from.address' => $emailSettings->from_email ?: env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
-            'mail.from.name' => $emailSettings->from_name ?: 'ecomeservice for littledivinity',
+            'mail.from.address' => $fromAddress,
+            'mail.from.name' => $fromName,
         ]);
+
+        return [
+            'from_address' => $fromAddress,
+            'from_name' => $fromName,
+        ];
     }
 }
