@@ -18,7 +18,8 @@
         .hero-editor-errors,
         .hero-editor-savebar,
         .hero-editor-section,
-        .hero-editor-overview {
+        .hero-editor-overview,
+        .hero-editor-toast {
             border: 1px solid rgba(25, 25, 25, 0.08);
             border-radius: 20px;
             background: #fff;
@@ -29,8 +30,21 @@
         .hero-editor-errors,
         .hero-editor-overview,
         .hero-editor-section,
-        .hero-editor-savebar {
+        .hero-editor-savebar,
+        .hero-editor-toast {
             padding: 1.1rem 1.2rem;
+        }
+
+        .hero-editor-toast {
+            position: sticky;
+            top: 1rem;
+            z-index: 8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            border-color: rgba(22, 163, 74, 0.16);
+            background: #f3fff7;
         }
 
         .hero-editor-banner {
@@ -228,6 +242,30 @@
             display: inline-flex;
         }
 
+        .hero-editor-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .hero-editor-spec {
+            padding: 0.7rem 0.8rem;
+            border-radius: 12px;
+            background: #faf7f2;
+            border: 1px solid rgba(25, 25, 25, 0.06);
+        }
+
+        .hero-editor-spec strong,
+        .hero-editor-spec span {
+            display: block;
+        }
+
+        .hero-editor-spec span {
+            margin-top: 0.22rem;
+            color: rgba(25, 25, 25, 0.62);
+            font-size: 0.8rem;
+        }
+
         .hero-editor-preview-wrap {
             display: grid;
             grid-template-columns: 124px minmax(0, 1fr);
@@ -283,7 +321,8 @@
         @media (max-width: 1100px) {
             .hero-editor-grid,
             .hero-editor-fields,
-            .hero-editor-cards {
+            .hero-editor-cards,
+            .hero-editor-spec-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -330,11 +369,12 @@
                 @endif
 
                 @if (session('status'))
-                    <div class="hero-editor-banner hero-editor-success" id="hero-editor-success">
+                    <div class="hero-editor-toast hero-editor-success" id="hero-editor-success">
                         <div>
                             <strong>Saved successfully</strong>
                             <p>{{ session('status') }}</p>
                         </div>
+                        <button type="button" class="button secondary small" id="hero-editor-toast-close">Close</button>
                     </div>
                 @endif
 
@@ -439,18 +479,22 @@
 
                                         <div class="hero-editor-upload">
                                             <strong>Upload new slide image</strong>
-                                            <div class="hero-editor-help">Choose JPG, PNG, or WebP under 5 MB. The new image will replace the current one after save.</div>
+                                            <div class="hero-editor-help">Choose JPG, PNG, or WebP. The new image will replace the current one after save.</div>
+                                            <div class="hero-editor-spec-grid">
+                                                <div class="hero-editor-spec">
+                                                    <strong>Best size</strong>
+                                                    <span>1600 x 1100 px</span>
+                                                </div>
+                                                <div class="hero-editor-spec">
+                                                    <strong>Best file size</strong>
+                                                    <span>Under 350 KB if possible</span>
+                                                </div>
+                                            </div>
                                             <input type="file" name="slide_files[{{ $index }}]" accept="image/*" class="js-admin-file-input" data-target="slide-file-name-{{ $index }}">
                                             <div class="hero-editor-file-chip" id="slide-file-name-{{ $index }}">No new file selected</div>
                                         </div>
                                     </div>
-
-                                    <div class="hero-editor-field">
-                                        <label>Current image URL / manual path</label>
-                                        <input name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", $slide['image']) }}" placeholder="/storage/homepage/hero-slide.jpg" />
-                                        <div class="hero-editor-help">Leave this as-is if you are uploading a new file above.</div>
-                                        @error("slide_urls.$index") <div class="hero-editor-inline-error">{{ $message }}</div> @enderror
-                                    </div>
+                                    <input type="hidden" name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", $slide['image']) }}">
 
                                     <div class="hero-editor-fields">
                                         <div class="hero-editor-field">
@@ -500,17 +544,22 @@
 
                                         <div class="hero-editor-upload">
                                             <strong>Upload new banner image</strong>
-                                            <div class="hero-editor-help">Choose JPG, PNG, or WebP under 5 MB. Keep both banners same size for a cleaner layout.</div>
+                                            <div class="hero-editor-help">Choose JPG, PNG, or WebP. Keep both banners same size for a cleaner layout.</div>
+                                            <div class="hero-editor-spec-grid">
+                                                <div class="hero-editor-spec">
+                                                    <strong>Best size</strong>
+                                                    <span>900 x 620 px</span>
+                                                </div>
+                                                <div class="hero-editor-spec">
+                                                    <strong>Best file size</strong>
+                                                    <span>Under 250 KB if possible</span>
+                                                </div>
+                                            </div>
                                             <input type="file" name="promo_files[{{ $index }}]" accept="image/*" class="js-admin-file-input" data-target="promo-file-name-{{ $index }}">
                                             <div class="hero-editor-file-chip" id="promo-file-name-{{ $index }}">No new file selected</div>
                                         </div>
                                     </div>
-
-                                    <div class="hero-editor-field">
-                                        <label>Current image URL / manual path</label>
-                                        <input name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", $promo['image']) }}" placeholder="/storage/homepage/hero-promo.jpg" />
-                                        @error("promo_urls.$index") <div class="hero-editor-inline-error">{{ $message }}</div> @enderror
-                                    </div>
+                                    <input type="hidden" name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", $promo['image']) }}">
 
                                     <div class="hero-editor-fields">
                                         <div class="hero-editor-field">
@@ -567,6 +616,13 @@
             const successBox = document.getElementById('hero-editor-success');
             if (successBox) {
                 successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            const closeToastButton = document.getElementById('hero-editor-toast-close');
+            if (closeToastButton && successBox) {
+                closeToastButton.addEventListener('click', function () {
+                    successBox.remove();
+                });
             }
         });
     </script>
