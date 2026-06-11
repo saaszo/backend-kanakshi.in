@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -12,13 +11,19 @@ class ReportController extends Controller
     public function index(): View
     {
         $monthlySales = Order::query()
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month_key")
-            ->selectRaw('SUM(CASE WHEN payment_status = "paid" THEN total_amount ELSE 0 END) as paid_revenue')
-            ->selectRaw('COUNT(*) as orders_count')
-            ->groupBy('month_key')
-            ->orderByDesc('month_key')
-            ->limit(12)
-            ->get();
+            ->latest()
+            ->get(['created_at', 'payment_status', 'total_amount'])
+            ->groupBy(fn (Order $order): string => $order->created_at->format('Y-m'))
+            ->map(fn ($orders, string $monthKey): object => (object) [
+                'month_key' => $monthKey,
+                'paid_revenue' => $orders
+                    ->where('payment_status', 'paid')
+                    ->sum(fn (Order $order): float => (float) $order->total_amount),
+                'orders_count' => $orders->count(),
+            ])
+            ->sortByDesc('month_key')
+            ->take(12)
+            ->values();
 
         $paymentBreakdown = Order::query()
             ->select('payment_method')
