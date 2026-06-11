@@ -316,9 +316,9 @@ class AdminAuthController extends Controller
             ->first();
 
         $fromAddress = $emailSettings?->from_email
-            ?: env('STORE_SUPPORT_EMAIL', env('MAIL_FROM_ADDRESS', 'noreply@littledivinity.com'));
+            ?: env('ADMIN_MAIL_FROM_EMAIL', env('ADMIN_DEFAULT_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@saaszo.in')));
         $fromName = $emailSettings?->from_name
-            ?: env('MAIL_FROM_NAME', 'Little Divinity Admin');
+            ?: env('ADMIN_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Little Divinity Admin'));
 
         if (! $emailSettings) {
             return [
@@ -327,7 +327,10 @@ class AdminAuthController extends Controller
             ];
         }
 
-        $smtpPassword = $emailSettings->smtp_password ?: env('SMTP_SETTINGS_PASSWORD') ?: env('MAIL_PASSWORD');
+        $smtpPassword = $emailSettings->smtp_password
+            ?: env('ADMIN_SMTP_PASSWORD')
+            ?: env('SMTP_SETTINGS_PASSWORD')
+            ?: env('MAIL_PASSWORD');
         $smtpScheme = match (strtolower((string) $emailSettings->smtp_encryption)) {
             'ssl' => 'smtps',
             'tls' => 'tls',
@@ -341,7 +344,7 @@ class AdminAuthController extends Controller
             'mail.mailers.smtp.port' => $emailSettings->smtp_port,
             'mail.mailers.smtp.scheme' => $smtpScheme,
             'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
-            'mail.mailers.smtp.username' => $emailSettings->smtp_username,
+            'mail.mailers.smtp.username' => $emailSettings->smtp_username ?: env('ADMIN_SMTP_USERNAME', $fromAddress),
             'mail.mailers.smtp.password' => $smtpPassword,
             'mail.from.address' => $fromAddress,
             'mail.from.name' => $fromName,

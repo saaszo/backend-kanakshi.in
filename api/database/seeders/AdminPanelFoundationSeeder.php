@@ -14,10 +14,15 @@ class AdminPanelFoundationSeeder extends Seeder
 {
     public function run(): void
     {
+        $adminEmail = env('ADMIN_DEFAULT_EMAIL', 'admin@saaszo.in');
+        $adminMailFromEmail = env('ADMIN_MAIL_FROM_EMAIL', $adminEmail);
+        $adminMailFromName = env('ADMIN_MAIL_FROM_NAME', 'Little Divinity Admin');
+        $adminSmtpUsername = env('ADMIN_SMTP_USERNAME', $adminMailFromEmail);
+        $adminSmtpPassword = env('ADMIN_SMTP_PASSWORD')
+            ?: env('SMTP_SETTINGS_PASSWORD')
+            ?: env('MAIL_PASSWORD');
         $existingEmailSettings = DB::table('email_settings')->where('id', 1)->first();
-        $smtpPassword = env('SMTP_SETTINGS_PASSWORD')
-            ?: env('MAIL_PASSWORD')
-            ?: ($existingEmailSettings->smtp_password ?? null);
+        $smtpPassword = $adminSmtpPassword ?: ($existingEmailSettings->smtp_password ?? null);
 
         DB::table('store_settings')->updateOrInsert(
             ['id' => 1],
@@ -69,13 +74,13 @@ class AdminPanelFoundationSeeder extends Seeder
             ['id' => 1],
             [
                 'mailer' => 'smtp',
-                'from_name' => 'ecomeservice for littledivinity',
-                'from_email' => env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
-                'reply_to_email' => env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
+                'from_name' => $adminMailFromName,
+                'from_email' => $adminMailFromEmail,
+                'reply_to_email' => $adminMailFromEmail,
                 'smtp_host' => 'smtp.hostinger.com',
                 'smtp_port' => 465,
                 'smtp_encryption' => 'ssl',
-                'smtp_username' => env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in'),
+                'smtp_username' => $adminSmtpUsername,
                 'smtp_password' => $smtpPassword,
                 'imap_host' => 'imap.hostinger.com',
                 'imap_port' => 993,
@@ -388,7 +393,6 @@ class AdminPanelFoundationSeeder extends Seeder
             );
         }
 
-        $adminEmail = env('ADMIN_DEFAULT_EMAIL', 'admin@saaszo.in');
         $adminPassword = env('ADMIN_DEFAULT_PASSWORD');
         $supportEmail = env('STORE_SUPPORT_EMAIL', 'noreply@saaszo.in');
 
