@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerEmailSetting;
 use App\Models\EmailSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -282,30 +283,45 @@ class AdminAuthController extends Controller
 
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
-        $mailProfile = $this->applyMailSettings();
-        $fromAddress = $mailProfile['from_address'];
-        $fromName = $mailProfile['from_name'];
-
         try {
-            Mail::raw(
-                "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
-                function ($message) use ($email, $subject, $fromAddress, $fromName): void {
-                    $message->to($email)
-                        ->from($fromAddress, $fromName)
-                        ->subject($subject);
-                }
-            );
+            $mailProfile = $this->applyMailSettings();
+            $this->deliverOtpMail($email, $subject, $otp, $mailProfile['from_address'], $mailProfile['from_name']);
+            return;
         } catch (\Throwable $throwable) {
             Log::error('Admin OTP email delivery failed.', [
                 'to' => $email,
                 'subject' => $subject,
-                'from_address' => $fromAddress,
-                'from_name' => $fromName,
                 'error' => $throwable->getMessage(),
+                'mailer' => 'admin',
             ]);
-
-            throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
         }
+
+        try {
+            $mailProfile = $this->applyCustomerFallbackMailSettings();
+            $this->deliverOtpMail($email, $subject, $otp, $mailProfile['from_address'], $mailProfile['from_name']);
+            return;
+        } catch (\Throwable $throwable) {
+            Log::error('Admin OTP email delivery fallback failed.', [
+                'to' => $email,
+                'subject' => $subject,
+                'error' => $throwable->getMessage(),
+                'mailer' => 'customer_fallback',
+            ]);
+        }
+
+        throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
+    }
+
+    private function deliverOtpMail(string $email, string $subject, string $otp, string $fromAddress, string $fromName): void
+    {
+        Mail::raw(
+            "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
+            function ($message) use ($email, $subject, $fromAddress, $fromName): void {
+                $message->to($email)
+                    ->from($fromAddress, $fromName)
+                    ->subject($subject);
+            }
+        );
     }
 
     private function applyMailSettings(): array
@@ -345,6 +361,37 @@ class AdminAuthController extends Controller
             'mail.mailers.smtp.scheme' => $smtpScheme,
             'mail.mailers.smtp.encryption' => $emailSettings->smtp_encryption,
             'mail.mailers.smtp.username' => $emailSettings->smtp_username ?: env('ADMIN_SMTP_USERNAME', $fromAddress),
+            'mail.mailers.smtp.password' => $smtpPassword,
+            'mail.from.address' => $fromAddress,
+            'mail.from.name' => $fromName,
+        ]);
+
+        return [
+            'from_address' => $fromAddress,
+            'from_name' => $fromName,
+        ];
+    }
+
+    private function applyCustomerFallbackMailSettings(): array
+    {
+        $settings = CustomerEmailSetting::query()->first();
+        $fromAddress = $settings?->from_email ?: 'noreply@littledivinity.com';
+        $fromName = $settings?->from_name ?: 'Little Divinity';
+        $smtpPassword = $settings?->smtp_password ?: env('CUSTOMER_AUTH_SMTP_PASSWORD') ?: env('CUSTOMER_SMTP_PASSWORD') ?: 'Littledivinity@123';
+        $smtpScheme = match (strtolower((string) ($settings?->smtp_encryption ?: 'ssl'))) {
+            'ssl' => 'smtps',
+            'tls' => 'tls',
+            default => null,
+        };
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => $settings?->smtp_host ?: 'smtp.hostinger.com',
+            'mail.mailers.smtp.port' => $settings?->smtp_port ?: 465,
+            'mail.mailers.smtp.scheme' => $smtpScheme,
+            'mail.mailers.smtp.encryption' => $settings?->smtp_encryption ?: 'ssl',
+            'mail.mailers.smtp.username' => $settings?->smtp_username ?: $fromAddress,
             'mail.mailers.smtp.password' => $smtpPassword,
             'mail.from.address' => $fromAddress,
             'mail.from.name' => $fromName,
