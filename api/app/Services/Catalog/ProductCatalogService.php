@@ -113,6 +113,8 @@ class ProductCatalogService
             default => $query->orderByDesc('p.created_at'),
         };
 
+        $query->orderByDesc('p.id');
+
         $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return [
