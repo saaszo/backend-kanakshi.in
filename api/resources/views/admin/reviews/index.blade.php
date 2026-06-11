@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Customer Feedback Desk</div>
                         <h2>Product Reviews</h2>
@@ -16,33 +16,38 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
-                <div class="metrics-grid">
-                    <article class="metric-card">
+                <div class="admin-overview">
+                    <div class="admin-stat">
                         <small>Total Reviews</small>
                         <strong>{{ $stats['total'] }}</strong>
                         <span>All customer submissions</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Published</small>
                         <strong>{{ $stats['published'] }}</strong>
                         <span>Visible on storefront</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Pending</small>
                         <strong>{{ $stats['pending'] }}</strong>
                         <span>Awaiting moderation</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Hidden</small>
                         <strong>{{ $stats['hidden'] }}</strong>
                         <span>Moderated off storefront</span>
-                    </article>
+                    </div>
                 </div>
 
-                <form method="GET" class="panel mb-4">
+                <form method="GET" class="admin-section mb-4">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Search</label>

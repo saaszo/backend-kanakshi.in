@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Editorial & Blog</div>
                         <h2>Blog Authors</h2>
@@ -16,17 +16,22 @@
                 </div>
 
                 @if(session('success'))
-                    <div class="message">{{ session('success') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('success') }}</p>
+    </div>
+</div>
                 @endif
                 @if(session('error'))
-                    <div class="errors">{{ session('error') }}</div>
+                    <div class="admin-errors">{{ session('error') }}</div>
                 @endif
 
                 <div class="split-grid">
                     <!-- Left Panel: Create Author -->
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Create Author</h3>
-                        <form method="POST" action="{{ route('admin.blog.authors.store') }}" class="section-grid" data-auto-slug-form enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.blog.authors.store') }}" class="admin-fields" data-auto-slug-form enctype="multipart/form-data">
                             @csrf
                             <div class="form-grid one">
                                 <div class="field">
@@ -61,12 +66,12 @@
                     </section>
 
                     <!-- Right Panel: Existing Authors -->
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Existing Authors</h3>
-                        <div class="section-grid">
+                        <div class="admin-fields">
                             @forelse($authors as $author)
-                                <div class="panel" style="padding: 18px;">
-                                    <form method="POST" action="{{ route('admin.blog.authors.update', $author) }}" class="section-grid" data-auto-slug-form enctype="multipart/form-data">
+                                <div class="admin-section" style="padding: 18px;">
+                                    <form method="POST" action="{{ route('admin.blog.authors.update', $author) }}" class="admin-fields" data-auto-slug-form enctype="multipart/form-data">
                                         @csrf
                                         @method('PUT')
                                         <div class="form-grid one">

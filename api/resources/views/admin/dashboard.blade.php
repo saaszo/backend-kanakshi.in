@@ -7,9 +7,9 @@
         @include('admin.partials.sidebar')
 
         <main class="admin-main">
-            <div class="dashboard-card">
+            <div class="admin-shell-grid">
                 <!-- Top Header -->
-                <div class="topbar">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Executive Workspace</div>
                         <h2>Store Analytics & Control</h2>
@@ -33,34 +33,34 @@
                         <small>Total Revenue</small>
                         <strong style="color: var(--success);">₹{{ number_format($stats['total_sales'], 2) }}</strong>
                         <span>Sum of paid invoices</span>
-                    </article>
+                    </div>
                     <article class="metric-card" style="position: relative; overflow: hidden;">
                         <small>Transactions</small>
                         <strong>{{ $stats['orders_count'] }}</strong>
                         <span>Total customer checkouts</span>
-                    </article>
+                    </div>
                     <article class="metric-card" style="position: relative; overflow: hidden; border-color: rgba(245, 158, 11, 0.2); background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent);">
                         <small>Pending Validation</small>
                         <strong style="color: var(--warning);">{{ $stats['pending_orders'] }}</strong>
                         <span>Orders awaiting approval</span>
-                    </article>
+                    </div>
                     <article class="metric-card" style="position: relative; overflow: hidden; border-color: rgba(99, 102, 241, 0.2); background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent);">
                         <small>Active Shipments</small>
                         <strong style="color: var(--primary);">{{ $stats['shipped_orders'] }}</strong>
                         <span>Orders currently in transit</span>
-                    </article>
+                    </div>
                     <article class="metric-card" style="position: relative; overflow: hidden; border-color: rgba(16, 185, 129, 0.2);">
                         <small>Deliveries Completed</small>
                         <strong style="color: var(--success);">{{ $stats['completed_orders'] }}</strong>
                         <span>Delivered and archived</span>
-                    </article>
+                    </div>
                 </div>
 
                 <!-- High-Fidelity Charts Splitting Row -->
                 <div class="row g-4 mb-4">
                     <!-- Left: Revenue Trend -->
                     <div class="col-lg-8">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h3 class="mb-0">Revenue Stream Trend</h3>
@@ -78,7 +78,7 @@
 
                     <!-- Right: Category Shares -->
                     <div class="col-lg-4">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h3 class="mb-0">Product Category split</h3>
@@ -96,7 +96,7 @@
                 <div class="row g-4 mb-4">
                     <!-- Needs Attention: Pending Shipments -->
                     <div class="col-lg-7">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h3 class="mb-0 text-warning d-flex align-items-center gap-2">
@@ -152,7 +152,7 @@
 
                     <!-- Top Selling Products -->
                     <div class="col-lg-5">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <h3 class="mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-trophy" style="color: var(--warning);"></i>
                                 <span>Leaderboard: Top Products</span>

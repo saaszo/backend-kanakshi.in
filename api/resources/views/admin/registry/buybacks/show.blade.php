@@ -7,7 +7,7 @@
     @include('admin.partials.sidebar')
 
     <main class="admin-main">
-        <div class="topbar">
+        <div class="admin-banner">
             <div>
                 <a href="{{ route('admin.registry.buybacks.index') }}" class="text-link text-decoration-none">
                     <i class="bi bi-arrow-left"></i> Back to Buybacks Queue
@@ -28,16 +28,21 @@
         </div>
 
         @if(session('status'))
-            <div class="message">
+            <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>
                 <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('status') }}</span>
-            </div>
+            </p>
+    </div>
+</div>
         @endif
 
         <div class="admin-split-layout d-grid gap-4" style="grid-template-columns: 1.4fr 1fr;">
             <!-- Left Side: Request Details -->
             <div class="d-grid gap-4">
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Buyback Request Case File</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -75,7 +80,7 @@
                     </div>
                 </div>
 
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Uploaded Condition Photos</h3>
                     <div class="d-flex flex-wrap gap-3">
                         @if(is_array($buyback->image_paths) && count($buyback->image_paths) > 0)
@@ -98,7 +103,7 @@
 
             <!-- Right Side: Valuation Appraisal & Guarantee Context -->
             <div class="d-grid gap-4">
-                <div class="panel border-primary border-3">
+                <div class="admin-section border-3">
                     <h3 class="text-primary mb-3"><i class="bi bi-safe2"></i> Appraise & Value Asset</h3>
                     <form method="POST" action="{{ route('admin.registry.buybacks.update', $buyback->id) }}">
                         @csrf
@@ -130,7 +135,7 @@
                     </form>
                 </div>
 
-                <div class="panel bg-light">
+                <div class="admin-section bg-light">
                     <h3 class="mb-2">Guarantee Verification Context</h3>
                     <p class="small text-muted">Verification parameters for registration: <strong>{{ $buyback->registration->registration_code }}</strong></p>
                     <div class="row g-2 small">

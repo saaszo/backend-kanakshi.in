@@ -8,9 +8,11 @@
  * and defines all global constants.
  */
 
-// ─── Error Reporting (set to 0 in production) ────────────────────────────────
+// ─── Error Reporting ──────────────────────────────────────────────────────────
+$appEnvironment = getenv('APP_ENV') ?: 'production';
+$displayErrors = in_array($appEnvironment, ['local', 'development', 'testing'], true);
 error_reporting(E_ALL);
-ini_set('display_errors', 1);   // Change to 0 in production
+ini_set('display_errors', $displayErrors ? '1' : '0');
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/../logs/error.log');
 
@@ -70,7 +72,9 @@ if (session_status() === PHP_SESSION_NONE && !defined('SKIP_SESSION')) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_strict_mode', 1);
     ini_set('session.cookie_samesite', 'Lax');
-    // ini_set('session.cookie_secure', 1); // Enable on HTTPS
+    if ($protocol === 'https') {
+        ini_set('session.cookie_secure', 1);
+    }
     session_start();
 }
 

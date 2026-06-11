@@ -7,7 +7,7 @@
     @include('admin.partials.sidebar')
 
     <main class="admin-main">
-        <div class="topbar">
+        <div class="admin-banner">
             <div>
                 <span class="brand">Configuration</span>
                 <h2>Registry Settings</h2>
@@ -15,13 +15,18 @@
         </div>
 
         @if(session('status'))
-            <div class="message">
+            <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>
                 <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('status') }}</span>
-            </div>
+            </p>
+    </div>
+</div>
         @endif
 
-        <div class="panel" style="max-width: 800px;">
+        <div class="admin-section" style="max-width: 800px;">
             <h3 class="border-bottom pb-2 mb-4">Guarantee & Buyback Configurations</h3>
             <form method="POST" action="{{ route('admin.registry.settings.update') }}">
                 @csrf

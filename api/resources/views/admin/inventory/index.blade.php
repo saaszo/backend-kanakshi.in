@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Stock Control</div>
                         <h2>Inventory</h2>
@@ -16,33 +16,38 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
-                <div class="metrics-grid">
-                    <article class="metric-card">
+                <div class="admin-overview">
+                    <div class="admin-stat">
                         <small>Total Products</small>
                         <strong>{{ $stats['total_products'] }}</strong>
                         <span>Catalog items tracked</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Total Inventory</small>
                         <strong>{{ $stats['total_units'] }}</strong>
                         <span>Units available</span>
-                    </article>
+                    </div>
                     <article class="metric-card warning">
                         <small>Low Stock</small>
                         <strong>{{ $stats['low_stock'] }}</strong>
                         <span>Products between 1 and 5 units</span>
-                    </article>
+                    </div>
                     <article class="metric-card danger">
                         <small>Out of Stock</small>
                         <strong>{{ $stats['out_of_stock'] }}</strong>
                         <span>Products that need replenishment</span>
-                    </article>
+                    </div>
                 </div>
 
-                <section class="panel">
+                <section class="admin-section">
                     <div class="admin-toolbar">
                         <div>
                             <h3>Inventory Table</h3>

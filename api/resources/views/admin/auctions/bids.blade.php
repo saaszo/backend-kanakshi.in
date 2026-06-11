@@ -16,8 +16,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Auction Activity</div>
                         <h2>Bids — {{ $auction->title }}</h2>
@@ -29,7 +29,7 @@
                     </a>
                 </div>
 
-                <section class="panel">
+                <section class="admin-section">
                     @if($bids->isEmpty())
                         <div class="dashboard-empty">No bids placed yet for this auction.</div>
                     @else

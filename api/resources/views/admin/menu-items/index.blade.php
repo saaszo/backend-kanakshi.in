@@ -15,8 +15,8 @@
         @include('admin.partials.sidebar')
 
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="topbar">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Navigation Control</div>
                         <h2>Header, Footer & Mobile Menus</h2>
@@ -31,7 +31,12 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
                 @if ($errors->any())
@@ -46,7 +51,7 @@
 
                 <div class="row g-4">
                     <div class="col-12 col-xl-4">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h3 class="mb-1">Add Menu Item</h3>
@@ -55,7 +60,7 @@
                                 <span class="pill">Admin only</span>
                             </div>
 
-                            <form method="POST" action="{{ route('admin.menu-items.store') }}" class="section-grid">
+                            <form method="POST" action="{{ route('admin.menu-items.store') }}" class="admin-fields">
                                 @csrf
                                 <div class="form-grid">
                                     <div class="field">
@@ -135,7 +140,7 @@
                     </div>
 
                     <div class="col-12 col-xl-8">
-                        <section class="panel h-100">
+                        <section class="admin-section h-100">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h3 class="mb-1">Existing Menu Items</h3>
@@ -146,7 +151,7 @@
 
                             <div class="d-grid gap-4">
                                 @foreach (['header', 'footer', 'mobile'] as $location)
-                                    <section class="panel" style="padding:18px;">
+                                    <section class="admin-section" style="padding:18px;">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h4 class="mb-0">{{ $locationLabels[$location] }}</h4>
                                             <span class="admin-badge">{{ $groupedMenuItems->get($location)?->count() ?? 0 }} links</span>
@@ -217,7 +222,7 @@
                                                         </tr>
                                                         <tr class="collapse" id="menu-item-{{ $menuItem->id }}">
                                                             <td colspan="6" style="background: #faf7f2;">
-                                                                <form method="POST" action="{{ route('admin.menu-items.update', $menuItem) }}" class="section-grid" style="padding:18px 8px 8px;">
+                                                                <form method="POST" action="{{ route('admin.menu-items.update', $menuItem) }}" class="admin-fields" style="padding:18px 8px 8px;">
                                                                     @csrf
                                                                     @method('PUT')
                                                                     <div class="form-grid">

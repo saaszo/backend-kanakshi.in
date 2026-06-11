@@ -7,7 +7,7 @@
         @include('admin.partials.sidebar')
 
         <main class="admin-main">
-            <div class="dashboard-card">
+            <div class="admin-shell-grid">
                 <style>
                     .settings-grid {
                         display: grid;
@@ -39,7 +39,7 @@
                         font-size: 13px;
                     }
                 </style>
-                <div class="page-head">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Configuration</div>
                         <h2>Store Settings</h2>
@@ -48,10 +48,15 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
                 @if ($errors->any())
-                    <div class="errors">
+                    <div class="admin-errors">
                         <strong>Please fix the highlighted fields.</strong>
                         <div style="margin-top:8px;font-size:13px;">
                             {{ $errors->first() }}
@@ -59,9 +64,9 @@
                     </div>
                 @endif
 
-                <div class="section-grid">
+                <div class="admin-fields">
                     <div class="settings-grid">
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Brand Basics</h3>
                             <p>Site name and core brand details.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -90,11 +95,11 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Brand Media</h3>
                             <p>Logo aur favicon ko alag se update karo.</p>
                             <div class="form-grid">
-                                <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="panel" style="padding:18px;">
+                                <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="admin-section" style="padding:18px;">
                                     @csrf
                                     @method('PUT')
                                     <div @class(['field', 'has-error' => $errors->has('logo_file')])>
@@ -111,7 +116,7 @@
                                     </div>
                                 </form>
 
-                                <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="panel" style="padding:18px;">
+                                <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data" class="admin-section" style="padding:18px;">
                                     @csrf
                                     @method('PUT')
                                     <div @class(['field', 'has-error' => $errors->has('favicon_file')])>
@@ -130,7 +135,7 @@
                             </div>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Tracking & Campaign</h3>
                             <p>Domain, campaign and marketing snippets.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -164,7 +169,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Contact Details</h3>
                             <p>Customer-facing email, phone and WhatsApp.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -183,7 +188,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Top Offer Bar</h3>
                             <p>Top bar ko on/off aur offers ko alag se manage karo.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -210,7 +215,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Locale & Billing</h3>
                             <p>Currency, invoice prefix and store locale.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -230,7 +235,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Address</h3>
                             <p>Office or billing address details.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -249,7 +254,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Invoice & Footer</h3>
                             <p>Invoice note, footer text and invoice logo visibility.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -270,7 +275,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>SEO Defaults</h3>
                             <p>Homepage and general search metadata.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -286,7 +291,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Open Graph</h3>
                             <p>WhatsApp, Facebook and LinkedIn share preview.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data">
@@ -313,7 +318,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Twitter / X</h3>
                             <p>Twitter card content and image.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}" enctype="multipart/form-data">
@@ -341,7 +346,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Policies</h3>
                             <p>Return, privacy and terms text.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -358,7 +363,7 @@
                             </form>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Custom Scripts</h3>
                             <p>Header and footer scripts ko independently save karo.</p>
                             <form method="POST" action="{{ route('admin.settings.store.update') }}">
@@ -386,11 +391,11 @@
                     </div>
 
                     <div class="split-grid">
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Payment Gateways</h3>
                             <p>Enable, test, and configure COD, Razorpay, Paytm, and PhonePe directly from admin.</p>
                             @foreach ($paymentGateways as $gateway)
-                                <form method="POST" action="{{ route('admin.settings.gateway.update', $gateway) }}" class="panel" style="margin-top: 16px; padding: 18px;">
+                                <form method="POST" action="{{ route('admin.settings.gateway.update', $gateway) }}" class="admin-section" style="margin-top: 16px; padding: 18px;">
                                     @csrf
                                     @method('PUT')
                                     <div class="button-row" style="justify-content: space-between; align-items: center;">
@@ -428,11 +433,11 @@
                             @endforeach
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3>Delivery Partners</h3>
                             <p>Manage shipment partners, pickup details, and tracking templates from here.</p>
                             @foreach ($deliveryPartners as $partner)
-                                <form method="POST" action="{{ route('admin.settings.delivery.update', $partner) }}" class="panel" style="margin-top: 16px; padding: 18px;">
+                                <form method="POST" action="{{ route('admin.settings.delivery.update', $partner) }}" class="admin-section" style="margin-top: 16px; padding: 18px;">
                                     @csrf
                                     @method('PUT')
                                     <div class="button-row" style="justify-content: space-between; align-items: center;">

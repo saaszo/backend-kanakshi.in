@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Marketing</div>
                         <h2>Coupons & Offers</h2>
@@ -16,13 +16,18 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
-                <div class="section-grid admin-split-layout">
-                    <section class="panel">
+                <div class="admin-fields admin-split-layout">
+                    <section class="admin-section">
                         <h3>Create Offer</h3>
-                        <form method="POST" action="{{ route('admin.coupons.store') }}" class="section-grid">
+                        <form method="POST" action="{{ route('admin.coupons.store') }}" class="admin-fields">
                             @csrf
                             <div class="form-grid">
                                 <div class="field"><label>Offer Title</label><input name="title" /></div>
@@ -52,7 +57,7 @@
                         </form>
                     </section>
 
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Existing Offers</h3>
                         <div class="stack-list">
                             @forelse ($coupons as $coupon)

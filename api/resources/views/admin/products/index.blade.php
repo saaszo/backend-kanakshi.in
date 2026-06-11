@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Catalog Control</div>
                         <h2>Products</h2>
@@ -26,34 +26,39 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
-                <div class="metrics-grid">
-                    <article class="metric-card">
+                <div class="admin-overview">
+                    <div class="admin-stat">
                         <small>Total Products</small>
                         <strong>{{ $stats['total_products'] }}</strong>
                         <span>All catalog items</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Active Products</small>
                         <strong>{{ $stats['active_products'] }}</strong>
                         <span>Visible on storefront</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Featured Products</small>
                         <strong>{{ $stats['featured_products'] }}</strong>
                         <span>Used in homepage rails</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Total Inventory</small>
                         <strong>{{ $stats['total_stock'] }}</strong>
                         <span>Units available right now</span>
-                    </article>
+                    </div>
                 </div>
 
-                <div class="section-grid admin-product-page">
-                    <section class="panel">
+                <div class="admin-fields admin-product-page">
+                    <section class="admin-section">
                         <div class="admin-toolbar">
                             <div>
                                 <h3>Product List</h3>
@@ -212,10 +217,10 @@
                         </div>
                     </section>
 
-                    <section class="panel" id="create-product">
+                    <section class="admin-section" id="create-product">
                         <h3>Add Product</h3>
                         <p class="muted">Create a new product with pricing, stock, media, and SEO details in a calmer full-width editor.</p>
-                        <form method="POST" action="{{ route('admin.products.store') }}" class="section-grid" data-auto-seo-form enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.products.store') }}" class="admin-fields" data-auto-seo-form enctype="multipart/form-data">
                             @csrf
                             <div class="form-grid">
                                 <div class="field">

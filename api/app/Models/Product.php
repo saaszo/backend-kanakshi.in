@@ -7,6 +7,7 @@ use App\Support\UniqueSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -33,6 +34,10 @@ class Product extends Model
                 $product->meta_desc = Str::limit($fallbackDescription, 320, '');
             }
 
+            if (Schema::hasColumn($product->getTable(), 'is_sellable')) {
+                $product->is_sellable = self::determineSellable($product);
+            }
+
             $product->custom_schema = ProductSchemaBuilder::build($product);
         });
     }
@@ -52,7 +57,16 @@ class Product extends Model
             'avg_rating' => 'decimal:2',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
+            'is_sellable' => 'boolean',
         ];
+    }
+
+    public static function determineSellable(Product $product): bool
+    {
+        $price = (float) ($product->sale_price ?: $product->price ?: 0);
+        $images = array_values(array_filter((array) $product->images, static fn ($image): bool => filled($image)));
+
+        return $price > 0 && $images !== [];
     }
 
     public function category(): BelongsTo

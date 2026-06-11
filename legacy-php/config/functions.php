@@ -1322,13 +1322,13 @@ function sendEmail(string $to, string $subject, string $body, array $attachments
     try {
         // --- TIERED SMTP CONFIGURATION ---
         
-        // Master Saaszo Credentials (Provided)
+        // Optional fallback SMTP account for legacy admin reset emails.
         $masterConfig = [
-            'host' => 'smtp.hostinger.com',
-            'user' => 'noreply@saaszo.in',
-            'pass' => 'Saaszo@9891659423',
-            'port' => 465,
-            'enc'  => 'ssl'
+            'host' => getenv('LEGACY_MASTER_SMTP_HOST') ?: 'smtp.hostinger.com',
+            'user' => getenv('LEGACY_MASTER_SMTP_USER') ?: '',
+            'pass' => getenv('LEGACY_MASTER_SMTP_PASSWORD') ?: '',
+            'port' => (int)(getenv('LEGACY_MASTER_SMTP_PORT') ?: 465),
+            'enc'  => getenv('LEGACY_MASTER_SMTP_ENCRYPTION') ?: 'ssl'
         ];
 
         // Fetch Custom Settings (if any)
@@ -1353,6 +1353,10 @@ function sendEmail(string $to, string $subject, string $body, array $attachments
             $pass = $customPass;
             $port = $customPort;
             $enc  = $customEnc;
+        }
+
+        if (empty($host) || empty($user) || empty($pass)) {
+            throw new RuntimeException('SMTP credentials are not configured.');
         }
 
         // Server settings

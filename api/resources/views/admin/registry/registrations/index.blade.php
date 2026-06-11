@@ -7,7 +7,7 @@
     @include('admin.partials.sidebar')
 
     <main class="admin-main">
-        <div class="topbar">
+        <div class="admin-banner">
             <div>
                 <span class="brand">Guarantee Registry</span>
                 <h2>Guarantees & Warranties</h2>
@@ -21,13 +21,18 @@
         </div>
 
         @if(session('status'))
-            <div class="message">
+            <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>
                 <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('status') }}</span>
-            </div>
+            </p>
+    </div>
+</div>
         @endif
 
-        <div class="panel mb-4">
+        <div class="admin-section mb-4">
             <h3 class="mb-3">Filter Registrations</h3>
             <form method="GET" action="{{ route('admin.registry.registrations.index') }}" class="row g-3">
                 <div class="col-md-3">

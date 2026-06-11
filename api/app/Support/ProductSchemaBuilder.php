@@ -42,9 +42,11 @@ class ProductSchemaBuilder
                 '@type' => 'Offer',
                 'priceCurrency' => $currency,
                 'price' => (float) ($product->sale_price ?: $product->price ?: 0),
-                'availability' => (int) $product->stock > 0
+                'availability' => ! $product->is_sellable
+                    ? 'https://schema.org/PreOrder'
+                    : ((int) $product->stock > 0
                     ? 'https://schema.org/InStock'
-                    : 'https://schema.org/OutOfStock',
+                    : 'https://schema.org/OutOfStock'),
                 'itemCondition' => 'https://schema.org/NewCondition',
                 'url' => "{$siteUrl}/product/{$product->slug}",
             ],

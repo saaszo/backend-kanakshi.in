@@ -10,11 +10,16 @@
             <p class="lead">Use the OTP you received by email and set a strong admin password.</p>
 
             @if (session('status'))
-                <div class="message">{{ session('status') }}</div>
+                <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
             @endif
 
             @if ($errors->any())
-                <div class="errors">{{ $errors->first() }}</div>
+                <div class="admin-errors">{{ $errors->first() }}</div>
             @endif
 
             <form method="POST" action="{{ route('admin.reset-password.attempt') }}">

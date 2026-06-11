@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Sales & Fulfillments</div>
                         <h2>Orders Management</h2>
@@ -22,34 +22,34 @@
                 @endif
 
                 <div class="metrics-grid mb-4">
-                    <article class="metric-card">
+                    <div class="admin-stat">
                         <small>Total Volume</small>
                         <strong>{{ $stats['total'] }}</strong>
                         <span>All orders received</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Pending Validation</small>
                         <strong style="color: var(--warning);">{{ $stats['pending'] }}</strong>
                         <span>Awaiting verification</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Processing Items</small>
                         <strong style="color: var(--primary);">{{ $stats['processing'] }}</strong>
                         <span>Being picked & packed</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Dispatched Route</small>
                         <strong style="color: var(--purple);">{{ $stats['shipped'] }}</strong>
                         <span>En route to destinations</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Completed Deliveries</small>
                         <strong style="color: var(--success);">{{ $stats['delivered'] }}</strong>
                         <span>Delivered successfully</span>
-                    </article>
+                    </div>
                 </div>
 
-                <section class="panel">
+                <section class="admin-section">
                     <div class="admin-toolbar mb-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div>
                             <h3>Customer Orders</h3>

@@ -13,8 +13,8 @@
         @include('admin.partials.sidebar')
 
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Customer Verification</div>
                         <h2>Email & OTP Verification</h2>
@@ -23,20 +23,25 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="errors">
+                    <div class="admin-errors">
                         <strong>Please fix the highlighted fields.</strong>
                     </div>
                 @endif
 
-                <div class="section-grid">
-                    <section class="panel">
+                <div class="admin-fields">
+                    <section class="admin-section">
                         <h3>Customer Email Delivery</h3>
                         <p>Customer-facing mailboxes are fixed for Little Divinity. Admin OTP and admin reset mail stay on the separate Saaszo-managed mailbox and are not editable here.</p>
-                        <form method="POST" action="{{ route('admin.email-otp.email.update') }}" class="section-grid">
+                        <form method="POST" action="{{ route('admin.email-otp.email.update') }}" class="admin-fields">
                             @csrf
                             @method('PUT')
                             <div class="form-grid">
@@ -67,10 +72,10 @@
                         </form>
                     </section>
 
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Verification Rules</h3>
                         <p>If no mobile OTP provider is active, mobile verification automatically stays off and customer verification falls back to email only.</p>
-                        <form method="POST" action="{{ route('admin.email-otp.verification.update') }}" class="section-grid">
+                        <form method="POST" action="{{ route('admin.email-otp.verification.update') }}" class="admin-fields">
                             @csrf
                             @method('PUT')
                             <div class="form-grid">
@@ -102,11 +107,11 @@
                         </form>
                     </section>
 
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Mobile OTP Providers</h3>
                         <p>Add API credentials for 2-3 providers so admin can enable SMS or WhatsApp OTP whenever Little Divinity wants mobile verification.</p>
                         @foreach ($providers as $provider)
-                            <form method="POST" action="{{ route('admin.email-otp.provider.update', $provider) }}" class="panel" style="margin-top: 16px; padding: 18px;">
+                            <form method="POST" action="{{ route('admin.email-otp.provider.update', $provider) }}" class="admin-section" style="margin-top: 16px; padding: 18px;">
                                 @csrf
                                 @method('PUT')
                                 <div class="button-row" style="justify-content: space-between; align-items: center;">

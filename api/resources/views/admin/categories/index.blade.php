@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Catalog</div>
                         <h2>Categories</h2>
@@ -15,12 +15,17 @@
                     </div>
                 </div>
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
                 <div class="split-grid">
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Add Category</h3>
-                        <form method="POST" action="{{ route('admin.categories.store') }}" class="section-grid" data-auto-slug-form enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('admin.categories.store') }}" class="admin-fields" data-auto-slug-form enctype="multipart/form-data">
                             @csrf
                             <div class="form-grid">
                                 <div class="field"><label>Name</label><input name="name" data-slug-source /></div>
@@ -49,11 +54,11 @@
                         </form>
                     </section>
 
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Existing Categories</h3>
-                        <div class="section-grid">
+                        <div class="admin-fields">
                             @foreach ($categories as $category)
-                                <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="panel" style="padding:18px;" data-auto-slug-form enctype="multipart/form-data">
+                                <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="admin-section" style="padding:18px;" data-auto-slug-form enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="form-grid">

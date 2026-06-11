@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Catalog</div>
                         <h2>Edit Product</h2>
@@ -17,15 +17,20 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
                 @php
                     $images = old('image_urls', $product->images ?? []);
                 @endphp
 
-                <section class="panel">
-                    <form method="POST" action="{{ route('admin.products.update', $product) }}" class="section-grid" data-auto-seo-form enctype="multipart/form-data">
+                <section class="admin-section">
+                    <form method="POST" action="{{ route('admin.products.update', $product) }}" class="admin-fields" data-auto-seo-form enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-grid">

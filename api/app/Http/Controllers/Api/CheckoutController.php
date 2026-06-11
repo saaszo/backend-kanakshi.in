@@ -13,6 +13,7 @@ use App\Models\CustomerAddress;
 use App\Models\PaymentGatewaySetting;
 use App\Models\User;
 use App\Services\CustomerEmailService;
+use App\Services\PendingOrderReservationService;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -467,7 +468,7 @@ class CheckoutController
                 if (hash_equals($expectedSignature, $signature)) {
                     $isVerified = true;
                 }
-            } elseif ($gateway?->is_test_mode ?? true) {
+            } elseif ($gateway && $gateway->is_test_mode && $this->allowsPaymentSimulation()) {
                 $isVerified = true;
             }
 
@@ -487,7 +488,7 @@ class CheckoutController
         } elseif ($validated['payment_method'] === 'phonepe') {
             $transactionId = $validated['transaction_id'] ?? '';
 
-            if ($gateway?->is_test_mode ?? true) {
+            if ($gateway && $gateway->is_test_mode && $this->allowsPaymentSimulation()) {
                 if (empty($transactionId)) {
                     $transactionId = 'txn_simulated_' . Str::random(10);
                 }
@@ -835,37 +836,7 @@ class CheckoutController
 
     private function cleanupExpiredPendingOrders(): void
     {
-        try {
-            $expiredOrderIds = Order::query()
-                ->where('status', 'payment_pending')
-                ->where('created_at', '<', now()->subMinutes(15))
-                ->pluck('id');
-
-            foreach ($expiredOrderIds as $orderId) {
-                DB::transaction(function () use ($orderId): void {
-                    $expiredOrder = Order::query()
-                        ->with('items')
-                        ->lockForUpdate()
-                        ->find($orderId);
-
-                    if (
-                        !$expiredOrder ||
-                        $expiredOrder->status !== 'payment_pending' ||
-                        $expiredOrder->created_at->gte(now()->subMinutes(15))
-                    ) {
-                        return;
-                    }
-
-                    $this->releasePendingOrderReservation(
-                        $expiredOrder,
-                        'Pending payment session timed out (15-min limit). Reserved stock and coupon usage released.',
-                        'failed'
-                    );
-                });
-            }
-        } catch (\Throwable $e) {
-            Log::error('Auto cleanup of expired orders failed: ' . $e->getMessage());
-        }
+        app(PendingOrderReservationService::class)->releaseExpiredSafely(15);
     }
 
     private function canAccessPendingOrder(Request $request, Order $order, ?string $accessToken): bool
@@ -921,8 +892,16 @@ class CheckoutController
             return null;
         }
 
+        if ($gateway->is_test_mode && ! $this->allowsPaymentSimulation()) {
+            return null;
+        }
+
         if ($gateway->is_active) {
             return $gateway;
+        }
+
+        if (! $this->allowsPaymentSimulation()) {
+            return null;
         }
 
         if ($provider === 'razorpay' && (filled($gateway->public_key) || filled($gateway->secret_key) || filled($gateway->webhook_secret))) {
@@ -1173,56 +1152,7 @@ class CheckoutController
         string $trackingMessage,
         string $paymentStatus
     ): void {
-        DB::transaction(function () use ($order, $trackingMessage, $paymentStatus): void {
-            $lockedOrder = Order::query()
-                ->with('items')
-                ->lockForUpdate()
-                ->find($order->id);
-
-            if (!$lockedOrder || $lockedOrder->status !== 'payment_pending') {
-                return;
-            }
-
-            foreach ($lockedOrder->items as $item) {
-                if ($item->variant_id) {
-                    $variant = ProductVariant::query()->lockForUpdate()->find($item->variant_id);
-                    if ($variant) {
-                        $variant->increment('stock', $item->quantity);
-                    }
-                } else {
-                    $product = Product::query()->lockForUpdate()->find($item->product_id);
-                    if ($product) {
-                        $product->increment('stock', $item->quantity);
-                    }
-                }
-
-                $product = Product::query()->lockForUpdate()->find($item->product_id);
-                if ($product && $product->total_sold >= $item->quantity) {
-                    $product->decrement('total_sold', $item->quantity);
-                }
-            }
-
-            if ($lockedOrder->coupon_id) {
-                $coupon = Coupon::query()->lockForUpdate()->find($lockedOrder->coupon_id);
-                if ($coupon && $coupon->used_count > 0) {
-                    $coupon->decrement('used_count');
-                }
-            }
-
-            $lockedOrder->update([
-                'status' => 'cancelled',
-                'payment_status' => $paymentStatus,
-                'pending_access_token_hash' => null,
-                'pending_access_expires_at' => null,
-            ]);
-
-            OrderTracking::query()->create([
-                'order_id' => $lockedOrder->id,
-                'status' => 'Cancelled',
-                'location' => 'Mumbai Warehouse',
-                'message' => $trackingMessage,
-            ]);
-        });
+        app(PendingOrderReservationService::class)->release($order, $trackingMessage, $paymentStatus);
     }
 
     private function issuePendingOrderAccessToken(Order $order): string
@@ -1235,6 +1165,11 @@ class CheckoutController
         ])->save();
 
         return $plainTextToken;
+    }
+
+    private function allowsPaymentSimulation(): bool
+    {
+        return app()->environment(['local', 'testing']);
     }
 
     private function shippingThreshold(): float

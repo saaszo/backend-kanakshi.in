@@ -1,1 +1,10 @@
 .DS_Store
+
+# Legacy PHP runtime/generated artifacts
+legacy-php/vendor/
+legacy-php/uploads/
+legacy-php/tmp/
+legacy-php/logs/
+legacy-php/*.sql
+legacy-php/install/*.sql
+legacy-php/config/db_config.php

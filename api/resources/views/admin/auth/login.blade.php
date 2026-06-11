@@ -10,11 +10,16 @@
             <p class="lead">Login only for admin panel access. Signup is disabled for this panel.</p>
 
             @if (session('status'))
-                <div class="message">{{ session('status') }}</div>
+                <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
             @endif
 
             @if ($errors->any())
-                <div class="errors">{{ $errors->first() }}</div>
+                <div class="admin-errors">{{ $errors->first() }}</div>
             @endif
 
             <form method="POST" action="{{ route('admin.login.attempt') }}">

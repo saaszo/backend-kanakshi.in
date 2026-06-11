@@ -6,9 +6,9 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
+            <div class="admin-shell-grid">
                 <!-- Page Head -->
-                <div class="page-head mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Fulfillment Center</div>
                         <div class="d-flex align-items-center gap-3">
@@ -66,7 +66,7 @@
                         <div class="d-flex flex-column gap-4">
                             
                             <!-- Items List -->
-                            <section class="panel">
+                            <section class="admin-section">
                                 <h3 class="mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-bag-check" style="color: var(--primary);"></i>
                                     <span>Product Receipt</span>
@@ -142,7 +142,7 @@
                             <!-- Financial Breakdown -->
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <section class="panel h-100">
+                                    <section class="admin-section h-100">
                                         <h3 class="mb-3 d-flex align-items-center gap-2">
                                             <i class="bi bi-cash-stack" style="color: var(--success);"></i>
                                             <span>Financial Receipt</span>
@@ -175,7 +175,7 @@
                                     </section>
                                 </div>
                                 <div class="col-md-6">
-                                    <section class="panel h-100">
+                                    <section class="admin-section h-100">
                                         <h3 class="mb-3 d-flex align-items-center gap-2">
                                             <i class="bi bi-credit-card-2-front" style="color: var(--purple);"></i>
                                             <span>Payment Coordinates</span>
@@ -203,7 +203,7 @@
                             </div>
 
                             <!-- Customer Information -->
-                            <section class="panel">
+                            <section class="admin-section">
                                 <h3 class="mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-person-bounding-box" style="color: var(--primary);"></i>
                                     <span>Customer & Shipping particulars</span>
@@ -256,7 +256,7 @@
                         <div class="d-flex flex-column gap-4">
 
                             <!-- Operational Action Box -->
-                            <section class="panel">
+                            <section class="admin-section">
                                 <h3 class="mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-sliders" style="color: var(--primary);"></i>
                                     <span>Fulfillment & Payment controls</span>
@@ -295,7 +295,7 @@
                             </section>
 
                             <!-- Logistics & Courier Assigner -->
-                            <section class="panel">
+                            <section class="admin-section">
                                 <h3 class="mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-truck" style="color: var(--purple);"></i>
                                     <span>Logistics & Courier details</span>
@@ -344,7 +344,7 @@
                             </section>
 
                             <!-- Milestone Tracker Stepper -->
-                            <section class="panel">
+                            <section class="admin-section">
                                 <h3 class="mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-clock-history" style="color: var(--primary);"></i>
                                     <span>Milestones & Logs</span>

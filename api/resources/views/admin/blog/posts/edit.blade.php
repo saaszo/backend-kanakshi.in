@@ -6,9 +6,9 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
+            <div class="admin-shell-grid">
                 <!-- Page Head -->
-                <div class="page-head">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Editorial Suite</div>
                         <h2>Edit Article</h2>
@@ -27,10 +27,15 @@
                 </div>
 
                 @if(session('success'))
-                    <div class="message">{{ session('success') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('success') }}</p>
+    </div>
+</div>
                 @endif
                 @if ($errors->any())
-                    <div class="errors">
+                    <div class="admin-errors">
                         <h4 class="mb-2"><i class="bi bi-x-circle-fill"></i> Validation Errors</h4>
                         <ul class="rule-list">
                             @foreach ($errors->all() as $error)
@@ -45,8 +50,8 @@
                     @method('PUT')
 
                     <!-- Left Column: Primary Content -->
-                    <div class="section-grid">
-                        <section class="panel">
+                    <div class="admin-fields">
+                        <section class="admin-section">
                             <h3 class="d-flex align-items-center gap-2 mb-3">
                                 <i class="bi bi-file-earmark-text text-primary"></i>
                                 <span>Article Details</span>
@@ -108,7 +113,7 @@
                         </section>
 
                         <!-- FAQ Block Builder -->
-                        <section class="panel">
+                        <section class="admin-section">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h3 class="d-flex align-items-center gap-2 mb-0">
                                     <i class="bi bi-question-circle text-primary"></i>
@@ -126,7 +131,7 @@
                         </section>
 
                         <!-- Related Storefront Products Selector -->
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="d-flex align-items-center gap-2 mb-3">
                                 <i class="bi bi-cart-plus text-primary"></i>
                                 <span>Link Related E-Commerce Accents</span>
@@ -153,9 +158,9 @@
                     </div>
 
                     <!-- Right Column: SEO Controls, Revisions & Guidelines -->
-                    <div class="section-grid" style="position: sticky; top: 24px;">
+                    <div class="admin-fields" style="position: sticky; top: 24px;">
                         <!-- Status and Publishing Actions -->
-                        <section class="panel border-primary" style="background: radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.02), transparent);">
+                        <section class="admin-section border-primary" style="background: radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.02), transparent);">
                             <h3 class="mb-3">Publish Control</h3>
                             
                             <div class="field">
@@ -180,7 +185,7 @@
                         </section>
 
                         <!-- Revisions History -->
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-clock-history text-primary"></i>
                                 <span>Revisions History</span>
@@ -204,7 +209,7 @@
                         </section>
 
                         <!-- Editorial Governance Checklist -->
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="mb-3 d-flex align-items-center gap-2">
                                 <i class="bi bi-shield-check text-warning"></i>
                                 <span>SEO Guidelines Panel</span>
@@ -237,7 +242,7 @@
                         </section>
 
                         <!-- SEO Metadata -->
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="mb-3">SEO SERP Optimization</h3>
 
                             <div class="field">

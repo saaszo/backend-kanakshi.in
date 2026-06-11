@@ -10,6 +10,14 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        DB::table('products')->delete();
+        DB::table('categories')->delete();
+    }
+
     /**
      * The API health endpoint should expose the migration phase state.
      */

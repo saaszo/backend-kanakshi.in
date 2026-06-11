@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Homepage Section</div>
                         <h2>{{ $section->label ?: $section->section_key }}</h2>
@@ -17,14 +17,19 @@
                 </div>
 
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.homepage-sections.update', $section) }}" class="section-grid" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('admin.homepage-sections.update', $section) }}" class="admin-fields" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
-                    <div class="panel">
+                    <div class="admin-section">
                         <h3>Core Content</h3>
                         <div class="form-grid">
                             <div class="field"><label>Label</label><input name="label" value="{{ old('label', $section->label) }}" /></div>
@@ -76,7 +81,7 @@
                         </div>
                     </div>
 
-                    <div class="panel">
+                    <div class="admin-section">
                         <h3>Advanced Config JSON</h3>
                         <p>For hero section, use JSON like <code>{"slides":[{"title":"...","image":"..."},{"title":"...","image":"..."}],"promos":[...]}</code>.</p>
                         <div class="field">

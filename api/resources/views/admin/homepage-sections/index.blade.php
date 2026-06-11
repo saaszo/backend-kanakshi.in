@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Homepage CMS</div>
                         <h2>Homepage Sections</h2>
@@ -16,7 +16,12 @@
                     <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button small">Open Hero Editor</a>
                 </div>
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
                 <div class="table-wrap">
                     <table>

@@ -12,6 +12,14 @@ class AutoSeoGenerationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Product::query()->delete();
+        Category::query()->delete();
+    }
+
     public function test_category_slug_is_auto_generated_and_uniqued(): void
     {
         $first = Category::query()->create([
@@ -30,6 +38,8 @@ class AutoSeoGenerationTest extends TestCase
 
     public function test_product_slug_meta_and_schema_are_auto_generated(): void
     {
+        config(['app.frontend_url' => 'https://littledivinity.in']);
+
         StoreSetting::query()->create([
             'site_name' => 'Little Divinity',
             'custom_domain' => 'https://littledivinity.in',

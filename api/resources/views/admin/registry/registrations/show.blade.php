@@ -7,7 +7,7 @@
     @include('admin.partials.sidebar')
 
     <main class="admin-main">
-        <div class="topbar">
+        <div class="admin-banner">
             <div>
                 <a href="{{ route('admin.registry.registrations.index') }}" class="text-link text-decoration-none">
                     <i class="bi bi-arrow-left"></i> Back to Registrations
@@ -28,16 +28,21 @@
         </div>
 
         @if(session('status'))
-            <div class="message">
+            <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>
                 <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('status') }}</span>
-            </div>
+            </p>
+    </div>
+</div>
         @endif
 
         <div class="admin-split-layout d-grid gap-4" style="grid-template-columns: 1.4fr 1fr;">
             <!-- Left Side: Registration Details -->
             <div class="d-grid gap-4">
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Guarantee Card Registry</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -87,7 +92,7 @@
                     </div>
                 </div>
 
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Customer Profile</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -123,7 +128,7 @@
                     </div>
                 </div>
 
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Uploaded Verification Proofs</h3>
                     <div class="media-slot-grid">
                         <div class="media-slot-card">
@@ -168,7 +173,7 @@
             <!-- Right Side: Decisions & History -->
             <div class="d-grid gap-4">
                 @if($reg->verification_status === 'pending_verification')
-                    <div class="panel border-warning border-3" id="verify-section">
+                    <div class="admin-section border-3" id="verify-section">
                         <h3 class="text-warning mb-3"><i class="bi bi-patch-question"></i> Verify Guarantee Claim</h3>
                         <form method="POST" action="{{ route('admin.registry.registrations.verify', $reg->id) }}">
                             @csrf
@@ -200,7 +205,7 @@
                         </form>
                     </div>
                 @else
-                    <div class="panel">
+                    <div class="admin-section">
                         <h3>Guarantee Management</h3>
                         <form method="POST" action="{{ route('admin.registry.registrations.update-notes', $reg->id) }}">
                             @csrf
@@ -221,7 +226,7 @@
                     </div>
                 @endif
 
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="mb-3">Audit Logs & History</h3>
                     <div class="stack-list">
                         @forelse($reg->activityLogs as $log)

@@ -100,6 +100,8 @@ class ProductController extends Controller
             'meta_desc' => ['nullable', 'string', 'max:320'],
         ]);
 
+        $resolvedImages = $this->resolveProductImages($request, $validated);
+
         Product::query()->create([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
@@ -119,13 +121,18 @@ class ProductController extends Controller
             'shipping_fee' => $validated['shipping_type'] === 'custom' ? ($validated['shipping_fee'] ?? 0) : 0,
             'stock' => $validated['stock'] ?? 0,
             'sku' => $validated['sku'] ?? null,
-            'images' => $this->resolveProductImages($request, $validated),
+            'images' => $resolvedImages,
             'video_url' => $validated['video_url'] ?? null,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
             'is_active' => $request->boolean('is_active', true),
             'gst_percent' => 18,
+            'is_sellable' => Product::determineSellable(new Product([
+                'price' => $validated['price'],
+                'sale_price' => $validated['sale_price'] ?? null,
+                'images' => $resolvedImages,
+            ])),
         ]);
 
         return back()->with('status', 'Product created successfully.');
@@ -162,6 +169,8 @@ class ProductController extends Controller
             'meta_desc' => ['nullable', 'string', 'max:320'],
         ]);
 
+        $resolvedImages = $this->resolveProductImages($request, $validated);
+
         $product->update([
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
@@ -181,12 +190,17 @@ class ProductController extends Controller
             'shipping_fee' => $validated['shipping_type'] === 'custom' ? ($validated['shipping_fee'] ?? 0) : 0,
             'stock' => $validated['stock'] ?? 0,
             'sku' => $validated['sku'] ?? null,
-            'images' => $this->resolveProductImages($request, $validated),
+            'images' => $resolvedImages,
             'video_url' => $validated['video_url'] ?? null,
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
             'is_active' => $request->boolean('is_active'),
+            'is_sellable' => Product::determineSellable(new Product([
+                'price' => $validated['price'],
+                'sale_price' => $validated['sale_price'] ?? null,
+                'images' => $resolvedImages,
+            ])),
         ]);
 
         return back()->with('status', 'Product updated successfully.');

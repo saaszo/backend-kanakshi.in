@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Returns Desk</div>
                         <h2 class="mb-0">{{ $returnRequest->return_number }}</h2>
@@ -24,7 +24,7 @@
 
                 <div class="row g-4">
                     <div class="col-lg-7">
-                        <section class="panel mb-4">
+                        <section class="admin-section mb-4">
                             <h3 class="mb-3">Requested Items</h3>
                             <div class="table-wrap">
                                 <table class="admin-data-table align-middle">
@@ -59,7 +59,7 @@
                             </div>
                         </section>
 
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="mb-3">Customer Notes</h3>
                             <p class="mb-3"><strong>Reason:</strong> {{ $returnRequest->reason }}</p>
                             <p class="muted">{{ $returnRequest->customer_notes ?: 'No extra customer note provided.' }}</p>
@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <section class="panel">
+                        <section class="admin-section">
                             <h3 class="mb-3">Resolution Controls</h3>
                             <form method="POST" action="{{ route('admin.returns.update', $returnRequest) }}">
                                 @csrf

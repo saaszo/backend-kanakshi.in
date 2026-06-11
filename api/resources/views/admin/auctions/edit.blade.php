@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Auction Setup</div>
                         <h2>Edit Auction</h2>
@@ -20,7 +20,7 @@
                 </div>
 
                 @if($errors->any())
-                    <div class="errors">
+                    <div class="admin-errors">
                         <ul class="mb-0">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -29,8 +29,8 @@
                     </div>
                 @endif
 
-                <section class="panel">
-                    <form method="POST" action="{{ route('admin.auctions.update', $auction) }}" class="section-grid">
+                <section class="admin-section">
+                    <form method="POST" action="{{ route('admin.auctions.update', $auction) }}" class="admin-fields">
                         @csrf
                         @method('PUT')
 

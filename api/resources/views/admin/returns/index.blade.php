@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">After-Sales Desk</div>
                         <h2 class="mb-0">Returns & Refunds</h2>
@@ -21,7 +21,7 @@
                     </div>
                 @endif
 
-                <form method="GET" class="panel mb-4">
+                <form method="GET" class="admin-section mb-4">
                     <div class="row g-3">
                         <div class="col-md-5">
                             <label class="form-label">Search</label>

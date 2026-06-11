@@ -29,6 +29,21 @@ The legacy app currently uses:
 
 Do not point Laravel at the live legacy database for destructive migrations until the migration set is finalized.
 
+## Production Scheduler
+
+Configure the hosting cron service to run Laravel's scheduler every minute:
+
+`cd /path/to/laravel_app && php artisan schedule:run`
+
+The scheduler publishes due blog posts and releases stock/coupon reservations
+from online-payment orders that remain pending past their expiry window.
+
+The archived legacy PHP mailer no longer contains fallback credentials. If it
+must remain operational, configure `LEGACY_MASTER_SMTP_HOST`,
+`LEGACY_MASTER_SMTP_USER`, `LEGACY_MASTER_SMTP_PASSWORD`,
+`LEGACY_MASTER_SMTP_PORT`, and `LEGACY_MASTER_SMTP_ENCRYPTION` in its runtime
+environment.
+
 ## Immediate Next Steps
 
 1. Add Laravel migrations for legacy core tables

@@ -6,9 +6,9 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
+            <div class="admin-shell-grid">
                 <!-- Page Header -->
-                <div class="page-head">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Editorial & Content</div>
                         <h2>Blog Articles Management</h2>
@@ -23,14 +23,19 @@
                 </div>
 
                 @if(session('success'))
-                    <div class="message">{{ session('success') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('success') }}</p>
+    </div>
+</div>
                 @endif
                 @if(session('error'))
-                    <div class="errors">{{ session('error') }}</div>
+                    <div class="admin-errors">{{ session('error') }}</div>
                 @endif
 
                 <!-- Search and Filters Dashboard -->
-                <section class="panel mb-4" style="padding:15px;">
+                <section class="admin-section mb-4" style="padding:15px;">
                     <form method="GET" action="{{ route('admin.blog.posts.index') }}" class="row g-3 align-items-end">
                         <div class="col-md-4 col-sm-12">
                             <label class="mb-1" style="font-size:12px; font-weight:700;">Search Keyword</label>

@@ -7,7 +7,7 @@
     @include('admin.partials.sidebar')
 
     <main class="admin-main">
-        <div class="topbar">
+        <div class="admin-banner">
             <div>
                 <a href="{{ route('admin.registry.claims.index') }}" class="text-link text-decoration-none">
                     <i class="bi bi-arrow-left"></i> Back to Claims Queue
@@ -28,16 +28,21 @@
         </div>
 
         @if(session('status'))
-            <div class="message">
+            <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>
                 <i class="bi bi-check-circle-fill"></i>
                 <span>{{ session('status') }}</span>
-            </div>
+            </p>
+    </div>
+</div>
         @endif
 
         <div class="admin-split-layout d-grid gap-4" style="grid-template-columns: 1.4fr 1fr;">
             <!-- Left Side: Claim Details -->
             <div class="d-grid gap-4">
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Claim Case File</h3>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -75,7 +80,7 @@
                     </div>
                 </div>
 
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="border-bottom pb-2 mb-3">Uploaded Issue Photos</h3>
                     <div class="d-flex flex-wrap gap-3">
                         @if(is_array($claim->image_paths) && count($claim->image_paths) > 0)
@@ -98,7 +103,7 @@
 
             <!-- Right Side: Actions & Guarantee context -->
             <div class="d-grid gap-4">
-                <div class="panel">
+                <div class="admin-section">
                     <h3 class="mb-3">Update Case Status</h3>
                     <form method="POST" action="{{ route('admin.registry.claims.update', $claim->id) }}">
                         @csrf
@@ -122,7 +127,7 @@
                     </form>
                 </div>
 
-                <div class="panel bg-light">
+                <div class="admin-section bg-light">
                     <h3 class="mb-2">Guarantee Verification Context</h3>
                     <p class="small text-muted">Verification parameters for registration: <strong>{{ $claim->registration->registration_code }}</strong></p>
                     <div class="row g-2 small">

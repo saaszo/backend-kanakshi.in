@@ -13,8 +13,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Auction Control</div>
                         <h2>Live Auctions</h2>
@@ -33,37 +33,42 @@
                 </div>
 
                 @if(session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
 
                 @if(session('error'))
-                    <div class="errors">{{ session('error') }}</div>
+                    <div class="admin-errors">{{ session('error') }}</div>
                 @endif
 
-                <div class="metrics-grid">
-                    <article class="metric-card">
+                <div class="admin-overview">
+                    <div class="admin-stat">
                         <small>Live Now</small>
                         <strong>{{ $liveCount }}</strong>
                         <span>Auctions currently accepting bids</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Scheduled</small>
                         <strong>{{ $draftCount }}</strong>
                         <span>Draft or upcoming lots</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Closed</small>
                         <strong>{{ $endedCount }}</strong>
                         <span>Ended events with winners locked</span>
-                    </article>
-                    <article class="metric-card">
+                    </div>
+                    <div class="admin-stat">
                         <small>Total Bids</small>
                         <strong>{{ $totalBids }}</strong>
                         <span>All participant activity across auctions</span>
-                    </article>
+                    </div>
                 </div>
 
-                <section class="panel">
+                <section class="admin-section">
                     <div class="admin-toolbar">
                         <div>
                             <h3>Auction List</h3>

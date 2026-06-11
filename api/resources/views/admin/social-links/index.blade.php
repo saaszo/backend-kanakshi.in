@@ -6,8 +6,8 @@
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
         <main class="admin-main">
-            <div class="dashboard-card">
-                <div class="page-head">
+            <div class="admin-shell-grid">
+                <div class="admin-banner">
                     <div>
                         <div class="brand">Brand Handles</div>
                         <h2>Social Links</h2>
@@ -15,12 +15,17 @@
                     </div>
                 </div>
                 @if (session('status'))
-                    <div class="message">{{ session('status') }}</div>
+                    <div class="admin-toast">
+    <div>
+        <strong>Success!</strong>
+        <p>{{ session('status') }}</p>
+    </div>
+</div>
                 @endif
                 <div class="split-grid">
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Add Social Link</h3>
-                        <form method="POST" action="{{ route('admin.social-links.store') }}" class="section-grid">
+                        <form method="POST" action="{{ route('admin.social-links.store') }}" class="admin-fields">
                             @csrf
                             <div class="form-grid">
                                 <div class="field"><label>Platform</label><input name="platform" /></div>
@@ -37,11 +42,11 @@
                         </form>
                     </section>
 
-                    <section class="panel">
+                    <section class="admin-section">
                         <h3>Existing Social Links</h3>
-                        <div class="section-grid">
+                        <div class="admin-fields">
                             @foreach ($socialLinks as $socialLink)
-                                <form method="POST" action="{{ route('admin.social-links.update', $socialLink) }}" class="panel" style="padding:18px;">
+                                <form method="POST" action="{{ route('admin.social-links.update', $socialLink) }}" class="admin-section" style="padding:18px;">
                                     @csrf
                                     @method('PUT')
                                     <div class="form-grid">
