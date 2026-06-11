@@ -3,6 +3,11 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$defaultDatabaseConnection = env(
+    'DB_CONNECTION',
+    env('APP_ENV') === 'production' ? 'mysql' : 'sqlite'
+);
+
 return [
 
     /*
@@ -17,7 +22,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $defaultDatabaseConnection,
 
     /*
     |--------------------------------------------------------------------------

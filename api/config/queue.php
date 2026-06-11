@@ -1,5 +1,10 @@
 <?php
 
+$defaultQueueDatabaseConnection = env(
+    'DB_CONNECTION',
+    env('APP_ENV') === 'production' ? 'mysql' : 'sqlite'
+);
+
 return [
 
     /*
@@ -103,7 +108,7 @@ return [
     */
 
     'batching' => [
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'database' => $defaultQueueDatabaseConnection,
         'table' => 'job_batches',
     ],
 
@@ -122,7 +127,7 @@ return [
 
     'failed' => [
         'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'database' => $defaultQueueDatabaseConnection,
         'table' => 'failed_jobs',
     ],
 
