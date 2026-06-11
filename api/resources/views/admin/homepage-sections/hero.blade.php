@@ -494,8 +494,6 @@
                                             <div class="hero-editor-file-chip" id="slide-file-name-{{ $index }}">No new file selected</div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", $slide['image']) }}">
-
                                     <div class="hero-editor-fields">
                                         <div class="hero-editor-field">
                                             <label>Slide title</label>
@@ -559,8 +557,6 @@
                                             <div class="hero-editor-file-chip" id="promo-file-name-{{ $index }}">No new file selected</div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", $promo['image']) }}">
-
                                     <div class="hero-editor-fields">
                                         <div class="hero-editor-field">
                                             <label>Title</label>
