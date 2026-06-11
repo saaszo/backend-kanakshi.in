@@ -14,6 +14,10 @@ class PublicSettingsController
 {
     public function __invoke(): JsonResponse
     {
+        $legacySettings = Schema::hasTable('settings')
+            ? Setting::query()->pluck('value', 'key_name')
+            : collect();
+
         if (Schema::hasTable('store_settings')) {
             $store = StoreSetting::query()->first();
             $headerMenu = Schema::hasTable('menu_items')
@@ -96,8 +100,9 @@ class PublicSettingsController
                     'footer_menu' => $footerMenu->values(),
                     'social_links' => $socialLinks->values(),
                     'payment_gateways' => $paymentGateways->values(),
-                    'default_shipping_cost' => '99',
-                    'min_order_free_shipping' => '499',
+                    'default_shipping_cost' => $legacySettings->get('default_shipping_cost', '99'),
+                    'min_order_free_shipping' => $legacySettings->get('min_order_free_shipping', '499'),
+                    'gst_percent' => $legacySettings->get('gst_percent', '18'),
                 ],
             ]);
         }
@@ -112,9 +117,7 @@ class PublicSettingsController
 
         $keys = ['site_name', 'site_tagline', 'site_email', 'site_phone', 'site_currency', 'site_currency_symbol', 'theme_primary_color', 'home_style', 'default_shipping_cost', 'min_order_free_shipping', 'gst_percent'];
 
-        $settings = Setting::query()
-            ->whereIn('key_name', $keys)
-            ->pluck('value', 'key_name');
+        $settings = $legacySettings->only($keys);
 
         return response()->json([
             'success' => true,

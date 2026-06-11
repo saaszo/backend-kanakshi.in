@@ -103,28 +103,30 @@ class CustomerEmailService
 
     private function resolveProfile(string $channel): array
     {
+        $settings = CustomerEmailSetting::query()->first();
+
         if ($channel !== 'order') {
             return [
-                'from_name' => self::AUTH_FROM_NAME,
-                'from_email' => self::AUTH_FROM_EMAIL,
-                'reply_to_email' => self::AUTH_FROM_EMAIL,
-                'smtp_host' => self::SMTP_HOST,
-                'smtp_port' => self::SMTP_PORT,
-                'smtp_encryption' => self::SMTP_ENCRYPTION,
-                'smtp_username' => self::AUTH_SMTP_USERNAME,
-                'smtp_password' => self::AUTH_SMTP_PASSWORD,
+                'from_name' => $settings?->from_name ?: self::AUTH_FROM_NAME,
+                'from_email' => $settings?->from_email ?: self::AUTH_FROM_EMAIL,
+                'reply_to_email' => $settings?->reply_to_email ?: ($settings?->from_email ?: self::AUTH_FROM_EMAIL),
+                'smtp_host' => $settings?->smtp_host ?: self::SMTP_HOST,
+                'smtp_port' => $settings?->smtp_port ?: self::SMTP_PORT,
+                'smtp_encryption' => $settings?->smtp_encryption ?: self::SMTP_ENCRYPTION,
+                'smtp_username' => $settings?->smtp_username ?: self::AUTH_SMTP_USERNAME,
+                'smtp_password' => $settings?->smtp_password ?: self::AUTH_SMTP_PASSWORD,
             ];
         }
 
         return [
-            'from_name' => self::ORDER_FROM_NAME,
-            'from_email' => self::ORDER_FROM_EMAIL,
-            'reply_to_email' => self::ORDER_FROM_EMAIL,
-            'smtp_host' => self::SMTP_HOST,
-            'smtp_port' => self::SMTP_PORT,
-            'smtp_encryption' => self::SMTP_ENCRYPTION,
-            'smtp_username' => self::ORDER_SMTP_USERNAME,
-            'smtp_password' => self::ORDER_SMTP_PASSWORD,
+            'from_name' => $settings?->order_from_name ?: self::ORDER_FROM_NAME,
+            'from_email' => $settings?->order_from_email ?: self::ORDER_FROM_EMAIL,
+            'reply_to_email' => $settings?->order_reply_to_email ?: ($settings?->order_from_email ?: self::ORDER_FROM_EMAIL),
+            'smtp_host' => $settings?->smtp_host ?: self::SMTP_HOST,
+            'smtp_port' => $settings?->smtp_port ?: self::SMTP_PORT,
+            'smtp_encryption' => $settings?->smtp_encryption ?: self::SMTP_ENCRYPTION,
+            'smtp_username' => $settings?->order_smtp_username ?: self::ORDER_SMTP_USERNAME,
+            'smtp_password' => $settings?->order_smtp_password ?: self::ORDER_SMTP_PASSWORD,
         ];
     }
 
