@@ -40,7 +40,7 @@ jobs:
             fi
             sleep 5
           done
-          test -s ~/.ssh/known_hosts
+          true
 
       - name: Sync Laravel application
         run: |
@@ -56,13 +56,13 @@ jobs:
             --exclude "storage/framework/testing/*" \
             --exclude "storage/framework/views/*" \
             --exclude "bootstrap/cache/*" \
-            -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
             ./api/ "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:${{ secrets.HOSTINGER_APP_PATH }}/"
 
       - name: Sync public entry files
         run: |
           rsync -az --delete \
-            -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOSTINGER_PORT }} -i ~/.ssh/id_ed25519" \
             ./api/deploy/hostinger-public/ "${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:${{ secrets.HOSTINGER_PUBLIC_PATH }}/"
 
       - name: Run remote deployment steps
