@@ -24,6 +24,7 @@ Route::get('/', function () {
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login.form');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.attempt');
     Route::get('/verify-otp', [AdminAuthController::class, 'showVerifyOtp'])->name('verify-otp.form');
     Route::post('/verify-otp', [AdminAuthController::class, 'verifyOtp'])->name('verify-otp.attempt');
