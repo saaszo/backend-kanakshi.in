@@ -409,26 +409,24 @@ class AdminPanelFoundationSeeder extends Seeder
 
         if ($adminEmail) {
             $existingAdmin = User::query()->where('email', $adminEmail)->first();
-            $passwordHash = $adminPassword
-                ? Hash::make($adminPassword)
-                : ($existingAdmin?->password ?: Hash::make(Str::password(24)));
+            $adminAttributes = [
+                'name' => 'Little Divinity Admin',
+                'phone' => '+91 9910212007',
+                'role' => 'super_admin',
+                'status' => 'active',
+                'is_active' => true,
+                'is_protected' => true,
+                'two_factor_enabled' => true,
+                'two_factor_channel' => 'email',
+                'permissions' => ['all' => true],
+                'email_verified_at' => now(),
+            ];
 
-            User::query()->updateOrCreate(
-                ['email' => $adminEmail],
-                [
-                    'name' => 'Little Divinity Admin',
-                    'phone' => '+91 9910212007',
-                    'role' => 'super_admin',
-                    'status' => 'active',
-                    'is_active' => true,
-                    'is_protected' => true,
-                    'two_factor_enabled' => true,
-                    'two_factor_channel' => 'email',
-                    'permissions' => ['all' => true],
-                    'email_verified_at' => now(),
-                    'password' => $passwordHash,
-                ]
-            );
+            if (! $existingAdmin?->password) {
+                $adminAttributes['password'] = Hash::make($adminPassword ?: Str::password(24));
+            }
+
+            User::query()->updateOrCreate(['email' => $adminEmail], $adminAttributes);
         }
     }
 }
