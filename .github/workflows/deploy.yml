@@ -130,4 +130,9 @@ jobs:
           EOF
 
       - name: Verify deployed API health
-        run: curl --fail --silent --show-error "https://ecombeckend.saaszo.in/api/v1/health"
+        run: |
+          curl --fail --silent --show-error \
+            --retry 8 \
+            --retry-delay 5 \
+            --retry-connrefused \
+            "https://ecombeckend.saaszo.in/api/v1/health"
