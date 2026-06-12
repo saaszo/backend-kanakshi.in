@@ -49,22 +49,74 @@
             display: block;
         }
 
-        /* Viewport Optimized Scrollable Table */
-        .menu-table-wrap {
+        /* Viewport Optimized Scrollable List */
+        .menu-list-wrap {
             max-height: calc(100vh - 340px);
             overflow-y: auto;
-            overflow-x: auto;
             border: 1px solid var(--border);
             border-radius: 16px;
             background: #fff;
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            padding: 14px;
         }
-        .menu-table-wrap thead th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border-strong);
+        .menu-list {
+            display: grid;
+            gap: 12px;
+        }
+        .menu-list-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1.2fr) 96px 110px 140px;
+            gap: 16px;
+            align-items: center;
+            padding: 16px 18px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #fff;
+        }
+        .menu-list-item + .menu-list-item {
+            margin-top: 0;
+        }
+        .menu-list-meta-label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+        }
+        .menu-list-url {
+            font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-soft);
+            word-break: break-word;
+        }
+        .menu-list-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            align-items: center;
+        }
+        .menu-list-empty {
+            padding: 28px 16px;
+            text-align: center;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+        @media (max-width: 1100px) {
+            .menu-list-item {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .menu-list-actions {
+                grid-column: 1 / -1;
+                justify-content: flex-start;
+            }
+        }
+        @media (max-width: 720px) {
+            .menu-list-item {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Layout Grid */
@@ -245,93 +297,87 @@
                             <!-- Tab Panels -->
                             @foreach (['header', 'footer', 'mobile'] as $index => $location)
                                 <div class="admin-tab-panel {{ $index === 0 ? 'active' : '' }}" id="panel-menu-{{ $location }}" data-tab-panel-group="menu-locations">
-                                    <div class="table-wrap menu-table-wrap">
-                                        <table class="admin-data-table align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th style="min-width: 140px;">Title</th>
-                                                    <th style="min-width: 140px;">URL</th>
-                                                    <th style="width: 100px;">Parent</th>
-                                                    <th style="width: 70px;">Sort</th>
-                                                    <th style="width: 90px;">Status</th>
-                                                    <th style="width: 150px;" class="text-end">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse(($groupedMenuItems->get($location) ?? collect()) as $menuItem)
-                                                    <tr id="row-menu-item-{{ $menuItem->id }}">
-                                                        <td>
-                                                            <div style="font-weight: 700; color: var(--heading); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                                                @if ($menuItem->icon)
-                                                                    <i class="{{ $menuItem->icon }}"></i>
-                                                                @endif
-                                                                <span>{{ $menuItem->title }}</span>
-                                                                @if ($menuItem->children_count > 0)
-                                                                    <span class="admin-badge primary" style="font-size: 9px; padding: 1px 5px;">Dropdown ({{ $menuItem->children_count }})</span>
-                                                                @elseif ($menuItem->parent_id)
-                                                                    <span class="admin-badge muted" style="font-size: 9px; padding: 1px 5px;">Submenu</span>
-                                                                @else
-                                                                    <span class="admin-badge success" style="font-size: 9px; padding: 1px 5px;">Link</span>
-                                                                @endif
-                                                            </div>
-                                                            @if ($menuItem->css_class || ($menuItem->target && $menuItem->target !== '_self'))
-                                                                <small class="muted" style="font-size: 11px;">
-                                                                    Target: {{ $menuItem->target ?? '_self' }} {{ $menuItem->css_class ? '· Class: '.$menuItem->css_class : '' }}
-                                                                </small>
+                                    <div class="menu-list-wrap">
+                                        <div class="menu-list">
+                                            @forelse(($groupedMenuItems->get($location) ?? collect()) as $menuItem)
+                                                <article class="menu-list-item" id="row-menu-item-{{ $menuItem->id }}">
+                                                    <div>
+                                                        <span class="menu-list-meta-label">Title</span>
+                                                        <div style="font-weight: 700; color: var(--heading); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                                            @if ($menuItem->icon)
+                                                                <i class="{{ $menuItem->icon }}"></i>
                                                             @endif
-                                                        </td>
-                                                        <td>
-                                                            <span class="font-monospace" style="font-size: 12px; color: var(--text-soft);">{{ $menuItem->url }}</span>
-                                                        </td>
-                                                        <td>
-                                                            <span style="font-size: 13px;">{{ optional($menuItem->parent)->title ?: 'None' }}</span>
-                                                        </td>
-                                                        <td>
+                                                            <span>{{ $menuItem->title }}</span>
+                                                            @if ($menuItem->children_count > 0)
+                                                                <span class="admin-badge primary" style="font-size: 10px; padding: 2px 7px;">Dropdown {{ $menuItem->children_count }}</span>
+                                                            @elseif ($menuItem->parent_id)
+                                                                <span class="admin-badge muted" style="font-size: 10px; padding: 2px 7px;">Submenu</span>
+                                                            @else
+                                                                <span class="admin-badge success" style="font-size: 10px; padding: 2px 7px;">Link</span>
+                                                            @endif
+                                                        </div>
+                                                        @if ($menuItem->css_class || ($menuItem->target && $menuItem->target !== '_self'))
+                                                            <small class="muted" style="font-size: 11px; display: block; margin-top: 6px;">
+                                                                Target: {{ $menuItem->target ?? '_self' }}{{ $menuItem->css_class ? ' · Class: '.$menuItem->css_class : '' }}
+                                                            </small>
+                                                        @endif
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="menu-list-meta-label">URL</span>
+                                                        <div class="menu-list-url">{{ $menuItem->url }}</div>
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="menu-list-meta-label">Parent</span>
+                                                        <div style="font-size: 13px; font-weight: 600; color: var(--heading);">
+                                                            {{ optional($menuItem->parent)->title ?: 'None' }}
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <span class="menu-list-meta-label">Sort / Status</span>
+                                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                                                             <strong>{{ $menuItem->sort_order }}</strong>
-                                                        </td>
-                                                        <td>
                                                             <span class="admin-badge {{ $menuItem->is_active ? 'success' : 'muted' }}">
                                                                 {{ $menuItem->is_active ? 'Active' : 'Hidden' }}
                                                             </span>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                                                                <button
-                                                                    class="button secondary small edit-menu-btn"
-                                                                    type="button"
-                                                                    data-id="{{ $menuItem->id }}"
-                                                                    data-location="{{ $menuItem->location }}"
-                                                                    data-title="{{ $menuItem->title }}"
-                                                                    data-url="{{ $menuItem->url }}"
-                                                                    data-sort-order="{{ $menuItem->sort_order }}"
-                                                                    data-parent-id="{{ $menuItem->parent_id ?? '' }}"
-                                                                    data-target="{{ $menuItem->target ?? '_self' }}"
-                                                                    data-css-class="{{ $menuItem->css_class ?? '' }}"
-                                                                    data-icon="{{ $menuItem->icon ?? '' }}"
-                                                                    data-config-json="{{ json_encode($menuItem->config ?? [], JSON_UNESCAPED_SLASHES) }}"
-                                                                    data-is-active="{{ $menuItem->is_active ? '1' : '0' }}"
-                                                                    data-update-url="{{ route('admin.menu-items.update', $menuItem) }}"
-                                                                >
-                                                                    <i class="bi bi-pencil-square"></i>
-                                                                    <span>Edit</span>
-                                                                </button>
-                                                                <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" onsubmit="return confirm('Delete this menu item? Child items will stay but become top-level.');">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button class="button danger small" type="submit">
-                                                                        <i class="bi bi-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="6" class="text-center py-4 muted" style="font-size: 13px;">No {{ $locationLabels[$location] }} links added yet.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="menu-list-actions">
+                                                        <button
+                                                            class="button secondary small edit-menu-btn"
+                                                            type="button"
+                                                            data-id="{{ $menuItem->id }}"
+                                                            data-location="{{ $menuItem->location }}"
+                                                            data-title="{{ $menuItem->title }}"
+                                                            data-url="{{ $menuItem->url }}"
+                                                            data-sort-order="{{ $menuItem->sort_order }}"
+                                                            data-parent-id="{{ $menuItem->parent_id ?? '' }}"
+                                                            data-target="{{ $menuItem->target ?? '_self' }}"
+                                                            data-css-class="{{ $menuItem->css_class ?? '' }}"
+                                                            data-icon="{{ $menuItem->icon ?? '' }}"
+                                                            data-config-json="{{ json_encode($menuItem->config ?? [], JSON_UNESCAPED_SLASHES) }}"
+                                                            data-is-active="{{ $menuItem->is_active ? '1' : '0' }}"
+                                                            data-update-url="{{ route('admin.menu-items.update', $menuItem) }}"
+                                                        >
+                                                            <i class="bi bi-pencil-square"></i>
+                                                            <span>Edit</span>
+                                                        </button>
+                                                        <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" onsubmit="return confirm('Delete this menu item? Child items will stay but become top-level.');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button class="button danger small" type="submit">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </article>
+                                            @empty
+                                                <div class="menu-list-empty">No {{ $locationLabels[$location] }} links added yet.</div>
+                                            @endforelse
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
