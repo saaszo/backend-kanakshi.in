@@ -1050,6 +1050,7 @@
                 const image = overlay.querySelector('[data-preview-image]');
                 const emptyState = overlay.querySelector('[data-preview-empty]');
                 const sourceInput = overlay.querySelector('[data-source-input]');
+                const uploadInput = overlay.querySelector('[data-upload-input]');
                 const cropXInput = overlay.querySelector('[data-crop-x]');
                 const cropYInput = overlay.querySelector('[data-crop-y]');
                 const cropZoomInput = overlay.querySelector('[data-crop-zoom]');
@@ -1079,7 +1080,9 @@
                     return;
                 }
 
-                const source = sourceInput && sourceInput.value.trim() !== '' ? sourceInput.value.trim() : image.getAttribute('src');
+                const uploadedPreviewSource = uploadInput?.dataset.previewUrl?.trim() || '';
+                const manualSource = sourceInput && sourceInput.value.trim() !== '' ? sourceInput.value.trim() : '';
+                const source = uploadedPreviewSource || manualSource || image.getAttribute('src');
                 if (source) {
                     image.setAttribute('src', source);
                     image.style.display = 'block';
@@ -1100,6 +1103,9 @@
 
                 if (sourceInput) {
                     sourceInput.addEventListener('input', function () {
+                        if (uploadInput?.dataset.previewUrl) {
+                            delete uploadInput.dataset.previewUrl;
+                        }
                         if (clearInput) clearInput.checked = false;
                         updatePreviewPresentation(overlay);
                     });
@@ -1108,11 +1114,17 @@
                 if (uploadInput) {
                     uploadInput.addEventListener('change', function () {
                         const [file] = uploadInput.files || [];
-                        if (!file) return;
+                        if (!file) {
+                            if (uploadInput.dataset.previewUrl) {
+                                delete uploadInput.dataset.previewUrl;
+                            }
+                            updatePreviewPresentation(overlay);
+                            return;
+                        }
                         const reader = new FileReader();
                         reader.onload = function (event) {
-                            if (sourceInput && typeof event.target?.result === 'string') {
-                                sourceInput.value = event.target.result;
+                            if (typeof event.target?.result === 'string') {
+                                uploadInput.dataset.previewUrl = event.target.result;
                             }
                             if (clearInput) clearInput.checked = false;
                             updatePreviewPresentation(overlay);
@@ -1129,6 +1141,9 @@
 
                 if (clearInput) {
                     clearInput.addEventListener('change', function () {
+                        if (clearInput.checked && uploadInput?.dataset.previewUrl) {
+                            delete uploadInput.dataset.previewUrl;
+                        }
                         updatePreviewPresentation(overlay);
                     });
                 }
