@@ -31,7 +31,11 @@
                                 <div class="field"><label>Platform</label><input name="platform" /></div>
                                 <div class="field"><label>Title</label><input name="title" /></div>
                                 <div class="field"><label>Handle</label><input name="handle" /></div>
-                                <div class="field"><label>URL</label><input name="url" /></div>
+                                <div class="field">
+                                    <label>URL</label>
+                                    <input name="url" placeholder="https://youtube.com/@littledivinity" />
+                                    <small class="muted">youtube.com/... bhi chalega, system automatically https:// add kar dega.</small>
+                                </div>
                                 <div class="field"><label>Icon</label><input name="icon" /></div>
                                 <div class="field"><label>Sort Order</label><input name="sort_order" value="0" /></div>
                             </div>
@@ -53,7 +57,10 @@
                                         <div class="field"><label>Platform</label><input name="platform" value="{{ $socialLink->platform }}" /></div>
                                         <div class="field"><label>Title</label><input name="title" value="{{ $socialLink->title }}" /></div>
                                         <div class="field"><label>Handle</label><input name="handle" value="{{ $socialLink->handle }}" /></div>
-                                        <div class="field"><label>URL</label><input name="url" value="{{ $socialLink->url }}" /></div>
+                                        <div class="field">
+                                            <label>URL</label>
+                                            <input name="url" value="{{ $socialLink->url }}" placeholder="https://youtube.com/@littledivinity" />
+                                        </div>
                                         <div class="field"><label>Icon</label><input name="icon" value="{{ $socialLink->icon }}" /></div>
                                         <div class="field"><label>Sort Order</label><input name="sort_order" value="{{ $socialLink->sort_order }}" /></div>
                                     </div>
