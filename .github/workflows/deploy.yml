@@ -50,6 +50,8 @@ jobs:
             --exclude ".github" \
             --exclude "node_modules" \
             --exclude "tests" \
+            --exclude "database/*.sqlite*" \
+            --exclude "storage/app/public/**" \
             --exclude "storage/logs/*" \
             --exclude "storage/framework/cache/data/*" \
             --exclude "storage/framework/sessions/*" \
@@ -94,35 +96,7 @@ jobs:
 
           cd "\$APP_PATH"
           composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
-          php artisan migrate --seed --force
-          if [ -f "\$APP_PATH/database/data/amazon-products.json" ]; then
-            php artisan catalog:import-amazon-sheet "\$APP_PATH/database/data/amazon-products.json" --refresh
-          fi
-          php artisan tinker --execute='
-            \$cod = App\Models\PaymentGatewaySetting::query()->firstOrNew(["provider" => "cod"]);
-            \$cod->fill([
-              "display_name" => \$cod->display_name ?: "Cash on Delivery",
-              "sort_order" => \$cod->sort_order ?: 4,
-              "is_active" => true,
-              "is_test_mode" => false,
-            ])->save();
-
-            if (filled(env("RAZORPAY_KEY_ID")) && filled(env("RAZORPAY_KEY_SECRET")) && filled(env("RAZORPAY_WEBHOOK_SECRET"))) {
-              App\Models\PaymentGatewaySetting::query()->updateOrCreate(
-                ["provider" => "razorpay"],
-                [
-                  "display_name" => "Razorpay",
-                  "merchant_id" => env("RAZORPAY_MERCHANT_ID"),
-                  "public_key" => env("RAZORPAY_KEY_ID"),
-                  "secret_key" => env("RAZORPAY_KEY_SECRET"),
-                  "webhook_secret" => env("RAZORPAY_WEBHOOK_SECRET"),
-                  "sort_order" => 1,
-                  "is_active" => true,
-                  "is_test_mode" => false,
-                ]
-              );
-            }
-          '
+          php artisan migrate --force
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
