@@ -11,12 +11,14 @@ use Illuminate\View\View;
 
 class MenuItemController extends Controller
 {
+    private const LOCATION_ORDER_SQL = "CASE location WHEN 'header' THEN 1 WHEN 'footer' THEN 2 WHEN 'mobile' THEN 3 ELSE 99 END";
+
     public function index(): View
     {
         $menuItems = MenuItem::query()
             ->with('parent:id,title')
             ->withCount('children')
-            ->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")
+            ->orderByRaw(self::LOCATION_ORDER_SQL)
             ->orderBy('sort_order')
             ->orderBy('title')
             ->get();
@@ -26,7 +28,7 @@ class MenuItemController extends Controller
             'groupedMenuItems' => $menuItems->groupBy('location'),
             'parents' => MenuItem::query()
                 ->whereNull('parent_id')
-                ->orderByRaw("FIELD(location, 'header', 'footer', 'mobile')")
+                ->orderByRaw(self::LOCATION_ORDER_SQL)
                 ->orderBy('title')
                 ->get(['id', 'title', 'location']),
         ]);
