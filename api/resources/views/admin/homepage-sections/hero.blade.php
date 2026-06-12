@@ -816,7 +816,8 @@
                                         <div class="admin-fields" style="grid-template-columns: 1fr;">
                                             <div class="admin-field">
                                                 <label>Slide Image URL</label>
-                                                <input name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", $slide['image']) }}" placeholder="https://... or /storage/..." data-source-input>
+                                                <input name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", '') }}" maxlength="255" placeholder="Paste new image URL only if replacing current image" data-source-input>
+                                                <div class="admin-help">Leave blank to keep the current slide image. Paste a shorter replacement URL only when needed.</div>
                                             </div>
                                             <div class="admin-field">
                                                 <label>Upload New Image</label>
@@ -918,7 +919,8 @@
                                         <div class="admin-fields" style="grid-template-columns: 1fr;">
                                             <div class="admin-field">
                                                 <label>Promo Image URL</label>
-                                                <input name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", $promo['image']) }}" placeholder="https://... or /storage/..." data-source-input>
+                                                <input name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", '') }}" maxlength="255" placeholder="Paste new promo URL only if replacing current image" data-source-input>
+                                                <div class="admin-help">Leave blank to keep the current promo image. Paste a shorter replacement URL only when needed.</div>
                                             </div>
                                             <div class="admin-field">
                                                 <label>Upload New Image</label>
