@@ -75,4 +75,29 @@ class AutoSeoGenerationTest extends TestCase
         $this->assertSame('https://littledivinity.in/product/little-divinity-krishna-brass-idol', $schema['offers']['url']);
         $this->assertSame('INR', $schema['offers']['priceCurrency']);
     }
+
+    public function test_existing_product_slug_is_preserved_during_regular_updates(): void
+    {
+        $category = Category::query()->create([
+            'name' => 'Home Decor',
+            'is_active' => true,
+        ]);
+
+        $product = Product::query()->create([
+            'category_id' => $category->id,
+            'name' => 'Heritage Brass Decor Accent 2',
+            'price' => 4999,
+            'images' => ['/products/heritage-brass-decor-accent-2.jpg'],
+            'is_active' => true,
+        ]);
+
+        $originalSlug = $product->slug;
+
+        $product->update([
+            'name' => 'Heritage Brass Decor Accent 2 Updated',
+            'price' => 5499,
+        ]);
+
+        $this->assertSame($originalSlug, $product->fresh()->slug);
+    }
 }

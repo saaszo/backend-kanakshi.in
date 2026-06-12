@@ -19,11 +19,13 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saving(function (Product $product): void {
-            $product->slug = UniqueSlug::for(
-                self::class,
-                (string) $product->name,
-                $product->id
-            );
+            if (! $product->exists || blank($product->slug) || $product->isDirty('slug')) {
+                $product->slug = UniqueSlug::for(
+                    self::class,
+                    (string) ($product->slug ?: $product->name),
+                    $product->id
+                );
+            }
 
             if (blank($product->meta_title)) {
                 $product->meta_title = Str::limit(trim((string) $product->name), 200, '');
