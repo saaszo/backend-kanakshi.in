@@ -42,7 +42,7 @@ trait HandlesAdminUploads
                 throw new \RuntimeException('Unable to store uploaded file.');
             }
 
-            $url = $disk->url($path);
+            $url = $this->normalizePublicUploadUrl((string) $path);
 
             try {
                 MediaLibrary::query()->create([
@@ -71,5 +71,12 @@ trait HandlesAdminUploads
                 $errorField => 'File upload failed on the server. Please try again, or use a smaller PNG/JPG/SVG/WEBP/ICO file.',
             ]);
         }
+    }
+
+    protected function normalizePublicUploadUrl(string $path): string
+    {
+        $normalizedPath = '/storage/' . ltrim($path, '/');
+
+        return preg_replace('#/+#', '/', $normalizedPath) ?: $normalizedPath;
     }
 }
