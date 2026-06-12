@@ -428,7 +428,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        const initMenuItemAdminPage = () => {
             // --- Tabs Nav Switcher Logic ---
             document.querySelectorAll('[data-tab-target]').forEach(tabBtn => {
                 tabBtn.addEventListener('click', () => {
@@ -491,16 +491,21 @@
             const editTitleSavedInput = document.getElementById('edit-title-saved');
 
             const openModal = () => {
+                if (!modal) return;
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             };
 
             const closeModal = () => {
+                if (!modal) return;
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
             };
 
             const resetFormToAddMode = () => {
+                if (!form || !formModeTitle || !formModeSubtitle || !editUrlSavedInput || !editTitleSavedInput || !submitBtnText) {
+                    return;
+                }
                 formModeTitle.textContent = 'Add Menu Item';
                 formModeSubtitle.textContent = 'Create a new link for header, footer, or mobile navigation.';
                 form.action = '{{ route("admin.menu-items.store") }}';
@@ -515,20 +520,29 @@
                 submitBtnText.textContent = 'Create Menu Item';
             };
 
-            btnOpenAdd.addEventListener('click', () => {
-                resetFormToAddMode();
-                openModal();
-            });
+            if (btnOpenAdd) {
+                btnOpenAdd.addEventListener('click', () => {
+                    resetFormToAddMode();
+                    openModal();
+                });
+            }
 
-            btnClose.addEventListener('click', closeModal);
+            if (btnClose) {
+                btnClose.addEventListener('click', closeModal);
+            }
 
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                });
+            }
 
             // Click listener for row edit buttons
             document.querySelectorAll('.edit-menu-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
+                    if (!form || !formModeTitle || !formModeSubtitle || !editUrlSavedInput || !editTitleSavedInput || !submitBtnText || !createLocation || !createParent) {
+                        return;
+                    }
                     // Update titles
                     formModeTitle.textContent = 'Edit Menu Item';
                     formModeSubtitle.textContent = 'Modify details for the link: ' + btn.dataset.title;
@@ -577,11 +591,11 @@
             // Restore edit mode and open modal if validation fails on redirection back
             const serverErrorsDiv = document.getElementById('server-errors');
             const hasErrors = serverErrorsDiv && serverErrorsDiv.dataset.hasErrors === 'true';
-            const savedUrl = editUrlSavedInput.value;
-            const savedTitle = editTitleSavedInput.value;
+            const savedUrl = editUrlSavedInput ? editUrlSavedInput.value : '';
+            const savedTitle = editTitleSavedInput ? editTitleSavedInput.value : '';
             
             if (hasErrors || savedUrl) {
-                if (savedUrl) {
+                if (savedUrl && form && formModeTitle && formModeSubtitle && submitBtnText) {
                     formModeTitle.textContent = 'Edit Menu Item';
                     formModeSubtitle.textContent = 'Modify details for the link: ' + savedTitle;
                     form.action = savedUrl;
@@ -599,6 +613,12 @@
                 }
                 openModal();
             }
-        });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMenuItemAdminPage, { once: true });
+        } else {
+            initMenuItemAdminPage();
+        }
     </script>
 @endpush
