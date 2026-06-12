@@ -78,4 +78,40 @@ class HeroSliderEditorTest extends TestCase
         $this->assertSame(1.2, $config['promos'][0]['crop_zoom']);
         $this->assertSame('https://example.com/promo.jpg', $config['promos'][0]['image']);
     }
+
+    public function test_hero_editor_resolves_reference_asset_previews_for_admin(): void
+    {
+        config(['app.frontend_url' => 'https://littledivinity.example']);
+
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+
+        HomepageSection::query()->create([
+            'section_key' => 'hero',
+            'section_type' => 'hero',
+            'label' => 'Homepage Hero',
+            'title' => 'Homepage Hero',
+            'sort_order' => 1,
+            'is_active' => true,
+            'config' => [
+                'slides' => [
+                    [
+                        'title' => 'Legacy Slide',
+                        'image' => '/reference-assets/legacy-slide.png',
+                        'alt' => 'Legacy preview',
+                    ],
+                ],
+                'promos' => [],
+            ],
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.homepage-sections.hero.edit'));
+
+        $response->assertOk();
+        $response->assertSee('https://littledivinity.example/reference-assets/legacy-slide.png', false);
+        $response->assertSee('Currently visible on storefront rotation');
+    }
 }

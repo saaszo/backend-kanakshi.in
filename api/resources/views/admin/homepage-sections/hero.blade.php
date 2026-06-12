@@ -489,7 +489,7 @@
                             <div class="hero-stage">
                                 @if (!empty($activeSlide['image'] ?? null))
                                     <img
-                                        src="{{ $activeSlide['image'] }}"
+                                        src="{{ $activeSlide['preview_image'] ?? $activeSlide['image'] }}"
                                         alt="{{ $activeSlide['alt'] ?: 'Active hero slide preview' }}"
                                         class="hero-media-preview"
                                         style="object-position: {{ $activeSlide['crop_x'] ?? 50 }}% {{ $activeSlide['crop_y'] ?? 50 }}%; transform: scale({{ $activeSlide['crop_zoom'] ?? 1 }});"
@@ -517,7 +517,7 @@
                                     <div class="hero-promo-card">
                                         @if (!empty($previewPromo['image'] ?? null))
                                             <img
-                                                src="{{ $previewPromo['image'] }}"
+                                                src="{{ $previewPromo['preview_image'] ?? $previewPromo['image'] }}"
                                                 alt="{{ $previewPromo['title'] ?: 'Promo preview' }}"
                                                 class="hero-media-preview"
                                                 style="object-position: {{ $previewPromo['crop_x'] ?? 50 }}% {{ $previewPromo['crop_y'] ?? 50 }}%; transform: scale({{ $previewPromo['crop_zoom'] ?? 1 }});"
@@ -624,7 +624,7 @@
                                     <div class="hero-media-card-top">
                                         @if (!empty($slide['image']))
                                             <img
-                                                src="{{ $slide['image'] }}"
+                                                src="{{ $slide['preview_image'] ?? $slide['image'] }}"
                                                 alt="{{ $slide['alt'] ?: 'Slide preview' }}"
                                                 class="hero-media-preview"
                                                 data-media-preview
@@ -684,7 +684,7 @@
                                     <div class="hero-media-card-top" style="aspect-ratio: 1.15 / 0.82;">
                                         @if (!empty($promo['image']))
                                             <img
-                                                src="{{ $promo['image'] }}"
+                                                src="{{ $promo['preview_image'] ?? $promo['image'] }}"
                                                 alt="{{ $promo['title'] ?: 'Promo preview' }}"
                                                 class="hero-media-preview"
                                                 style="object-position: {{ old("promos.$index.crop_x", $promo['crop_x']) }}% {{ old("promos.$index.crop_y", $promo['crop_y']) }}%; transform: scale({{ old("promos.$index.crop_zoom", $promo['crop_zoom']) }});"
@@ -746,7 +746,7 @@
                                         <div class="hero-crop-preview" data-preview-stage>
                                             @if (!empty($slide['image']))
                                                 <img
-                                                    src="{{ $slide['image'] }}"
+                                                    src="{{ $slide['preview_image'] ?? $slide['image'] }}"
                                                     alt="{{ $slide['alt'] ?: 'Slide preview' }}"
                                                     class="hero-media-preview"
                                                     data-preview-image
@@ -848,7 +848,7 @@
                                         <div class="hero-crop-preview is-promo" data-preview-stage>
                                             @if (!empty($promo['image']))
                                                 <img
-                                                    src="{{ $promo['image'] }}"
+                                                    src="{{ $promo['preview_image'] ?? $promo['image'] }}"
                                                     alt="{{ $promo['title'] ?: 'Promo preview' }}"
                                                     class="hero-media-preview"
                                                     data-preview-image

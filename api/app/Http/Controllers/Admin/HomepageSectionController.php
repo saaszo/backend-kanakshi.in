@@ -266,15 +266,19 @@ class HomepageSectionController extends Controller
 
         for ($index = 0; $index < self::HERO_SLIDE_COUNT; $index++) {
             $slide = $slides[$index] ?? [];
+            $image = $slide['image'] ?? null;
             $normalized[] = [
                 'title' => $slide['title'] ?? '',
                 'alt' => $slide['alt'] ?? '',
                 'href' => $slide['href'] ?? '',
-                'image' => $slide['image'] ?? null,
+                'image' => $image,
+                'preview_image' => $this->resolveAdminMediaPreviewUrl($image),
                 'crop_x' => (int) ($slide['crop_x'] ?? 50),
                 'crop_y' => (int) ($slide['crop_y'] ?? 50),
                 'crop_zoom' => (float) ($slide['crop_zoom'] ?? 1),
-                'is_active' => (bool) ($slide['is_active'] ?? ($index === 0)),
+                'is_active' => array_key_exists('is_active', $slide)
+                    ? (bool) $slide['is_active']
+                    : filled($image),
             ];
         }
 
@@ -287,19 +291,52 @@ class HomepageSectionController extends Controller
 
         for ($index = 0; $index < self::HERO_PROMO_COUNT; $index++) {
             $promo = $promos[$index] ?? [];
+            $image = $promo['image'] ?? null;
             $normalized[] = [
                 'title' => $promo['title'] ?? '',
                 'subtitle' => $promo['subtitle'] ?? '',
                 'href' => $promo['href'] ?? '',
-                'image' => $promo['image'] ?? null,
+                'image' => $image,
+                'preview_image' => $this->resolveAdminMediaPreviewUrl($image),
                 'crop_x' => (int) ($promo['crop_x'] ?? 50),
                 'crop_y' => (int) ($promo['crop_y'] ?? 50),
                 'crop_zoom' => (float) ($promo['crop_zoom'] ?? 1),
                 'show_text' => (bool) ($promo['show_text'] ?? true),
-                'is_active' => (bool) ($promo['is_active'] ?? true),
+                'is_active' => array_key_exists('is_active', $promo)
+                    ? (bool) $promo['is_active']
+                    : filled($image),
             ];
         }
 
         return $normalized;
+    }
+
+    private function resolveAdminMediaPreviewUrl(?string $path): ?string
+    {
+        if (! filled($path)) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        if (str_starts_with($path, '/reference-assets/') || str_starts_with($path, 'reference-assets/')) {
+            $frontendUrl = rtrim((string) config('app.frontend_url', config('app.url')), '/');
+
+            return $frontendUrl.'/'.ltrim($path, '/');
+        }
+
+        if (str_starts_with($path, '/storage/') || str_starts_with($path, 'storage/')) {
+            $appUrl = rtrim((string) config('app.url'), '/');
+
+            return $appUrl.'/'.ltrim($path, '/');
+        }
+
+        if (str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        return rtrim((string) config('app.url'), '/').'/'.ltrim($path, '/');
     }
 }
