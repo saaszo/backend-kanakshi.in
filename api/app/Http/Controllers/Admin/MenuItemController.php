@@ -40,7 +40,7 @@ class MenuItemController extends Controller
         $config = $this->decodeConfig($validated['config_json'] ?? null);
         unset($validated['config_json']);
 
-        MenuItem::query()->create($validated + [
+        MenuItem::query()->create($this->normalizePayload($validated) + [
             'is_active' => $request->boolean('is_active', true),
             'config' => $config,
         ]);
@@ -54,7 +54,7 @@ class MenuItemController extends Controller
         $config = $this->decodeConfig($validated['config_json'] ?? null);
         unset($validated['config_json']);
 
-        $menuItem->update($validated + [
+        $menuItem->update($this->normalizePayload($validated) + [
             'is_active' => $request->boolean('is_active'),
             'config' => $config,
         ]);
@@ -107,6 +107,17 @@ class MenuItemController extends Controller
         }
 
         return $validated;
+    }
+
+    private function normalizePayload(array $validated): array
+    {
+        return array_merge($validated, [
+            'parent_id' => filled($validated['parent_id'] ?? null) ? (int) $validated['parent_id'] : null,
+            'target' => filled($validated['target'] ?? null) ? $validated['target'] : '_self',
+            'css_class' => filled($validated['css_class'] ?? null) ? $validated['css_class'] : null,
+            'icon' => filled($validated['icon'] ?? null) ? $validated['icon'] : null,
+            'sort_order' => filled($validated['sort_order'] ?? null) ? (int) $validated['sort_order'] : 0,
+        ]);
     }
 
     private function decodeConfig(?string $configJson): array

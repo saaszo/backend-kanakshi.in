@@ -474,8 +474,13 @@
             };
 
             if (createLocation && createParent) {
-                createLocation.addEventListener('change', syncParentOptions);
-                syncParentOptions(); // Initial call
+                createLocation.addEventListener('change', () => {
+                    try {
+                        syncParentOptions();
+                    } catch (error) {
+                        console.error('Unable to update parent menu options.', error);
+                    }
+                });
             }
 
             // --- Modal Logic ---
@@ -535,6 +540,14 @@
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) closeModal();
                 });
+            }
+
+            if (createLocation && createParent) {
+                try {
+                    syncParentOptions();
+                } catch (error) {
+                    console.error('Unable to update parent menu options.', error);
+                }
             }
 
             // Click listener for row edit buttons

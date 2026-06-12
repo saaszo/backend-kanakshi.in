@@ -1051,14 +1051,18 @@
             height: 400px;
             background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .admin-banner > * {
+            position: relative;
+            z-index: 1;
         }
 
         .admin-banner h2 {
             margin: 0 0 8px;
             font-size: 28px;
             color: #fff;
-            position: relative;
-            z-index: 2;
         }
 
         .admin-banner p {
@@ -1067,22 +1071,16 @@
             font-size: 15px;
             max-width: 600px;
             line-height: 1.6;
-            position: relative;
-            z-index: 2;
         }
 
         .admin-banner .brand {
             color: rgba(255,255,255,0.9);
-            position: relative;
-            z-index: 2;
         }
         
         .admin-banner .button.secondary {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 255, 255, 0.2);
             color: #fff;
-            position: relative;
-            z-index: 2;
             backdrop-filter: blur(8px);
         }
         
