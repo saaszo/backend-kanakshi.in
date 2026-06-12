@@ -51,7 +51,7 @@
 
         /* Viewport Optimized Scrollable List */
         .menu-list-wrap {
-            max-height: calc(100vh - 340px);
+            max-height: calc(100vh - 280px);
             overflow-y: auto;
             border: 1px solid var(--border);
             border-radius: 16px;
@@ -119,21 +119,55 @@
             }
         }
 
-        /* Layout Grid */
-        .menu-split-layout {
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            gap: 24px;
-            align-items: start;
+        /* Modal CSS */
+        .admin-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
-        @media (max-width: 1200px) {
-            .menu-split-layout {
-                grid-template-columns: 1fr;
-            }
+        .admin-modal-overlay.active {
+            display: flex;
+            opacity: 1;
         }
-        .sticky-editor {
+        .admin-modal {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.2s ease;
+        }
+        .admin-modal-overlay.active .admin-modal {
+            transform: translateY(0) scale(1);
+        }
+        .admin-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             position: sticky;
-            top: 24px;
+            top: 0;
+            background: #fff;
+            z-index: 10;
+        }
+        .admin-modal-header h3 { margin: 0; font-size: 18px; }
+        .admin-modal-close {
+            background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-soft); padding: 0; line-height: 1;
+        }
+        .admin-modal-close:hover { color: var(--danger); }
+        .admin-modal-body {
+            padding: 24px;
         }
     </style>
 
@@ -151,8 +185,12 @@
                     <div class="toolbar-actions">
                         <a href="{{ route('admin.dashboard') }}" class="button secondary small">
                             <i class="bi bi-grid-1x2"></i>
-                            <span>Back to Dashboard</span>
+                            <span>Dashboard</span>
                         </a>
+                        <button type="button" class="button small" id="open-add-modal-btn">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Add Menu Link</span>
+                        </button>
                     </div>
                 </div>
 
@@ -166,7 +204,7 @@
                 @endif
 
                 @if ($errors->any())
-                    <div class="admin-errors">
+                    <div class="admin-errors" id="server-errors" data-has-errors="true">
                         <strong>Validation Error:</strong>
                         <p>{{ $errors->first() }}</p>
                     </div>
@@ -177,215 +215,214 @@
                     <span>Dropdown arrow storefront par sirf unhi menu items par dikhega jinke andar actual submenu items honge.</span>
                 </div>
 
-                <div class="menu-split-layout">
-                    <!-- Left Column: Unified Add/Edit Link Form -->
-                    <div class="sticky-editor">
-                        <section class="admin-section" style="padding: 24px;">
-                            <div class="mb-4">
-                                <h3 id="form-mode-title" style="margin: 0 0 4px; font-size: 18px;">Add Menu Item</h3>
-                                <p id="form-mode-subtitle" class="muted" style="margin: 0; font-size: 12px;">Create a new link for header, footer, or mobile navigation.</p>
-                            </div>
-
-                            <form method="POST" action="{{ route('admin.menu-items.store') }}" id="menu-item-form" class="admin-fields">
-                                @csrf
-                                <!-- Hidden inputs to save edit state on redirect validation failure -->
-                                <input type="hidden" name="edit_url_saved" id="edit-url-saved" value="{{ old('edit_url_saved') }}">
-                                <input type="hidden" name="edit_title_saved" id="edit-title-saved" value="{{ old('edit_title_saved') }}">
-
-                                <div class="field">
-                                    <label for="location">Location</label>
-                                    <select id="location" name="location">
-                                        <option value="header" @selected(old('location') === 'header')>Header</option>
-                                        <option value="footer" @selected(old('location') === 'footer')>Footer</option>
-                                        <option value="mobile" @selected(old('location') === 'mobile')>Mobile</option>
-                                    </select>
-                                </div>
-
-                                <div class="field">
-                                    <label for="title">Title</label>
-                                    <input id="title" name="title" value="{{ old('title') }}" placeholder="e.g. Shop All" required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="url">URL</label>
-                                    <input id="url" name="url" value="{{ old('url') }}" placeholder="e.g. /pages/about-us" required />
-                                </div>
-
-                                <div class="field">
-                                    <label for="parent_id">Parent Item</label>
-                                    <select id="parent_id" name="parent_id">
-                                        <option value="">None (Top Level)</option>
-                                        @foreach ($parents as $parent)
-                                            <option value="{{ $parent->id }}" data-location="{{ $parent->location }}" @selected((string) old('parent_id') === (string) $parent->id)>
-                                                {{ ucfirst($parent->location) }} · {{ $parent->title }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="muted" style="font-size:11px; margin-top: 4px; display:block;">Parent and child same location me hone chahiye. Sirf top-level item ko parent banao.</small>
-                                </div>
-
-                                <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
-                                    <div class="field" style="margin-bottom: 0;">
-                                        <label for="sort_order">Sort Order</label>
-                                        <input id="sort_order" name="sort_order" type="number" value="{{ old('sort_order', 0) }}" />
-                                    </div>
-
-                                    <div class="field" style="margin-bottom: 0;">
-                                        <label for="target">Target</label>
-                                        <select id="target" name="target">
-                                            <option value="_self" @selected(old('target', '_self') === '_self')>Same tab</option>
-                                            <option value="_blank" @selected(old('target') === '_blank')>New tab</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="field" style="margin-bottom: 0;">
-                                        <label for="css_class">CSS Class</label>
-                                        <input id="css_class" name="css_class" value="{{ old('css_class') }}" placeholder="optional" />
-                                    </div>
-
-                                    <div class="field" style="margin-bottom: 0;">
-                                        <label for="icon">Icon Class</label>
-                                        <input id="icon" name="icon" value="{{ old('icon') }}" placeholder="e.g. bi bi-star" />
-                                    </div>
-                                </div>
-
-                                <div class="field">
-                                    <label for="config_json">Config JSON</label>
-                                    <textarea id="config_json" name="config_json" class="code" rows="3" style="min-height: 80px; font-size:12px;">{{ old('config_json', '{}') }}</textarea>
-                                </div>
-
-                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px;">
-                                    <label class="checkbox-row">
-                                        <input type="checkbox" name="is_active" value="1" @checked(old('is_active', '1') === '1')>
-                                        <span>Active</span>
-                                    </label>
-                                    <div style="display: flex; gap: 8px;">
-                                        <button type="button" class="button secondary small" id="cancel-edit-btn" style="display: none;">Cancel</button>
-                                        <button class="button small" type="submit">
-                                            <i class="bi bi-check2-circle"></i>
-                                            <span id="submit-btn-text">Create Menu Item</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </section>
+                <!-- Tabbed Menu Items Lists -->
+                <section class="admin-section h-100" style="padding: 24px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 style="margin: 0 0 4px; font-size: 18px;">Navigation Links</h3>
+                            <p class="muted" style="margin: 0; font-size: 12px;">Reorder, remove, or trigger editor state for items.</p>
+                        </div>
+                        <span class="pill">{{ $menuItems->count() }} total links</span>
                     </div>
 
-                    <!-- Right Column: Tabbed Menu Items Lists -->
-                    <div>
-                        <section class="admin-section h-100" style="padding: 24px;">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div>
-                                    <h3 style="margin: 0 0 4px; font-size: 18px;">Navigation Links</h3>
-                                    <p class="muted" style="margin: 0; font-size: 12px;">Reorder, remove, or trigger editor state for items.</p>
-                                </div>
-                                <span class="pill">{{ $menuItems->count() }} total links</span>
-                            </div>
-
-                            <!-- Tabs navigation for locations -->
-                            <div class="admin-tabs-nav">
-                                @foreach (['header', 'footer', 'mobile'] as $index => $location)
-                                    <button type="button" class="admin-tab-btn {{ $index === 0 ? 'active' : '' }}" data-tab-target="panel-menu-{{ $location }}" data-tab-group="menu-locations">
-                                        <span>{{ $locationLabels[$location] }}</span>
-                                        <span class="admin-badge" style="margin-left: 6px; padding: 2px 6px; font-size: 10px;">
-                                            {{ $groupedMenuItems->get($location)?->count() ?? 0 }}
-                                        </span>
-                                    </button>
-                                @endforeach
-                            </div>
-
-                            <!-- Tab Panels -->
-                            @foreach (['header', 'footer', 'mobile'] as $index => $location)
-                                <div class="admin-tab-panel {{ $index === 0 ? 'active' : '' }}" id="panel-menu-{{ $location }}" data-tab-panel-group="menu-locations">
-                                    <div class="menu-list-wrap">
-                                        <div class="menu-list">
-                                            @forelse(($groupedMenuItems->get($location) ?? collect()) as $menuItem)
-                                                <article class="menu-list-item" id="row-menu-item-{{ $menuItem->id }}">
-                                                    <div>
-                                                        <span class="menu-list-meta-label">Title</span>
-                                                        <div style="font-weight: 700; color: var(--heading); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                                            @if ($menuItem->icon)
-                                                                <i class="{{ $menuItem->icon }}"></i>
-                                                            @endif
-                                                            <span>{{ $menuItem->title }}</span>
-                                                            @if ($menuItem->children_count > 0)
-                                                                <span class="admin-badge primary" style="font-size: 10px; padding: 2px 7px;">Dropdown {{ $menuItem->children_count }}</span>
-                                                            @elseif ($menuItem->parent_id)
-                                                                <span class="admin-badge muted" style="font-size: 10px; padding: 2px 7px;">Submenu</span>
-                                                            @else
-                                                                <span class="admin-badge success" style="font-size: 10px; padding: 2px 7px;">Link</span>
-                                                            @endif
-                                                        </div>
-                                                        @if ($menuItem->css_class || ($menuItem->target && $menuItem->target !== '_self'))
-                                                            <small class="muted" style="font-size: 11px; display: block; margin-top: 6px;">
-                                                                Target: {{ $menuItem->target ?? '_self' }}{{ $menuItem->css_class ? ' · Class: '.$menuItem->css_class : '' }}
-                                                            </small>
-                                                        @endif
-                                                    </div>
-
-                                                    <div>
-                                                        <span class="menu-list-meta-label">URL</span>
-                                                        <div class="menu-list-url">{{ $menuItem->url }}</div>
-                                                    </div>
-
-                                                    <div>
-                                                        <span class="menu-list-meta-label">Parent</span>
-                                                        <div style="font-size: 13px; font-weight: 600; color: var(--heading);">
-                                                            {{ optional($menuItem->parent)->title ?: 'None' }}
-                                                        </div>
-                                                    </div>
-
-                                                    <div>
-                                                        <span class="menu-list-meta-label">Sort / Status</span>
-                                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                                            <strong>{{ $menuItem->sort_order }}</strong>
-                                                            <span class="admin-badge {{ $menuItem->is_active ? 'success' : 'muted' }}">
-                                                                {{ $menuItem->is_active ? 'Active' : 'Hidden' }}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="menu-list-actions">
-                                                        <button
-                                                            class="button secondary small edit-menu-btn"
-                                                            type="button"
-                                                            data-id="{{ $menuItem->id }}"
-                                                            data-location="{{ $menuItem->location }}"
-                                                            data-title="{{ $menuItem->title }}"
-                                                            data-url="{{ $menuItem->url }}"
-                                                            data-sort-order="{{ $menuItem->sort_order }}"
-                                                            data-parent-id="{{ $menuItem->parent_id ?? '' }}"
-                                                            data-target="{{ $menuItem->target ?? '_self' }}"
-                                                            data-css-class="{{ $menuItem->css_class ?? '' }}"
-                                                            data-icon="{{ $menuItem->icon ?? '' }}"
-                                                            data-config-json="{{ json_encode($menuItem->config ?? [], JSON_UNESCAPED_SLASHES) }}"
-                                                            data-is-active="{{ $menuItem->is_active ? '1' : '0' }}"
-                                                            data-update-url="{{ route('admin.menu-items.update', $menuItem) }}"
-                                                        >
-                                                            <i class="bi bi-pencil-square"></i>
-                                                            <span>Edit</span>
-                                                        </button>
-                                                        <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" onsubmit="return confirm('Delete this menu item? Child items will stay but become top-level.');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button class="button danger small" type="submit">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </article>
-                                            @empty
-                                                <div class="menu-list-empty">No {{ $locationLabels[$location] }} links added yet.</div>
-                                            @endforelse
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </section>
+                    <!-- Tabs navigation for locations -->
+                    <div class="admin-tabs-nav">
+                        @foreach (['header', 'footer', 'mobile'] as $index => $location)
+                            <button type="button" class="admin-tab-btn {{ $index === 0 ? 'active' : '' }}" data-tab-target="panel-menu-{{ $location }}" data-tab-group="menu-locations">
+                                <span>{{ $locationLabels[$location] }}</span>
+                                <span class="admin-badge" style="margin-left: 6px; padding: 2px 6px; font-size: 10px;">
+                                    {{ $groupedMenuItems->get($location)?->count() ?? 0 }}
+                                </span>
+                            </button>
+                        @endforeach
                     </div>
-                </div>
+
+                    <!-- Tab Panels -->
+                    @foreach (['header', 'footer', 'mobile'] as $index => $location)
+                        <div class="admin-tab-panel {{ $index === 0 ? 'active' : '' }}" id="panel-menu-{{ $location }}" data-tab-panel-group="menu-locations">
+                            <div class="menu-list-wrap">
+                                <div class="menu-list">
+                                    @forelse(($groupedMenuItems->get($location) ?? collect()) as $menuItem)
+                                        <article class="menu-list-item" id="row-menu-item-{{ $menuItem->id }}">
+                                            <div>
+                                                <span class="menu-list-meta-label">Title</span>
+                                                <div style="font-weight: 700; color: var(--heading); display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                                    @if ($menuItem->icon)
+                                                        <i class="{{ $menuItem->icon }}"></i>
+                                                    @endif
+                                                    <span>{{ $menuItem->title }}</span>
+                                                    @if ($menuItem->children_count > 0)
+                                                        <span class="admin-badge primary" style="font-size: 10px; padding: 2px 7px;">Dropdown {{ $menuItem->children_count }}</span>
+                                                    @elseif ($menuItem->parent_id)
+                                                        <span class="admin-badge muted" style="font-size: 10px; padding: 2px 7px;">Submenu</span>
+                                                    @else
+                                                        <span class="admin-badge success" style="font-size: 10px; padding: 2px 7px;">Link</span>
+                                                    @endif
+                                                </div>
+                                                @if ($menuItem->css_class || ($menuItem->target && $menuItem->target !== '_self'))
+                                                    <small class="muted" style="font-size: 11px; display: block; margin-top: 6px;">
+                                                        Target: {{ $menuItem->target ?? '_self' }}{{ $menuItem->css_class ? ' · Class: '.$menuItem->css_class : '' }}
+                                                    </small>
+                                                @endif
+                                            </div>
+
+                                            <div>
+                                                <span class="menu-list-meta-label">URL</span>
+                                                <div class="menu-list-url">{{ $menuItem->url }}</div>
+                                            </div>
+
+                                            <div>
+                                                <span class="menu-list-meta-label">Parent</span>
+                                                <div style="font-size: 13px; font-weight: 600; color: var(--heading);">
+                                                    {{ optional($menuItem->parent)->title ?: 'None' }}
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <span class="menu-list-meta-label">Sort / Status</span>
+                                                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                                    <strong>{{ $menuItem->sort_order }}</strong>
+                                                    <span class="admin-badge {{ $menuItem->is_active ? 'success' : 'muted' }}">
+                                                        {{ $menuItem->is_active ? 'Active' : 'Hidden' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="menu-list-actions">
+                                                <button
+                                                    class="button secondary small edit-menu-btn"
+                                                    type="button"
+                                                    data-id="{{ $menuItem->id }}"
+                                                    data-location="{{ $menuItem->location }}"
+                                                    data-title="{{ $menuItem->title }}"
+                                                    data-url="{{ $menuItem->url }}"
+                                                    data-sort-order="{{ $menuItem->sort_order }}"
+                                                    data-parent-id="{{ $menuItem->parent_id ?? '' }}"
+                                                    data-target="{{ $menuItem->target ?? '_self' }}"
+                                                    data-css-class="{{ $menuItem->css_class ?? '' }}"
+                                                    data-icon="{{ $menuItem->icon ?? '' }}"
+                                                    data-config-json="{{ json_encode($menuItem->config ?? [], JSON_UNESCAPED_SLASHES) }}"
+                                                    data-is-active="{{ $menuItem->is_active ? '1' : '0' }}"
+                                                    data-update-url="{{ route('admin.menu-items.update', $menuItem) }}"
+                                                >
+                                                    <i class="bi bi-pencil-square"></i>
+                                                    <span>Edit</span>
+                                                </button>
+                                                <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" onsubmit="return confirm('Delete this menu item? Child items will stay but become top-level.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="button danger small" type="submit">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </article>
+                                    @empty
+                                        <div class="menu-list-empty">No {{ $locationLabels[$location] }} links added yet.</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </section>
             </div>
         </main>
+    </div>
+
+    <!-- Edit/Add Modal Overlay -->
+    <div class="admin-modal-overlay" id="menu-item-modal">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <div>
+                    <h3 id="form-mode-title">Add Menu Item</h3>
+                    <p id="form-mode-subtitle" class="muted" style="margin: 0; font-size: 12px; margin-top: 4px;">Create a new link for navigation.</p>
+                </div>
+                <button type="button" class="admin-modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <form method="POST" action="{{ route('admin.menu-items.store') }}" id="menu-item-form" class="admin-fields">
+                    @csrf
+                    <!-- Hidden inputs to save edit state on redirect validation failure -->
+                    <input type="hidden" name="edit_url_saved" id="edit-url-saved" value="{{ old('edit_url_saved') }}">
+                    <input type="hidden" name="edit_title_saved" id="edit-title-saved" value="{{ old('edit_title_saved') }}">
+
+                    <div class="field">
+                        <label for="location">Location</label>
+                        <select id="location" name="location">
+                            <option value="header" @selected(old('location') === 'header')>Header</option>
+                            <option value="footer" @selected(old('location') === 'footer')>Footer</option>
+                            <option value="mobile" @selected(old('location') === 'mobile')>Mobile</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input id="title" name="title" value="{{ old('title') }}" placeholder="e.g. Shop All" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="url">URL</label>
+                        <input id="url" name="url" value="{{ old('url') }}" placeholder="e.g. /pages/about-us" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="parent_id">Parent Item</label>
+                        <select id="parent_id" name="parent_id">
+                            <option value="">None (Top Level)</option>
+                            @foreach ($parents as $parent)
+                                <option value="{{ $parent->id }}" data-location="{{ $parent->location }}" @selected((string) old('parent_id') === (string) $parent->id)>
+                                    {{ ucfirst($parent->location) }} · {{ $parent->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="muted" style="font-size:11px; margin-top: 4px; display:block;">Parent and child same location me hone chahiye. Sirf top-level item ko parent banao.</small>
+                    </div>
+
+                    <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;">
+                        <div class="field" style="margin-bottom: 0;">
+                            <label for="sort_order">Sort Order</label>
+                            <input id="sort_order" name="sort_order" type="number" value="{{ old('sort_order', 0) }}" />
+                        </div>
+
+                        <div class="field" style="margin-bottom: 0;">
+                            <label for="target">Target</label>
+                            <select id="target" name="target">
+                                <option value="_self" @selected(old('target', '_self') === '_self')>Same tab</option>
+                                <option value="_blank" @selected(old('target') === '_blank')>New tab</option>
+                            </select>
+                        </div>
+
+                        <div class="field" style="margin-bottom: 0;">
+                            <label for="css_class">CSS Class</label>
+                            <input id="css_class" name="css_class" value="{{ old('css_class') }}" placeholder="optional" />
+                        </div>
+
+                        <div class="field" style="margin-bottom: 0;">
+                            <label for="icon">Icon Class</label>
+                            <input id="icon" name="icon" value="{{ old('icon') }}" placeholder="e.g. bi bi-star" />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="config_json">Config JSON</label>
+                        <textarea id="config_json" name="config_json" class="code" rows="3" style="min-height: 80px; font-size:12px;">{{ old('config_json', '{}') }}</textarea>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px;">
+                        <label class="checkbox-row">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', '1') === '1')>
+                            <span>Active</span>
+                        </label>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="button small" type="submit" style="width: 100%; padding: 12px;">
+                                <i class="bi bi-check2-circle"></i>
+                                <span id="submit-btn-text">Save Menu Item</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -441,14 +478,53 @@
                 syncParentOptions(); // Initial call
             }
 
-            // --- Dynamic Unified Edit State Logic ---
+            // --- Modal Logic ---
+            const modal = document.getElementById('menu-item-modal');
+            const btnOpenAdd = document.getElementById('open-add-modal-btn');
+            const btnClose = document.getElementById('close-modal-btn');
+            
             const form = document.getElementById('menu-item-form');
             const formModeTitle = document.getElementById('form-mode-title');
             const formModeSubtitle = document.getElementById('form-mode-subtitle');
             const submitBtnText = document.getElementById('submit-btn-text');
-            const cancelEditBtn = document.getElementById('cancel-edit-btn');
             const editUrlSavedInput = document.getElementById('edit-url-saved');
             const editTitleSavedInput = document.getElementById('edit-title-saved');
+
+            const openModal = () => {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeModal = () => {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+
+            const resetFormToAddMode = () => {
+                formModeTitle.textContent = 'Add Menu Item';
+                formModeSubtitle.textContent = 'Create a new link for header, footer, or mobile navigation.';
+                form.action = '{{ route("admin.menu-items.store") }}';
+                editUrlSavedInput.value = '';
+                editTitleSavedInput.value = '';
+                
+                const methodInput = form.querySelector('[name="_method"]');
+                if (methodInput) methodInput.remove();
+                
+                form.reset();
+                syncParentOptions();
+                submitBtnText.textContent = 'Create Menu Item';
+            };
+
+            btnOpenAdd.addEventListener('click', () => {
+                resetFormToAddMode();
+                openModal();
+            });
+
+            btnClose.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
 
             // Click listener for row edit buttons
             document.querySelectorAll('.edit-menu-btn').forEach(btn => {
@@ -493,60 +569,35 @@
 
                     // Update buttons
                     submitBtnText.textContent = 'Save Changes';
-                    cancelEditBtn.style.display = 'inline-flex';
-
-                    // Smooth scroll to form on small viewports
-                    if (window.innerWidth < 1200) {
-                        form.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    
+                    openModal();
                 });
             });
 
-            // Click listener for Cancel Edit button
-            if (cancelEditBtn) {
-                cancelEditBtn.addEventListener('click', () => {
-                    // Reset titles
-                    formModeTitle.textContent = 'Add Menu Item';
-                    formModeSubtitle.textContent = 'Create a new link for header, footer, or mobile navigation.';
-
-                    // Reset action and hidden values
-                    form.action = '{{ route("admin.menu-items.store") }}';
-                    editUrlSavedInput.value = '';
-                    editTitleSavedInput.value = '';
-
-                    // Remove PUT method injection
-                    const methodInput = form.querySelector('[name="_method"]');
-                    if (methodInput) methodInput.remove();
-
-                    // Reset fields
-                    form.reset();
-                    syncParentOptions();
-
-                    // Update buttons
-                    submitBtnText.textContent = 'Create Menu Item';
-                    cancelEditBtn.style.display = 'none';
-                });
-            }
-
-            // Restore edit mode if validation fails on redirection back
+            // Restore edit mode and open modal if validation fails on redirection back
+            const serverErrorsDiv = document.getElementById('server-errors');
+            const hasErrors = serverErrorsDiv && serverErrorsDiv.dataset.hasErrors === 'true';
             const savedUrl = editUrlSavedInput.value;
             const savedTitle = editTitleSavedInput.value;
-            if (savedUrl) {
-                formModeTitle.textContent = 'Edit Menu Item';
-                formModeSubtitle.textContent = 'Modify details for the link: ' + savedTitle;
-                form.action = savedUrl;
+            
+            if (hasErrors || savedUrl) {
+                if (savedUrl) {
+                    formModeTitle.textContent = 'Edit Menu Item';
+                    formModeSubtitle.textContent = 'Modify details for the link: ' + savedTitle;
+                    form.action = savedUrl;
 
-                let methodInput = form.querySelector('[name="_method"]');
-                if (!methodInput) {
-                    methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    methodInput.value = 'PUT';
-                    form.appendChild(methodInput);
+                    let methodInput = form.querySelector('[name="_method"]');
+                    if (!methodInput) {
+                        methodInput = document.createElement('input');
+                        methodInput.type = 'hidden';
+                        methodInput.name = '_method';
+                        methodInput.value = 'PUT';
+                        form.appendChild(methodInput);
+                    }
+
+                    submitBtnText.textContent = 'Save Changes';
                 }
-
-                submitBtnText.textContent = 'Save Changes';
-                cancelEditBtn.style.display = 'inline-flex';
+                openModal();
             }
         });
     </script>
