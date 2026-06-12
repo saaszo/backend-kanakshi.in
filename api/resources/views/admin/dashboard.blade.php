@@ -27,6 +27,18 @@
                     </div>
                 </div>
 
+                @if (session('status'))
+                    <div class="message mb-4" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #34d399; padding: 15px; border-radius: var(--radius-md); font-weight: 500;">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('status') }}
+                    </div>
+                @endif
+
+                @if ($errors->has('backup_file'))
+                    <div class="message mb-4" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 15px; border-radius: var(--radius-md); font-weight: 500;">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i> {{ $errors->first('backup_file') }}
+                    </div>
+                @endif
+
                 <!-- Metrics Grid -->
                 <div class="metrics-grid mb-4">
                     <article class="metric-card" style="position: relative; overflow: hidden; border-color: rgba(16, 185, 129, 0.2); background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent);">
@@ -210,6 +222,36 @@
                                 <a href="{{ route('admin.products.index') }}" class="button secondary small"><i class="bi bi-box-seam"></i><span>Products</span></a>
                                 <a href="{{ route('admin.menu-items.index') }}" class="button secondary small"><i class="bi bi-menu-button-wide"></i><span>Menus</span></a>
                                 <a href="{{ route('admin.social-links.index') }}" class="button secondary small"><i class="bi bi-share"></i><span>Social Links</span></a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="dashboard-table-card">
+                        <div class="dashboard-table-head">
+                            <div>
+                                <h3>Recovery Vault</h3>
+                                <p class="muted" style="margin:8px 0 0;">Download a full recovery ZIP with database, product data, social links, layout settings, and uploaded media.</p>
+                            </div>
+                        </div>
+                        <div style="padding: 0 22px 22px;">
+                            <div class="d-grid gap-3">
+                                <a href="{{ route('admin.backups.download') }}" class="button small" style="width: fit-content;">
+                                    <i class="bi bi-cloud-arrow-down"></i>
+                                    <span>Download Full Backup</span>
+                                </a>
+
+                                <form method="POST" action="{{ route('admin.backups.restore') }}" enctype="multipart/form-data" class="admin-fields">
+                                    @csrf
+                                    <div class="field">
+                                        <label for="backup_file">Restore Backup ZIP</label>
+                                        <input id="backup_file" type="file" name="backup_file" accept=".zip,application/zip" required />
+                                        <small class="muted">Restore se pehle system current state ka ek automatic safety backup create karega.</small>
+                                    </div>
+                                    <button class="button secondary small" type="submit" onclick="return confirm('Restore backup se current database aur uploaded media replace ho jayenge. Continue?');">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        <span>Restore Backup</span>
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </section>

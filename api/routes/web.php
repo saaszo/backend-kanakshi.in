@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HomepageSectionController;
 use App\Http\Controllers\Admin\HomepageProductController;
@@ -35,6 +36,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
     Route::middleware(['auth', 'admin'])->group(function (): void {
         Route::get('/dashboard', DashboardController::class)->name('dashboard');
+        Route::get('/backups/download', [BackupController::class, 'download'])->name('backups.download');
+        Route::post('/backups/restore', [BackupController::class, 'restore'])->name('backups.restore');
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
