@@ -89,6 +89,52 @@ class HeroSliderEditorTest extends TestCase
         $this->assertSame('https://example.com/promo.jpg', $config['promos'][0]['image']);
     }
 
+    public function test_admin_can_save_existing_long_media_urls_in_hero_editor(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+
+        $longSlideUrl = 'https://littledivinity.example/storage/homepage/hero/'.str_repeat('slide-path-segment-', 12).'.jpg';
+        $longPromoUrl = 'https://littledivinity.example/storage/homepage/hero/'.str_repeat('promo-path-segment-', 12).'.jpg';
+
+        $response = $this
+            ->actingAs($admin)
+            ->from(route('admin.homepage-sections.hero.edit'))
+            ->put(route('admin.homepage-sections.hero.update'), [
+                'label' => 'Homepage Hero',
+                'title' => 'Hero',
+                'sort_order' => 1,
+                'is_active' => '1',
+                'slide_urls' => [$longSlideUrl],
+                'slides' => [
+                    [
+                        'title' => 'Slide One',
+                        'is_active' => '1',
+                    ],
+                ],
+                'promo_urls' => [$longPromoUrl],
+                'promos' => [
+                    [
+                        'title' => 'Promo One',
+                        'is_active' => '1',
+                    ],
+                ],
+            ]);
+
+        $response
+            ->assertRedirect(route('admin.homepage-sections.hero.edit'))
+            ->assertSessionHas('status', 'Hero slider updated successfully.');
+
+        $section = HomepageSection::query()->where('section_key', 'hero')->firstOrFail();
+        $config = $section->config ?? [];
+
+        $this->assertSame($longSlideUrl, $config['slides'][0]['image']);
+        $this->assertSame($longPromoUrl, $config['promos'][0]['image']);
+    }
+
     public function test_hero_editor_resolves_reference_asset_previews_for_admin(): void
     {
         config(['app.frontend_url' => 'https://littledivinity.example']);

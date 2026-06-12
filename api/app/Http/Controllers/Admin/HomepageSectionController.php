@@ -16,6 +16,7 @@ class HomepageSectionController extends Controller
 
     private const HERO_SLIDE_COUNT = 5;
     private const HERO_PROMO_COUNT = 2;
+    private const MEDIA_URL_MAX_LENGTH = 2048;
 
     public function index(): View
     {
@@ -62,7 +63,7 @@ class HomepageSectionController extends Controller
             'heading' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
             'button_text' => ['nullable', 'string', 'max:120'],
-            'button_url' => ['nullable', 'string', 'max:255'],
+            'button_url' => ['nullable', 'string', 'max:2048'],
             'image_url' => ['nullable', 'string', 'max:255'],
             'image_file' => ['nullable', 'image', 'max:5120'],
             'mobile_image_url' => ['nullable', 'string', 'max:255'],
@@ -131,7 +132,7 @@ class HomepageSectionController extends Controller
             'button_text' => ['nullable', 'string', 'max:120'],
             'button_url' => ['nullable', 'string', 'max:255'],
             'secondary_button_text' => ['nullable', 'string', 'max:120'],
-            'secondary_button_url' => ['nullable', 'string', 'max:255'],
+            'secondary_button_url' => ['nullable', 'string', 'max:2048'],
             'sort_order' => ['required', 'integer'],
             'show_text' => ['nullable', 'boolean'],
             'show_dots' => ['nullable', 'boolean'],
@@ -139,7 +140,7 @@ class HomepageSectionController extends Controller
             'autoplay_ms' => ['nullable', 'integer', 'min:1000', 'max:15000'],
             'nav_gap' => ['nullable', 'integer', 'min:0', 'max:240'],
             'slide_urls' => ['nullable', 'array'],
-            'slide_urls.*' => ['nullable', 'string', 'max:255'],
+            'slide_urls.*' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
             'slide_files' => ['nullable', 'array'],
             'slide_files.*' => ['nullable', 'image', 'max:5120'],
             'clear_slide_image' => ['nullable', 'array'],
@@ -147,19 +148,19 @@ class HomepageSectionController extends Controller
             'slides' => ['nullable', 'array'],
             'slides.*.title' => ['nullable', 'string', 'max:120'],
             'slides.*.alt' => ['nullable', 'string', 'max:150'],
-            'slides.*.href' => ['nullable', 'string', 'max:255'],
+            'slides.*.href' => ['nullable', 'string', 'max:2048'],
             'slides.*.crop_x' => ['nullable', 'integer', 'min:0', 'max:100'],
             'slides.*.crop_y' => ['nullable', 'integer', 'min:0', 'max:100'],
             'slides.*.crop_zoom' => ['nullable', 'numeric', 'min:1', 'max:2.5'],
             'promos' => ['nullable', 'array'],
             'promos.*.title' => ['nullable', 'string', 'max:120'],
             'promos.*.subtitle' => ['nullable', 'string', 'max:180'],
-            'promos.*.href' => ['nullable', 'string', 'max:255'],
+            'promos.*.href' => ['nullable', 'string', 'max:2048'],
             'promos.*.crop_x' => ['nullable', 'integer', 'min:0', 'max:100'],
             'promos.*.crop_y' => ['nullable', 'integer', 'min:0', 'max:100'],
             'promos.*.crop_zoom' => ['nullable', 'numeric', 'min:1', 'max:2.5'],
             'promo_urls' => ['nullable', 'array'],
-            'promo_urls.*' => ['nullable', 'string', 'max:255'],
+            'promo_urls.*' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
             'promo_files' => ['nullable', 'array'],
             'promo_files.*' => ['nullable', 'image', 'max:5120'],
             'clear_promo_image' => ['nullable', 'array'],
