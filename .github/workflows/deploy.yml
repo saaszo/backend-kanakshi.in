@@ -52,6 +52,7 @@ jobs:
             --exclude "tests" \
             --exclude "database/*.sqlite*" \
             --exclude "storage/app/public/**" \
+            --exclude "storage/backups/**" \
             --exclude "storage/logs/*" \
             --exclude "storage/framework/cache/data/*" \
             --exclude "storage/framework/sessions/*" \
@@ -96,6 +97,12 @@ jobs:
 
           cd "\$APP_PATH"
           composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+          if [ -f "\$APP_PATH/database/database.sqlite" ]; then
+            mkdir -p "\$APP_PATH/storage/backups"
+            cp "\$APP_PATH/database/database.sqlite" \
+              "\$APP_PATH/storage/backups/database-\$(date +%Y%m%d-%H%M%S).sqlite"
+            find "\$APP_PATH/storage/backups" -type f -name 'database-*.sqlite' -mtime +14 -delete
+          fi
           php artisan migrate --force
           php artisan optimize:clear
           php artisan config:cache
