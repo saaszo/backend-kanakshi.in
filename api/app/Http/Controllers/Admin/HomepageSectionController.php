@@ -8,6 +8,8 @@ use App\Models\HomepageSection;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class HomepageSectionController extends Controller
@@ -17,6 +19,7 @@ class HomepageSectionController extends Controller
     private const HERO_SLIDE_COUNT = 5;
     private const HERO_PROMO_COUNT = 2;
     private const MEDIA_URL_MAX_LENGTH = 2048;
+    private const FRONTEND_REVALIDATE_SECRET_FALLBACK = 'little-divinity-homepage-revalidate';
 
     public function index(): View
     {
@@ -112,6 +115,8 @@ class HomepageSectionController extends Controller
             'is_active' => $request->boolean('is_active'),
             'config' => $config,
         ]);
+
+        $this->triggerFrontendRevalidation(['/']);
 
         return back()->with('status', 'Homepage section updated successfully.');
     }
@@ -245,6 +250,8 @@ class HomepageSectionController extends Controller
             ],
         ]);
 
+        $this->triggerFrontendRevalidation(['/']);
+
         return back()->with('status', 'Hero slider updated successfully.');
     }
 
@@ -353,5 +360,28 @@ class HomepageSectionController extends Controller
         }
 
         return rtrim((string) config('app.url'), '/').'/'.ltrim($path, '/');
+    }
+
+    private function triggerFrontendRevalidation(array $paths): void
+    {
+        $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
+        $secret = (string) env('FRONTEND_REVALIDATE_SECRET', self::FRONTEND_REVALIDATE_SECRET_FALLBACK);
+
+        if ($frontendUrl === '') {
+            return;
+        }
+
+        try {
+            Http::timeout(8)->acceptJson()->post($frontendUrl.'/api/revalidate', [
+                'secret' => $secret,
+                'paths' => array_values(array_unique($paths)),
+            ])->throw();
+        } catch (\Throwable $exception) {
+            Log::warning('Frontend revalidation request failed after homepage section update.', [
+                'frontend_url' => $frontendUrl,
+                'paths' => $paths,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 }
