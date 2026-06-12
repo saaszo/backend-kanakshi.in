@@ -26,7 +26,12 @@ class HeroSliderEditorTest extends TestCase
                 'label' => 'Homepage Hero',
                 'title' => 'Hero',
                 'subtitle' => 'Sub',
-                'heading' => 'Heading',
+                'heading' => 'Sacred Craft. Pure Brass. Pan-India Delivery.',
+                'content' => 'Handcrafted god idols, home decor & festive gifting — trusted by 45,000+ customers across India.',
+                'button_text' => 'Shop the Collection →',
+                'button_url' => '/shop',
+                'secondary_button_text' => 'Explore Gifting Picks',
+                'secondary_button_url' => '/shop?category=gifting-edit',
                 'sort_order' => 1,
                 'is_active' => '1',
                 'show_text' => '1',
@@ -72,6 +77,11 @@ class HeroSliderEditorTest extends TestCase
         $this->assertSame(41, $config['slides'][0]['crop_y']);
         $this->assertSame(1.45, $config['slides'][0]['crop_zoom']);
         $this->assertSame('https://example.com/slide.jpg', $config['slides'][0]['image']);
+        $this->assertSame('Handcrafted god idols, home decor & festive gifting — trusted by 45,000+ customers across India.', $section->content);
+        $this->assertSame('Shop the Collection →', $section->button_text);
+        $this->assertSame('/shop', $section->button_url);
+        $this->assertSame('Explore Gifting Picks', $config['secondary_button_text']);
+        $this->assertSame('/shop?category=gifting-edit', $config['secondary_button_url']);
 
         $this->assertSame(58, $config['promos'][0]['crop_x']);
         $this->assertSame(33, $config['promos'][0]['crop_y']);

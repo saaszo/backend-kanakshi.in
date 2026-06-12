@@ -570,6 +570,31 @@
                                 <input id="heading" name="heading" value="{{ old('heading', $section->heading) }}" />
                                 @error('heading') <div class="admin-inline-error">{{ $message }}</div> @enderror
                             </div>
+                            <div class="admin-field" style="grid-column: 1 / -1;">
+                                <label for="content">Overlay Description</label>
+                                <textarea id="content" name="content" rows="3" placeholder="Short supporting copy shown on the homepage hero">{{ old('content', $section->content) }}</textarea>
+                                @error('content') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="admin-field">
+                                <label for="button_text">Primary Button Text</label>
+                                <input id="button_text" name="button_text" value="{{ old('button_text', $section->button_text) }}" placeholder="e.g. Shop the Collection">
+                                @error('button_text') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="admin-field">
+                                <label for="button_url">Primary Button URL</label>
+                                <input id="button_url" name="button_url" value="{{ old('button_url', $section->button_url) }}" placeholder="/shop">
+                                @error('button_url') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="admin-field">
+                                <label for="secondary_button_text">Secondary Button Text</label>
+                                <input id="secondary_button_text" name="secondary_button_text" value="{{ old('secondary_button_text', $secondaryButtonText) }}" placeholder="e.g. Explore Gifting Picks">
+                                @error('secondary_button_text') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="admin-field">
+                                <label for="secondary_button_url">Secondary Button URL</label>
+                                <input id="secondary_button_url" name="secondary_button_url" value="{{ old('secondary_button_url', $secondaryButtonUrl) }}" placeholder="/shop?category=gifting-edit">
+                                @error('secondary_button_url') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            </div>
                             <div class="admin-field">
                                 <label for="sort_order">Display Sort Order</label>
                                 <input id="sort_order" name="sort_order" type="number" value="{{ old('sort_order', $section->sort_order) }}" />

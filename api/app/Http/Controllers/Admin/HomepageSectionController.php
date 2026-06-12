@@ -46,6 +46,8 @@ class HomepageSectionController extends Controller
                 'autoplay_ms' => 3500,
                 'nav_gap' => 34,
             ], $config['slider_settings'] ?? []),
+            'secondaryButtonText' => (string) ($config['secondary_button_text'] ?? ''),
+            'secondaryButtonUrl' => (string) ($config['secondary_button_url'] ?? ''),
             'slides' => $this->normalizeHeroSlides($config['slides'] ?? []),
             'promos' => $this->normalizeHeroPromos($config['promos'] ?? []),
         ]);
@@ -125,6 +127,11 @@ class HomepageSectionController extends Controller
             'title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
             'heading' => ['nullable', 'string', 'max:255'],
+            'content' => ['nullable', 'string'],
+            'button_text' => ['nullable', 'string', 'max:120'],
+            'button_url' => ['nullable', 'string', 'max:255'],
+            'secondary_button_text' => ['nullable', 'string', 'max:120'],
+            'secondary_button_url' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['required', 'integer'],
             'show_text' => ['nullable', 'boolean'],
             'show_dots' => ['nullable', 'boolean'],
@@ -217,6 +224,9 @@ class HomepageSectionController extends Controller
             'title' => $validated['title'] ?? $section->title,
             'subtitle' => $validated['subtitle'] ?? $section->subtitle,
             'heading' => $validated['heading'] ?? $section->heading,
+            'content' => $validated['content'] ?? $section->content,
+            'button_text' => $validated['button_text'] ?? $section->button_text,
+            'button_url' => $validated['button_url'] ?? $section->button_url,
             'sort_order' => $validated['sort_order'],
             'is_active' => $request->boolean('is_active'),
             'config' => [
@@ -227,6 +237,8 @@ class HomepageSectionController extends Controller
                     'autoplay_ms' => (int) ($validated['autoplay_ms'] ?? 3500),
                     'nav_gap' => (int) ($validated['nav_gap'] ?? 34),
                 ],
+                'secondary_button_text' => trim((string) ($validated['secondary_button_text'] ?? '')),
+                'secondary_button_url' => trim((string) ($validated['secondary_button_url'] ?? '')),
                 'slides' => $slides,
                 'promos' => $promos,
             ],
@@ -255,6 +267,8 @@ class HomepageSectionController extends Controller
                     ],
                     'slides' => [],
                     'promos' => [],
+                    'secondary_button_text' => '',
+                    'secondary_button_url' => '',
                 ],
             ]
         );
