@@ -141,10 +141,16 @@ class HomepageSectionController extends Controller
             'slides.*.title' => ['nullable', 'string', 'max:120'],
             'slides.*.alt' => ['nullable', 'string', 'max:150'],
             'slides.*.href' => ['nullable', 'string', 'max:255'],
+            'slides.*.crop_x' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'slides.*.crop_y' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'slides.*.crop_zoom' => ['nullable', 'numeric', 'min:1', 'max:2.5'],
             'promos' => ['nullable', 'array'],
             'promos.*.title' => ['nullable', 'string', 'max:120'],
             'promos.*.subtitle' => ['nullable', 'string', 'max:180'],
             'promos.*.href' => ['nullable', 'string', 'max:255'],
+            'promos.*.crop_x' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'promos.*.crop_y' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'promos.*.crop_zoom' => ['nullable', 'numeric', 'min:1', 'max:2.5'],
             'promo_urls' => ['nullable', 'array'],
             'promo_urls.*' => ['nullable', 'string', 'max:255'],
             'promo_files' => ['nullable', 'array'],
@@ -171,6 +177,9 @@ class HomepageSectionController extends Controller
                 'alt' => trim((string) $request->input("slides.$index.alt", '')),
                 'href' => trim((string) $request->input("slides.$index.href", '')),
                 'image' => $image,
+                'crop_x' => max(0, min(100, (int) $request->input("slides.$index.crop_x", $current['crop_x'] ?? 50))),
+                'crop_y' => max(0, min(100, (int) $request->input("slides.$index.crop_y", $current['crop_y'] ?? 50))),
+                'crop_zoom' => max(1, min(2.5, (float) $request->input("slides.$index.crop_zoom", $current['crop_zoom'] ?? 1))),
                 'is_active' => $request->boolean("slides.$index.is_active"),
             ];
 
@@ -195,6 +204,9 @@ class HomepageSectionController extends Controller
                 'subtitle' => trim((string) $request->input("promos.$index.subtitle", '')),
                 'href' => trim((string) $request->input("promos.$index.href", '')),
                 'image' => $image,
+                'crop_x' => max(0, min(100, (int) $request->input("promos.$index.crop_x", $current['crop_x'] ?? 50))),
+                'crop_y' => max(0, min(100, (int) $request->input("promos.$index.crop_y", $current['crop_y'] ?? 50))),
+                'crop_zoom' => max(1, min(2.5, (float) $request->input("promos.$index.crop_zoom", $current['crop_zoom'] ?? 1))),
                 'show_text' => $request->boolean("promos.$index.show_text"),
                 'is_active' => $request->boolean("promos.$index.is_active"),
             ];
@@ -259,6 +271,9 @@ class HomepageSectionController extends Controller
                 'alt' => $slide['alt'] ?? '',
                 'href' => $slide['href'] ?? '',
                 'image' => $slide['image'] ?? null,
+                'crop_x' => (int) ($slide['crop_x'] ?? 50),
+                'crop_y' => (int) ($slide['crop_y'] ?? 50),
+                'crop_zoom' => (float) ($slide['crop_zoom'] ?? 1),
                 'is_active' => (bool) ($slide['is_active'] ?? ($index === 0)),
             ];
         }
@@ -277,6 +292,9 @@ class HomepageSectionController extends Controller
                 'subtitle' => $promo['subtitle'] ?? '',
                 'href' => $promo['href'] ?? '',
                 'image' => $promo['image'] ?? null,
+                'crop_x' => (int) ($promo['crop_x'] ?? 50),
+                'crop_y' => (int) ($promo['crop_y'] ?? 50),
+                'crop_zoom' => (float) ($promo['crop_zoom'] ?? 1),
                 'show_text' => (bool) ($promo['show_text'] ?? true),
                 'is_active' => (bool) ($promo['is_active'] ?? true),
             ];
