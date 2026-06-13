@@ -42,32 +42,32 @@
                             <div class="field">
                                 <label>Main Image URL</label>
                                 <input name="image_url" value="{{ old('image_url', $section->image_url) }}" />
-                                @if ($section->image_url)
-                                    <img src="{{ $section->image_url }}" alt="Main image" class="admin-upload-preview" style="margin-top:10px;" />
+                                @if ($previewUrls['image_url'] ?? null)
+                                    <img src="{{ $previewUrls['image_url'] }}" alt="Main image" class="admin-upload-preview" style="margin-top:10px;" />
                                 @endif
                                 <input type="file" name="image_file" accept="image/*" style="margin-top:10px;" />
                             </div>
                             <div class="field">
                                 <label>Mobile Image URL</label>
                                 <input name="mobile_image_url" value="{{ old('mobile_image_url', $section->mobile_image_url) }}" />
-                                @if ($section->mobile_image_url)
-                                    <img src="{{ $section->mobile_image_url }}" alt="Mobile image" class="admin-upload-preview" style="margin-top:10px;" />
+                                @if ($previewUrls['mobile_image_url'] ?? null)
+                                    <img src="{{ $previewUrls['mobile_image_url'] }}" alt="Mobile image" class="admin-upload-preview" style="margin-top:10px;" />
                                 @endif
                                 <input type="file" name="mobile_image_file" accept="image/*" style="margin-top:10px;" />
                             </div>
                             <div class="field">
                                 <label>Side Image URL</label>
                                 <input name="side_image_url" value="{{ old('side_image_url', $section->side_image_url) }}" />
-                                @if ($section->side_image_url)
-                                    <img src="{{ $section->side_image_url }}" alt="Side image" class="admin-upload-preview" style="margin-top:10px;" />
+                                @if ($previewUrls['side_image_url'] ?? null)
+                                    <img src="{{ $previewUrls['side_image_url'] }}" alt="Side image" class="admin-upload-preview" style="margin-top:10px;" />
                                 @endif
                                 <input type="file" name="side_image_file" accept="image/*" style="margin-top:10px;" />
                             </div>
                             <div class="field">
                                 <label>Side Secondary Image URL</label>
                                 <input name="side_secondary_image_url" value="{{ old('side_secondary_image_url', $section->side_secondary_image_url) }}" />
-                                @if ($section->side_secondary_image_url)
-                                    <img src="{{ $section->side_secondary_image_url }}" alt="Side secondary image" class="admin-upload-preview" style="margin-top:10px;" />
+                                @if ($previewUrls['side_secondary_image_url'] ?? null)
+                                    <img src="{{ $previewUrls['side_secondary_image_url'] }}" alt="Side secondary image" class="admin-upload-preview" style="margin-top:10px;" />
                                 @endif
                                 <input type="file" name="side_secondary_image_file" accept="image/*" style="margin-top:10px;" />
                             </div>

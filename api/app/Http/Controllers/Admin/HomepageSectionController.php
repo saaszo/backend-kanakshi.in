@@ -32,6 +32,12 @@ class HomepageSectionController extends Controller
     {
         return view('admin.homepage-sections.edit', [
             'section' => $homepageSection,
+            'previewUrls' => [
+                'image_url' => $this->resolveAdminMediaPreviewUrl($homepageSection->image_url),
+                'mobile_image_url' => $this->resolveAdminMediaPreviewUrl($homepageSection->mobile_image_url),
+                'side_image_url' => $this->resolveAdminMediaPreviewUrl($homepageSection->side_image_url),
+                'side_secondary_image_url' => $this->resolveAdminMediaPreviewUrl($homepageSection->side_secondary_image_url),
+            ],
             'products' => Product::query()->orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }
@@ -363,6 +369,9 @@ class HomepageSectionController extends Controller
             return null;
         }
 
+        $requestBaseUrl = request()?->getSchemeAndHttpHost();
+        $appUrl = $requestBaseUrl ?: rtrim((string) config('app.url'), '/');
+
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
@@ -374,16 +383,14 @@ class HomepageSectionController extends Controller
         }
 
         if (str_starts_with($path, '/storage/') || str_starts_with($path, 'storage/')) {
-            $appUrl = rtrim((string) config('app.url'), '/');
-
             return $appUrl.'/'.ltrim($path, '/');
         }
 
         if (str_starts_with($path, '/')) {
-            return $path;
+            return $appUrl.$path;
         }
 
-        return rtrim((string) config('app.url'), '/').'/'.ltrim($path, '/');
+        return $appUrl.'/'.ltrim($path, '/');
     }
 
     private function triggerFrontendRevalidation(array $paths): void
