@@ -36,6 +36,15 @@ class PublicSettingsController
                     ->orderBy('sort_order')
                     ->get()
                 : collect();
+            $mobileMenu = Schema::hasTable('menu_items')
+                ? MenuItem::query()
+                    ->where('location', 'mobile')
+                    ->where('is_active', true)
+                    ->with(['children' => fn ($query) => $query->where('is_active', true)->orderBy('sort_order')])
+                    ->whereNull('parent_id')
+                    ->orderBy('sort_order')
+                    ->get()
+                : collect();
             $socialLinks = Schema::hasTable('social_links')
                 ? SocialLink::query()->where('is_active', true)->orderBy('sort_order')->get()
                 : collect();
@@ -98,8 +107,10 @@ class PublicSettingsController
                     'topbar_offers' => $topbarOffers,
                     'header_menu' => $headerMenu->values(),
                     'footer_menu' => $footerMenu->values(),
+                    'mobile_menu' => $mobileMenu->values(),
                     'social_links' => $socialLinks->values(),
                     'payment_gateways' => $paymentGateways->values(),
+                    'registry_allow_buyback' => $this->readRegistryBooleanSetting('registry_allow_buyback', true),
                     'default_shipping_cost' => $legacySettings->get('default_shipping_cost', '99'),
                     'min_order_free_shipping' => $legacySettings->get('min_order_free_shipping', '499'),
                     'gst_percent' => $legacySettings->get('gst_percent', '18'),
@@ -128,22 +139,21 @@ class PublicSettingsController
 
     private function gatewayVisibleOnStorefront(PaymentGatewaySetting $gateway): bool
     {
-        if ($gateway->is_active) {
-            return true;
+        return (bool) $gateway->is_active;
+    }
+
+    private function readRegistryBooleanSetting(string $key, bool $default): bool
+    {
+        if (! Schema::hasTable('settings')) {
+            return $default;
         }
 
-        if ($gateway->provider === 'cod') {
-            return false;
+        $value = Setting::query()->where('key_name', $key)->value('value');
+
+        if ($value === null) {
+            return $default;
         }
 
-        if ($gateway->provider === 'razorpay') {
-            return filled($gateway->public_key) || filled($gateway->secret_key) || filled($gateway->webhook_secret);
-        }
-
-        if ($gateway->provider === 'phonepe') {
-            return filled($gateway->merchant_id) || filled($gateway->public_key) || filled($gateway->secret_key);
-        }
-
-        return false;
+        return in_array((string) $value, ['1', 'true', 'yes', 'on'], true);
     }
 }
