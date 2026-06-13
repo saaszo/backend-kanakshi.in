@@ -9,6 +9,12 @@ class StoreSettingsSeeder extends Seeder
 {
     public function run(): void
     {
+        if ($this->shouldSkipProductionSeeding()) {
+            $this->command?->warn('Store settings seeding skipped in production.');
+
+            return;
+        }
+
         $defaults = [
             ['key_name' => 'site_name', 'value' => 'Little Divinity', 'label' => 'Site Name', 'group_name' => 'general'],
             ['key_name' => 'site_tagline', 'value' => 'Handcrafted brass decor, pooja pieces, and meaningful gifting.', 'label' => 'Site Tagline', 'group_name' => 'general'],
@@ -28,5 +34,11 @@ class StoreSettingsSeeder extends Seeder
                 $row
             );
         }
+    }
+
+    private function shouldSkipProductionSeeding(): bool
+    {
+        return app()->environment('production')
+            && ! filter_var((string) env('ALLOW_PRODUCTION_SEEDING', false), FILTER_VALIDATE_BOOL);
     }
 }

@@ -18,5 +18,8 @@ rsync -avz \
   --exclude=".git" \
   --exclude="node_modules" \
   --exclude="vendor" \
+  --exclude="database/database.sqlite" \
+  --exclude="storage/" \
+  --exclude="bootstrap/cache/" \
   -e "ssh -o StrictHostKeyChecking=no -p ${HOSTINGER_PORT} -i ${ssh_key_file}" \
   "./" "${HOSTINGER_USER}@${HOSTINGER_HOST}:${HOSTINGER_APP_PATH}/"

@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (app()->environment('production') && ! env('ALLOW_PRODUCTION_SEEDING', false)) {
+        if ($this->shouldSkipProductionSeeding()) {
             $this->command?->warn('Production seeding skipped. Set ALLOW_PRODUCTION_SEEDING=true only for an intentional data bootstrap.');
 
             return;
@@ -28,5 +28,11 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call($seeders);
+    }
+
+    private function shouldSkipProductionSeeding(): bool
+    {
+        return app()->environment('production')
+            && ! filter_var((string) env('ALLOW_PRODUCTION_SEEDING', false), FILTER_VALIDATE_BOOL);
     }
 }

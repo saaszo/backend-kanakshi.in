@@ -10,6 +10,12 @@ class CatalogDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        if ($this->shouldSkipProductionSeeding()) {
+            $this->command?->warn('Catalog demo seeding skipped in production.');
+
+            return;
+        }
+
         $categories = [
             [
                 'name' => 'God Idols',
@@ -184,5 +190,11 @@ class CatalogDemoSeeder extends Seeder
                 ]
             );
         }
+    }
+
+    private function shouldSkipProductionSeeding(): bool
+    {
+        return app()->environment('production')
+            && ! filter_var((string) env('ALLOW_PRODUCTION_SEEDING', false), FILTER_VALIDATE_BOOL);
     }
 }

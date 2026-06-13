@@ -14,6 +14,12 @@ class AdminPanelFoundationSeeder extends Seeder
 {
     public function run(): void
     {
+        if ($this->shouldSkipProductionSeeding()) {
+            $this->command?->warn('Admin panel foundation seeding skipped in production.');
+
+            return;
+        }
+
         $adminEmail = env('ADMIN_DEFAULT_EMAIL', 'admin@saaszo.in');
         $adminMailFromEmail = env('ADMIN_MAIL_FROM_EMAIL', $adminEmail);
         $adminMailFromName = env('ADMIN_MAIL_FROM_NAME', 'Little Divinity Admin');
@@ -428,5 +434,11 @@ class AdminPanelFoundationSeeder extends Seeder
 
             User::query()->updateOrCreate(['email' => $adminEmail], $adminAttributes);
         }
+    }
+
+    private function shouldSkipProductionSeeding(): bool
+    {
+        return app()->environment('production')
+            && ! filter_var((string) env('ALLOW_PRODUCTION_SEEDING', false), FILTER_VALIDATE_BOOL);
     }
 }
