@@ -257,29 +257,53 @@ class HomepageSectionController extends Controller
 
     private function getHeroSection(): HomepageSection
     {
-        return HomepageSection::query()->firstOrCreate(
-            ['section_key' => 'hero'],
-            [
-                'section_type' => 'hero',
-                'label' => 'Homepage Hero',
-                'title' => 'Homepage Hero',
-                'sort_order' => 1,
-                'is_active' => true,
-                'config' => [
-                    'slider_settings' => [
-                        'show_text' => true,
-                        'show_dots' => false,
-                        'show_arrows' => true,
-                        'autoplay_ms' => 3500,
-                        'nav_gap' => 34,
-                    ],
-                    'slides' => [],
-                    'promos' => [],
-                    'secondary_button_text' => '',
-                    'secondary_button_url' => '',
-                ],
-            ]
-        );
+        $section = HomepageSection::withTrashed()->firstOrNew([
+            'section_key' => 'hero',
+        ]);
+
+        if ($section->trashed()) {
+            $section->restore();
+        }
+
+        if (! filled($section->section_type)) {
+            $section->section_type = 'hero';
+        }
+
+        if (! filled($section->label)) {
+            $section->label = 'Homepage Hero';
+        }
+
+        if (! filled($section->title)) {
+            $section->title = 'Homepage Hero';
+        }
+
+        if (! $section->sort_order) {
+            $section->sort_order = 1;
+        }
+
+        if (! $section->exists) {
+            $section->is_active = true;
+        }
+
+        $config = is_array($section->config) ? $section->config : [];
+        $config['slider_settings'] = array_merge([
+            'show_text' => true,
+            'show_dots' => false,
+            'show_arrows' => true,
+            'autoplay_ms' => 3500,
+            'nav_gap' => 34,
+        ], is_array($config['slider_settings'] ?? null) ? $config['slider_settings'] : []);
+        $config['slides'] = $config['slides'] ?? [];
+        $config['promos'] = $config['promos'] ?? [];
+        $config['secondary_button_text'] = (string) ($config['secondary_button_text'] ?? '');
+        $config['secondary_button_url'] = (string) ($config['secondary_button_url'] ?? '');
+        $section->config = $config;
+
+        if (! $section->exists || $section->isDirty()) {
+            $section->save();
+        }
+
+        return $section;
     }
 
     private function normalizeHeroSlides(array $slides): array

@@ -18,8 +18,14 @@ class PublicHomepageSectionsController
             ]);
         }
 
+        $this->ensureHeroSectionExists();
+
         $sections = HomepageSection::query()
-            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query
+                    ->where('is_active', true)
+                    ->orWhere('section_key', 'hero');
+            })
             ->orderBy('sort_order')
             ->get()
             ->map(function (HomepageSection $section): array {
@@ -42,6 +48,49 @@ class PublicHomepageSectionsController
             'message' => 'Homepage sections fetched successfully.',
             'data' => $sections,
         ]);
+    }
+
+    private function ensureHeroSectionExists(): void
+    {
+        $section = HomepageSection::withTrashed()->firstOrNew([
+            'section_key' => 'hero',
+        ]);
+
+        if ($section->trashed()) {
+            $section->restore();
+        }
+
+        $defaults = [
+            'section_type' => 'hero',
+            'label' => 'Homepage Hero',
+            'title' => 'Homepage Hero',
+            'sort_order' => 1,
+            'config' => [],
+        ];
+
+        foreach ($defaults as $field => $value) {
+            if (blank($section->{$field})) {
+                $section->{$field} = $value;
+            }
+        }
+
+        $config = is_array($section->config) ? $section->config : [];
+        $config['slider_settings'] = array_merge([
+            'show_text' => true,
+            'show_dots' => false,
+            'show_arrows' => true,
+            'autoplay_ms' => 3500,
+            'nav_gap' => 34,
+        ], is_array($config['slider_settings'] ?? null) ? $config['slider_settings'] : []);
+        $config['slides'] = $this->normalizeHeroSlides($config['slides'] ?? []);
+        $config['promos'] = $this->normalizeHeroPromos($config['promos'] ?? []);
+        $config['secondary_button_text'] = (string) ($config['secondary_button_text'] ?? '');
+        $config['secondary_button_url'] = (string) ($config['secondary_button_url'] ?? '');
+        $section->config = $config;
+
+        if (! $section->exists || $section->isDirty()) {
+            $section->save();
+        }
     }
 
     private function normalizeHeroSlides(array $slides): array
