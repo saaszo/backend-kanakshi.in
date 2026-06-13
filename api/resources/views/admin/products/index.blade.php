@@ -278,6 +278,7 @@
                                         <th>Price</th>
                                         <th>Sale Price</th>
                                         <th>Delivery</th>
+                                        <th>Marketplace</th>
                                         <th>Status</th>
                                         <th style="width: 220px;">Actions</th>
                                     </tr>
@@ -340,6 +341,19 @@
                                             </td>
                                             <td>
                                                 <div class="admin-status-stack">
+                                                    <div style="display: flex; gap: 4px; margin-bottom: 4px; flex-wrap: wrap;">
+                                                        <span class="admin-badge {{ $product->amazon_link ? 'primary' : 'muted' }}">{{ $product->amazon_link ? 'Link saved' : 'No link' }}</span>
+                                                        <span class="admin-badge {{ $product->amazon_button_enabled ? 'success' : 'muted' }}">{{ $product->amazon_button_enabled ? 'Button on' : 'Button off' }}</span>
+                                                    </div>
+                                                    @if ($product->amazon_price)
+                                                        <small style="color: var(--text-soft);">₹{{ number_format((float) $product->amazon_price, 2) }}</small>
+                                                    @else
+                                                        <small style="color: var(--text-soft);">Price not fetched yet</small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="admin-status-stack">
                                                     <div style="display: flex; gap: 4px; margin-bottom: 4px;">
                                                         <span class="admin-badge {{ $product->is_active ? 'success' : 'muted' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>
                                                         <span class="admin-badge {{ $product->is_featured ? 'primary' : 'muted' }}">{{ $product->is_featured ? 'Featured' : 'Std' }}</span>
@@ -375,7 +389,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="muted text-center" style="padding: 30px;">No products found for this filter.</td>
+                                            <td colspan="9" class="muted text-center" style="padding: 30px;">No products found for this filter.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -392,6 +406,8 @@
                                     <input type="hidden" name="short_desc" value="{{ $product->short_desc }}">
                                     <input type="hidden" name="description" value="{{ $product->description }}">
                                     <input type="hidden" name="video_url" value="{{ $product->video_url }}">
+                                    <input type="hidden" name="amazon_link" value="{{ $product->amazon_link }}">
+                                    <input type="hidden" name="amazon_button_enabled" value="{{ $product->amazon_button_enabled ? '1' : '0' }}">
                                     <input type="hidden" name="meta_title" value="{{ $product->meta_title }}">
                                     <input type="hidden" name="meta_desc" value="{{ $product->meta_desc }}">
                                     <textarea name="images_input">{{ is_array($product->images) ? implode("\n", $product->images) : $product->images }}</textarea>
@@ -460,6 +476,11 @@
                                         <div class="field">
                                             <label>Stock Qty</label>
                                             <input name="stock" type="number" min="0" value="0" />
+                                        </div>
+                                        <div class="field" style="grid-column: 1 / -1;">
+                                            <label>Amazon Link</label>
+                                            <input name="amazon_link" type="url" placeholder="https://www.amazon.in/dp/ASIN" />
+                                            <div class="admin-help">Optional marketplace destination. The button stays off until you enable it.</div>
                                         </div>
                                     </div>
                                 </div>
@@ -568,14 +589,21 @@
                                                 <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Visible to customers on frontend</p>
                                             </div>
                                         </label>
-                                        <label class="checkbox-row" style="margin-top: 8px;">
-                                            <input type="checkbox" name="is_featured" id="add-featured-checkbox" value="1">
-                                            <div>
-                                                <strong>Featured Product</strong>
-                                                <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Display in homepage featured collections</p>
-                                            </div>
-                                        </label>
-                                    </div>
+                                    <label class="checkbox-row" style="margin-top: 8px;">
+                                        <input type="checkbox" name="is_featured" id="add-featured-checkbox" value="1">
+                                        <div>
+                                            <strong>Featured Product</strong>
+                                            <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Display in homepage featured collections</p>
+                                        </div>
+                                    </label>
+                                    <label class="checkbox-row" style="margin-top: 8px;">
+                                        <input type="checkbox" name="amazon_button_enabled" id="add-amazon-button-checkbox" value="1">
+                                        <div>
+                                            <strong>Enable Amazon Button</strong>
+                                            <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Off by default. Turns on Buy on Amazon only when a link exists.</p>
+                                        </div>
+                                    </label>
+                                </div>
 
                                     <div style="display: grid; gap: 10px;">
                                         <button class="button" type="submit">

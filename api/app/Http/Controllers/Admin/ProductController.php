@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Concerns\HandlesAdminUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\AmazonProductLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 class ProductController extends Controller
 {
     use HandlesAdminUploads;
+
+    public function __construct(private readonly AmazonProductLinkService $amazonProductLinkService) {}
 
     public function index(): View
     {
@@ -96,11 +99,13 @@ class ProductController extends Controller
             'image_uploads' => ['nullable', 'array', 'max:8'],
             'image_uploads.*' => ['nullable', 'image', 'max:5120'],
             'video_url' => ['nullable', 'string', 'max:255'],
+            'amazon_link' => ['nullable', 'url', 'max:2048'],
             'meta_title' => ['nullable', 'string', 'max:200'],
             'meta_desc' => ['nullable', 'string', 'max:320'],
         ]);
 
         $resolvedImages = $this->resolveProductImages($request, $validated);
+        $amazonPayload = $this->resolveAmazonPayload($request, $validated);
 
         Product::query()->create([
             'category_id' => $validated['category_id'],
@@ -123,6 +128,10 @@ class ProductController extends Controller
             'sku' => $validated['sku'] ?? null,
             'images' => $resolvedImages,
             'video_url' => $validated['video_url'] ?? null,
+            'amazon_link' => $amazonPayload['amazon_link'],
+            'amazon_button_enabled' => $amazonPayload['amazon_button_enabled'],
+            'amazon_price' => $amazonPayload['amazon_price'],
+            'amazon_price_fetched_at' => $amazonPayload['amazon_price_fetched_at'],
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
@@ -165,11 +174,13 @@ class ProductController extends Controller
             'image_uploads' => ['nullable', 'array', 'max:8'],
             'image_uploads.*' => ['nullable', 'image', 'max:5120'],
             'video_url' => ['nullable', 'string', 'max:255'],
+            'amazon_link' => ['nullable', 'url', 'max:2048'],
             'meta_title' => ['nullable', 'string', 'max:200'],
             'meta_desc' => ['nullable', 'string', 'max:320'],
         ]);
 
         $resolvedImages = $this->resolveProductImages($request, $validated);
+        $amazonPayload = $this->resolveAmazonPayload($request, $validated, $product);
 
         $product->update([
             'category_id' => $validated['category_id'],
@@ -192,6 +203,10 @@ class ProductController extends Controller
             'sku' => $validated['sku'] ?? null,
             'images' => $resolvedImages,
             'video_url' => $validated['video_url'] ?? null,
+            'amazon_link' => $amazonPayload['amazon_link'],
+            'amazon_button_enabled' => $amazonPayload['amazon_button_enabled'],
+            'amazon_price' => $amazonPayload['amazon_price'],
+            'amazon_price_fetched_at' => $amazonPayload['amazon_price_fetched_at'],
             'meta_title' => $validated['meta_title'] ?? null,
             'meta_desc' => $validated['meta_desc'] ?? null,
             'is_featured' => $request->boolean('is_featured'),
@@ -259,5 +274,57 @@ class ProductController extends Controller
             static fn (string $item): string => trim($item),
             $slots
         )));
+    }
+
+    /**
+     * @return array{amazon_link:?string,amazon_button_enabled:bool,amazon_price:?float,amazon_price_fetched_at:?string}
+     */
+    private function resolveAmazonPayload(Request $request, array $validated, ?Product $existingProduct = null): array
+    {
+        $hasAmazonLinkInput = $request->exists('amazon_link');
+        $amazonLink = $hasAmazonLinkInput
+            ? trim((string) ($validated['amazon_link'] ?? ''))
+            : (string) ($existingProduct?->amazon_link ?? '');
+        $amazonLink = $amazonLink !== '' ? $this->amazonProductLinkService->normalizeUrl($amazonLink) : null;
+        $amazonButtonEnabled = $amazonLink !== null
+            && ($request->exists('amazon_button_enabled')
+                ? $request->boolean('amazon_button_enabled')
+                : (bool) ($existingProduct?->amazon_button_enabled));
+        $amazonPrice = $existingProduct?->amazon_price ? (float) $existingProduct->amazon_price : null;
+        $amazonPriceFetchedAt = $existingProduct?->amazon_price_fetched_at?->toDateTimeString();
+
+        if (! $amazonLink) {
+            return [
+                'amazon_link' => null,
+                'amazon_button_enabled' => false,
+                'amazon_price' => null,
+                'amazon_price_fetched_at' => null,
+            ];
+        }
+
+        try {
+            $snapshot = $this->amazonProductLinkService->fetchSnapshot($amazonLink);
+            $amazonLink = $snapshot['canonical_url'];
+            $amazonPrice = $snapshot['price'];
+            $amazonPriceFetchedAt = $snapshot['fetched_at']->toDateTimeString();
+        } catch (\Throwable) {
+            // Keep the link and existing price snapshot if Amazon blocks or times out.
+        }
+
+        if (! $amazonButtonEnabled) {
+            return [
+                'amazon_link' => $amazonLink,
+                'amazon_button_enabled' => false,
+                'amazon_price' => $amazonPrice,
+                'amazon_price_fetched_at' => $amazonPriceFetchedAt,
+            ];
+        }
+
+        return [
+            'amazon_link' => $amazonLink,
+            'amazon_button_enabled' => true,
+            'amazon_price' => $amazonPrice,
+            'amazon_price_fetched_at' => $amazonPriceFetchedAt,
+        ];
     }
 }

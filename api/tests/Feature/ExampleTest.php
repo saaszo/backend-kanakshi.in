@@ -104,6 +104,9 @@ class ExampleTest extends TestCase
             'price' => 2999,
             'sale_price' => 2499,
             'images' => json_encode(['uploads/products/demo.jpg']),
+            'amazon_link' => 'https://www.amazon.in/dp/B0G1SBBF4M',
+            'amazon_button_enabled' => 1,
+            'amazon_price' => 2199,
             'is_active' => 1,
             'created_at' => now(),
             'updated_at' => now(),
@@ -115,7 +118,10 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.slug', 'temple-necklace')
-            ->assertJsonPath('data.category_slug', 'jewelry');
+            ->assertJsonPath('data.category_slug', 'jewelry')
+            ->assertJsonPath('data.amazon_link', 'https://www.amazon.in/dp/B0G1SBBF4M')
+            ->assertJsonPath('data.amazon_button_enabled', true)
+            ->assertJsonPath('data.amazon_price', '2199.00');
     }
 
     /**

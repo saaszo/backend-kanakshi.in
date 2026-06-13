@@ -11,6 +11,8 @@ use ZipArchive;
 
 class AmazonSpreadsheetProductImporter
 {
+    public function __construct(private readonly AmazonProductLinkService $amazonProductLinkService) {}
+
     /**
      * @return array{created:int,updated:int,skipped:int,errors:array<int,string>,processed:int}
      */
@@ -77,6 +79,7 @@ class AmazonSpreadsheetProductImporter
             $fetchError = null;
 
             try {
+                $detailsPageLink = $this->amazonProductLinkService->normalizeUrl($detailsPageLink);
                 $html = $this->fetchProductHtml($detailsPageLink);
                 $canonicalAsin = $this->extractCanonicalAsin($html);
                 $asinMatched = $canonicalAsin !== null && strtoupper($canonicalAsin) === strtoupper($asin);
@@ -115,6 +118,10 @@ class AmazonSpreadsheetProductImporter
                 'sku' => $sku,
                 'images' => $images,
                 'video_url' => null,
+                'amazon_link' => $detailsPageLink,
+                'amazon_button_enabled' => false,
+                'amazon_price' => $scraped['sale_price'] ?? $scraped['list_price'],
+                'amazon_price_fetched_at' => $asinMatched ? now() : null,
                 'is_featured' => false,
                 'is_active' => true,
                 'is_sellable' => $price > 0 && $images !== [],

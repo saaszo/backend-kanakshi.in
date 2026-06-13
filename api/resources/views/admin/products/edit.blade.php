@@ -227,6 +227,16 @@
                                         <label>Stock Qty</label>
                                         <input name="stock" type="number" min="0" value="{{ old('stock', $product->stock) }}" />
                                     </div>
+                                    <div class="field" style="grid-column: 1 / -1;">
+                                        <label>Amazon Link</label>
+                                        <input
+                                            name="amazon_link"
+                                            type="url"
+                                            value="{{ old('amazon_link', $product->amazon_link) }}"
+                                            placeholder="https://www.amazon.in/dp/ASIN"
+                                        />
+                                        <div class="admin-help">Optional. Leave empty to keep this product website-only.</div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -346,6 +356,13 @@
                                             <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Display in homepage featured collections</p>
                                         </div>
                                     </label>
+                                    <label class="checkbox-row" style="margin-top: 8px;">
+                                        <input type="checkbox" name="amazon_button_enabled" value="1" @checked(old('amazon_button_enabled', $product->amazon_button_enabled))>
+                                        <div>
+                                            <strong>Enable Amazon Button</strong>
+                                            <p style="margin: 2px 0 0; font-size: 11px; color: var(--text-soft); font-weight: normal;">Shows a Buy on Amazon CTA only when a valid Amazon link is saved.</p>
+                                        </div>
+                                    </label>
                                 </div>
 
                                 <div style="display: grid; gap: 10px;">
@@ -378,6 +395,11 @@
                                             <strong id="edit-preview-price" style="font-size: 15px; color: var(--heading);">₹0.00</strong>
                                             <span id="edit-preview-old-price" style="font-size: 12px; text-decoration: line-through; color: var(--text-soft); display: none;"></span>
                                         </div>
+                                        @if ($product->amazon_button_enabled && $product->amazon_link)
+                                            <div style="margin-top: 10px;">
+                                                <span class="admin-badge warning">Amazon CTA enabled{{ $product->amazon_price ? ' · ₹'.number_format((float) $product->amazon_price, 2) : '' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

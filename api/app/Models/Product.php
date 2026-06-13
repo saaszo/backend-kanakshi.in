@@ -60,6 +60,9 @@ class Product extends Model
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'is_sellable' => 'boolean',
+            'amazon_button_enabled' => 'boolean',
+            'amazon_price' => 'decimal:2',
+            'amazon_price_fetched_at' => 'datetime',
         ];
     }
 
