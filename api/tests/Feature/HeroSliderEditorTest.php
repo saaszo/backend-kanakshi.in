@@ -170,4 +170,38 @@ class HeroSliderEditorTest extends TestCase
         $response->assertSee('https://littledivinity.example/reference-assets/legacy-slide.png', false);
         $response->assertSee('Currently visible on storefront rotation');
     }
+
+    public function test_hero_editor_handles_legacy_malformed_media_config_without_crashing(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+
+        HomepageSection::query()->create([
+            'section_key' => 'hero',
+            'section_type' => 'hero',
+            'label' => 'Homepage Hero',
+            'title' => 'Homepage Hero',
+            'sort_order' => 1,
+            'is_active' => true,
+            'config' => [
+                'slides' => [
+                    [
+                        'title' => ['unexpected-array'],
+                        'image' => ['bad-media-payload'],
+                    ],
+                    'legacy-string-entry',
+                ],
+                'promos' => 'legacy-promo-string',
+            ],
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.homepage-sections.hero.edit'));
+
+        $response->assertOk();
+        $response->assertSee('Hero Slider Configuration');
+        $response->assertDontSee('bad-media-payload');
+    }
 }

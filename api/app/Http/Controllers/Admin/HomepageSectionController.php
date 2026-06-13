@@ -299,8 +299,8 @@ class HomepageSectionController extends Controller
             'autoplay_ms' => 3500,
             'nav_gap' => 34,
         ], is_array($config['slider_settings'] ?? null) ? $config['slider_settings'] : []);
-        $config['slides'] = $config['slides'] ?? [];
-        $config['promos'] = $config['promos'] ?? [];
+        $config['slides'] = is_array($config['slides'] ?? null) ? $config['slides'] : [];
+        $config['promos'] = is_array($config['promos'] ?? null) ? $config['promos'] : [];
         $config['secondary_button_text'] = (string) ($config['secondary_button_text'] ?? '');
         $config['secondary_button_url'] = (string) ($config['secondary_button_url'] ?? '');
         $section->config = $config;
@@ -312,17 +312,21 @@ class HomepageSectionController extends Controller
         return $section;
     }
 
-    private function normalizeHeroSlides(array $slides): array
+    private function normalizeHeroSlides(array|string|null $slides): array
     {
+        if (! is_array($slides)) {
+            $slides = [];
+        }
+
         $normalized = [];
 
         for ($index = 0; $index < self::HERO_SLIDE_COUNT; $index++) {
-            $slide = $slides[$index] ?? [];
-            $image = $slide['image'] ?? null;
+            $slide = is_array($slides[$index] ?? null) ? $slides[$index] : [];
+            $image = $this->sanitizeMediaPath($slide['image'] ?? null);
             $normalized[] = [
-                'title' => $slide['title'] ?? '',
-                'alt' => $slide['alt'] ?? '',
-                'href' => $slide['href'] ?? '',
+                'title' => $this->sanitizeTextValue($slide['title'] ?? ''),
+                'alt' => $this->sanitizeTextValue($slide['alt'] ?? ''),
+                'href' => $this->sanitizeTextValue($slide['href'] ?? ''),
                 'image' => $image,
                 'preview_image' => $this->resolveAdminMediaPreviewUrl($image),
                 'crop_x' => (int) ($slide['crop_x'] ?? 50),
@@ -337,17 +341,21 @@ class HomepageSectionController extends Controller
         return $normalized;
     }
 
-    private function normalizeHeroPromos(array $promos): array
+    private function normalizeHeroPromos(array|string|null $promos): array
     {
+        if (! is_array($promos)) {
+            $promos = [];
+        }
+
         $normalized = [];
 
         for ($index = 0; $index < self::HERO_PROMO_COUNT; $index++) {
-            $promo = $promos[$index] ?? [];
-            $image = $promo['image'] ?? null;
+            $promo = is_array($promos[$index] ?? null) ? $promos[$index] : [];
+            $image = $this->sanitizeMediaPath($promo['image'] ?? null);
             $normalized[] = [
-                'title' => $promo['title'] ?? '',
-                'subtitle' => $promo['subtitle'] ?? '',
-                'href' => $promo['href'] ?? '',
+                'title' => $this->sanitizeTextValue($promo['title'] ?? ''),
+                'subtitle' => $this->sanitizeTextValue($promo['subtitle'] ?? ''),
+                'href' => $this->sanitizeTextValue($promo['href'] ?? ''),
                 'image' => $image,
                 'preview_image' => $this->resolveAdminMediaPreviewUrl($image),
                 'crop_x' => (int) ($promo['crop_x'] ?? 50),
@@ -363,8 +371,10 @@ class HomepageSectionController extends Controller
         return $normalized;
     }
 
-    private function resolveAdminMediaPreviewUrl(?string $path): ?string
+    private function resolveAdminMediaPreviewUrl(mixed $path): ?string
     {
+        $path = $this->sanitizeMediaPath($path);
+
         if (! filled($path)) {
             return null;
         }
@@ -391,6 +401,26 @@ class HomepageSectionController extends Controller
         }
 
         return $appUrl.'/'.ltrim($path, '/');
+    }
+
+    private function sanitizeMediaPath(mixed $value): ?string
+    {
+        if (! is_scalar($value)) {
+            return null;
+        }
+
+        $path = trim((string) $value);
+
+        return $path !== '' ? $path : null;
+    }
+
+    private function sanitizeTextValue(mixed $value): string
+    {
+        if (! is_scalar($value)) {
+            return '';
+        }
+
+        return trim((string) $value);
     }
 
     private function triggerFrontendRevalidation(array $paths): void
