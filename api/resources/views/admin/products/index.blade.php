@@ -163,6 +163,63 @@
             font-weight: 700;
             text-transform: uppercase;
         }
+
+        /* Quick Edit Modal CSS */
+        .admin-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .admin-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .admin-modal-content {
+            background: #fff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .admin-modal-overlay.active .admin-modal-content {
+            transform: translateY(0);
+        }
+        .admin-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .admin-modal-header h3 { margin: 0; font-size: 18px; color: var(--heading); }
+        .admin-modal-close {
+            background: none; border: none; font-size: 20px; color: var(--text-soft); cursor: pointer;
+        }
+        .admin-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .admin-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+            border-radius: 0 0 16px 16px;
+        }
     </style>
 
     <div class="dashboard-shell">
@@ -269,7 +326,7 @@
                         </div>
 
                         <div class="table-wrap admin-product-table-wrap">
-                            <table class="admin-data-table" style="min-width: 1160px;">
+                            <table class="admin-data-table">
                                 <thead>
                                     <tr>
                                         <th>Product</th>
@@ -280,7 +337,7 @@
                                         <th>Delivery</th>
                                         <th>Marketplace</th>
                                         <th>Status</th>
-                                        <th style="width: 220px;">Actions</th>
+                                        <th style="width: 200px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -305,85 +362,73 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <select name="category_id" form="product-update-{{ $product->id }}" class="table-input">
-                                                    @foreach ($categories as $category)
-                                                        <option value="{{ $category->id }}" @selected($product->category_id === $category->id)>{{ $category->name }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <span class="muted" style="white-space: nowrap;">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                             </td>
                                             <td>
-                                                <input name="stock" type="number" min="0" value="{{ $product->stock }}" form="product-update-{{ $product->id }}" class="table-input" style="width: 70px;" />
+                                                <span style="font-weight: 600; color: {{ $product->stock > 0 ? 'inherit' : 'var(--danger)' }}">{{ $product->stock }}</span>
                                             </td>
                                             <td>
-                                                <input name="price" type="number" min="0" step="0.01" value="{{ $product->price }}" form="product-update-{{ $product->id }}" class="table-input" style="width: 90px;" />
+                                                ₹{{ number_format((float) $product->price, 2) }}
                                             </td>
                                             <td>
-                                                <input name="sale_price" type="number" min="0" step="0.01" value="{{ $product->sale_price }}" form="product-update-{{ $product->id }}" class="table-input" style="width: 90px;" />
+                                                @if ($product->sale_price)
+                                                    <span style="color: var(--success); font-weight: 600;">₹{{ number_format((float) $product->sale_price, 2) }}</span>
+                                                @else
+                                                    <span class="muted">-</span>
+                                                @endif
                                             </td>
                                             <td>
-                                                <div class="admin-status-stack">
-                                                    <select name="shipping_type" form="product-update-{{ $product->id }}" class="table-input" style="margin-bottom: 4px;">
-                                                        <option value="default" @selected(($product->shipping_type ?? 'default') === 'default')>Global rule</option>
-                                                        <option value="custom" @selected($product->shipping_type === 'custom')>Custom charge</option>
-                                                        <option value="free" @selected($product->shipping_type === 'free')>Free delivery</option>
-                                                    </select>
-                                                    <input
-                                                        name="shipping_fee"
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value="{{ old('shipping_fee', $product->shipping_fee) }}"
-                                                        form="product-update-{{ $product->id }}"
-                                                        class="table-input"
-                                                        placeholder="Charge"
-                                                    />
-                                                </div>
+                                                @if($product->shipping_type === 'free')
+                                                    <span class="admin-badge success">Free</span>
+                                                @elseif($product->shipping_type === 'custom')
+                                                    <span class="admin-badge">₹{{ number_format((float) $product->shipping_fee, 2) }}</span>
+                                                @else
+                                                    <span class="admin-badge muted">Global</span>
+                                                @endif
                                             </td>
                                             <td>
-                                                <div class="admin-status-stack">
-                                                    <div style="display: flex; gap: 4px; margin-bottom: 4px; flex-wrap: wrap;">
-                                                        <span class="admin-badge {{ $product->amazon_link ? 'primary' : 'muted' }}">{{ $product->amazon_link ? 'Link saved' : 'No link' }}</span>
-                                                        <span class="admin-badge {{ $product->amazon_button_enabled ? 'success' : 'muted' }}">{{ $product->amazon_button_enabled ? 'Button on' : 'Button off' }}</span>
-                                                    </div>
-                                                    @if ($product->amazon_price)
-                                                        <small style="color: var(--text-soft);">₹{{ number_format((float) $product->amazon_price, 2) }}</small>
-                                                    @else
-                                                        <small style="color: var(--text-soft);">Price not fetched yet</small>
+                                                <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                                                    <span class="admin-badge {{ $product->amazon_link ? 'primary' : 'muted' }}">{{ $product->amazon_link ? 'Linked' : 'No link' }}</span>
+                                                    @if($product->amazon_link)
+                                                        <span class="admin-badge {{ $product->amazon_button_enabled ? 'success' : 'muted' }}">{{ $product->amazon_button_enabled ? 'Btn On' : 'Btn Off' }}</span>
                                                     @endif
                                                 </div>
                                             </td>
                                             <td>
-                                                <div class="admin-status-stack">
-                                                    <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                                        <span class="admin-badge {{ $product->is_active ? 'success' : 'muted' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>
-                                                        <span class="admin-badge {{ $product->is_featured ? 'primary' : 'muted' }}">{{ $product->is_featured ? 'Featured' : 'Std' }}</span>
-                                                    </div>
-                                                    <div class="admin-product-flags">
-                                                        <label class="checkbox-row compact">
-                                                            <input type="checkbox" name="is_active" value="1" form="product-update-{{ $product->id }}" @checked($product->is_active)>
-                                                            <span>Active</span>
-                                                        </label>
-                                                        <label class="checkbox-row compact">
-                                                            <input type="checkbox" name="is_featured" value="1" form="product-update-{{ $product->id }}" @checked($product->is_featured)>
-                                                            <span>Featured</span>
-                                                        </label>
-                                                    </div>
+                                                <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
+                                                    <span class="admin-badge {{ $product->is_active ? 'success' : 'muted' }}">{{ $product->is_active ? 'Active' : 'Hidden' }}</span>
+                                                    <span class="admin-badge {{ $product->is_featured ? 'primary' : 'muted' }}">{{ $product->is_featured ? 'Featured' : 'Std' }}</span>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div class="button-row admin-row-actions">
-                                                    <a class="button secondary small" href="{{ route('admin.products.edit', $product) }}">
+                                                    <button class="button small secondary quick-edit-btn" 
+                                                        data-product="{{ json_encode([
+                                                            'id' => $product->id,
+                                                            'name' => $product->name,
+                                                            'category_id' => $product->category_id,
+                                                            'stock' => $product->stock,
+                                                            'price' => $product->price,
+                                                            'sale_price' => $product->sale_price,
+                                                            'shipping_type' => $product->shipping_type,
+                                                            'shipping_fee' => $product->shipping_fee,
+                                                            'is_active' => $product->is_active,
+                                                            'is_featured' => $product->is_featured,
+                                                            'amazon_button_enabled' => $product->amazon_button_enabled
+                                                        ]) }}">
+                                                        <i class="bi bi-lightning"></i>
+                                                        <span>Quick Edit</span>
+                                                    </button>
+                                                    <a class="button small secondary" href="{{ route('admin.products.edit', $product) }}" title="Full Edit">
                                                         <i class="bi bi-pencil-square"></i>
-                                                        <span>Edit</span>
                                                     </a>
-                                                    <button class="button small" type="submit" form="product-update-{{ $product->id }}">
-                                                        <i class="bi bi-check2-circle"></i>
-                                                        <span>Save</span>
-                                                    </button>
-                                                    <button class="button danger small" type="submit" form="product-delete-{{ $product->id }}">
-                                                        <i class="bi bi-trash3"></i>
-                                                        <span>Delete</span>
-                                                    </button>
+                                                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Remove this product?')" style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="button danger small" type="submit" title="Delete">
+                                                            <i class="bi bi-trash3"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -394,30 +439,6 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                        </div>
-
-                        <div style="display:none;">
-                            @foreach ($products as $product)
-                                <form method="POST" action="{{ route('admin.products.update', $product) }}" id="product-update-{{ $product->id }}">
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="name" value="{{ $product->name }}">
-                                    <input type="hidden" name="sku" value="{{ $product->sku }}">
-                                    <input type="hidden" name="short_desc" value="{{ $product->short_desc }}">
-                                    <input type="hidden" name="description" value="{{ $product->description }}">
-                                    <input type="hidden" name="video_url" value="{{ $product->video_url }}">
-                                    <input type="hidden" name="amazon_link" value="{{ $product->amazon_link }}">
-                                    <input type="hidden" name="amazon_button_enabled" value="{{ $product->amazon_button_enabled ? '1' : '0' }}">
-                                    <input type="hidden" name="meta_title" value="{{ $product->meta_title }}">
-                                    <input type="hidden" name="meta_desc" value="{{ $product->meta_desc }}">
-                                    <textarea name="images_input">{{ is_array($product->images) ? implode("\n", $product->images) : $product->images }}</textarea>
-                                </form>
-
-                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}" id="product-delete-{{ $product->id }}" onsubmit="return confirm('Remove this product?')">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            @endforeach
                         </div>
                     </section>
                 </div>
@@ -647,11 +668,120 @@
             </div>
         </main>
     </div>
+
+    <!-- Quick Edit Modal -->
+    <div class="admin-modal-overlay" id="quick-edit-modal">
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h3 id="qe-title">Quick Edit</h3>
+                <button type="button" class="admin-modal-close" onclick="closeQuickEdit()">&times;</button>
+            </div>
+            <form id="qe-form" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="admin-modal-body">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Category</label>
+                            <select name="category_id" id="qe-category_id">
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Stock Qty</label>
+                            <input type="number" name="stock" id="qe-stock" min="0" required />
+                        </div>
+                        <div class="field">
+                            <label>Price (INR)</label>
+                            <input type="number" name="price" id="qe-price" step="0.01" min="0" required />
+                        </div>
+                        <div class="field">
+                            <label>Sale Price (INR)</label>
+                            <input type="number" name="sale_price" id="qe-sale_price" step="0.01" min="0" />
+                        </div>
+                        <div class="field">
+                            <label>Delivery Rule</label>
+                            <select name="shipping_type" id="qe-shipping_type">
+                                <option value="default">Global rule</option>
+                                <option value="custom">Custom charge</option>
+                                <option value="free">Free delivery</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Delivery Charge (INR)</label>
+                            <input type="number" name="shipping_fee" id="qe-shipping_fee" step="0.01" min="0" />
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin: 24px 0 12px; font-size: 14px;">Publish Status</h4>
+                    <div style="display: grid; gap: 12px;">
+                        <label class="checkbox-row compact">
+                            <input type="checkbox" name="is_active" id="qe-is_active" value="1">
+                            <span>Active on Store</span>
+                        </label>
+                        <label class="checkbox-row compact">
+                            <input type="checkbox" name="is_featured" id="qe-is_featured" value="1">
+                            <span>Featured Product</span>
+                        </label>
+                        <label class="checkbox-row compact">
+                            <input type="checkbox" name="amazon_button_enabled" id="qe-amazon_button_enabled" value="1">
+                            <span>Enable Amazon Button</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="admin-modal-footer">
+                    <button type="button" class="button secondary" onclick="closeQuickEdit()">Cancel</button>
+                    <button type="submit" class="button">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
     <script>
         (() => {
+            // --- Quick Edit Modal Logic ---
+            const quickEditModal = document.getElementById('quick-edit-modal');
+            const qeForm = document.getElementById('qe-form');
+            const qeTitle = document.getElementById('qe-title');
+            
+            document.querySelectorAll('.quick-edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const product = JSON.parse(btn.getAttribute('data-product'));
+                    
+                    qeTitle.textContent = `Quick Edit: ${product.name}`;
+                    qeForm.action = `/admin/products/${product.id}`;
+                    
+                    document.getElementById('qe-category_id').value = product.category_id || '';
+                    document.getElementById('qe-stock').value = product.stock || 0;
+                    document.getElementById('qe-price').value = product.price || '';
+                    document.getElementById('qe-sale_price').value = product.sale_price || '';
+                    document.getElementById('qe-shipping_type').value = product.shipping_type || 'default';
+                    document.getElementById('qe-shipping_fee').value = product.shipping_fee || 0;
+                    
+                    document.getElementById('qe-is_active').checked = Boolean(product.is_active);
+                    document.getElementById('qe-is_featured').checked = Boolean(product.is_featured);
+                    document.getElementById('qe-amazon_button_enabled').checked = Boolean(product.amazon_button_enabled);
+                    
+                    quickEditModal.classList.add('active');
+                });
+            });
+
+            window.closeQuickEdit = function() {
+                quickEditModal.classList.remove('active');
+            };
+
+            // Close modal on outside click
+            quickEditModal.addEventListener('click', (e) => {
+                if (e.target === quickEditModal) {
+                    closeQuickEdit();
+                }
+            });
+
             // --- Tabs switcher logic ---
             document.querySelectorAll('[data-tab-target]').forEach(tabBtn => {
                 tabBtn.addEventListener('click', () => {
