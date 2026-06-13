@@ -116,7 +116,7 @@ class HomepageSectionController extends Controller
             'config' => $config,
         ]);
 
-        $this->triggerFrontendRevalidation(['/']);
+        $this->triggerFrontendRevalidation(['/', '/shop']);
 
         return back()->with('status', 'Homepage section updated successfully.');
     }
@@ -250,7 +250,7 @@ class HomepageSectionController extends Controller
             ],
         ]);
 
-        $this->triggerFrontendRevalidation(['/']);
+        $this->triggerFrontendRevalidation(['/', '/shop']);
 
         return back()->with('status', 'Hero slider updated successfully.');
     }
