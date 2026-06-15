@@ -62,4 +62,54 @@ class FullHomepageEditorTest extends TestCase
         $this->assertSame('Get 10% Off', data_get($config, 'newsletter.title'));
         $this->assertSame('Join Now', data_get($config, 'newsletter.button_text'));
     }
+
+    public function test_admin_can_clear_existing_homepage_images(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+
+        HomepageSection::query()->create([
+            'section_key' => 'full-homepage',
+            'section_type' => 'homepage_config',
+            'label' => 'Full Homepage',
+            'title' => 'Full Homepage Content',
+            'sort_order' => 10,
+            'is_active' => true,
+            'config' => [
+                'collections' => [
+                    'items' => [
+                        ['title' => 'God Idols', 'subtitle' => 'Sacred brass centerpieces', 'image' => 'https://example.com/collections-1.jpg', 'href' => '/shop?category=god-idols'],
+                    ],
+                ],
+                'about_brand' => [
+                    'image' => 'https://example.com/about-banner.jpg',
+                ],
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($admin)
+            ->from(route('admin.homepage-sections.full.edit'))
+            ->put(route('admin.homepage-sections.full.update'), [
+                'label' => 'Full Homepage',
+                'title' => 'Full Homepage Content',
+                'sort_order' => 10,
+                'is_active' => '1',
+                'clear_collections_image' => ['1'],
+                'clear_about_brand_image' => '1',
+            ]);
+
+        $response
+            ->assertRedirect(route('admin.homepage-sections.full.edit'))
+            ->assertSessionHas('status', 'Full homepage content updated successfully.');
+
+        $section = HomepageSection::query()->where('section_key', 'full-homepage')->firstOrFail();
+        $config = $section->config ?? [];
+
+        $this->assertSame('', data_get($config, 'collections.items.0.image'));
+        $this->assertSame('', data_get($config, 'about_brand.image'));
+    }
 }

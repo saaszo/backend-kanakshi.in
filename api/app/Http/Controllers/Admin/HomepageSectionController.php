@@ -338,20 +338,23 @@ class HomepageSectionController extends Controller
         for ($index = 0; $index < self::COLLECTION_COUNT; $index++) {
             $current = $existingCollections[$index] ?? [];
             $image = trim((string) $request->input("collections.$index.image", ''));
+            $shouldClear = $request->boolean("clear_collections_image.$index");
 
-            if ($request->boolean("clear_collections_image.$index")) {
-                $image = null;
+            if ($shouldClear) {
+                $image = '';
             } elseif ($request->hasFile("collections_files.$index")) {
                 $image = $this->storeAdminUpload($request->file("collections_files.$index"), 'homepage/collections', 'Collection card');
             } elseif ($image === '') {
-                $image = $current['image'] ?? null;
+                $image = array_key_exists('image', $current)
+                    ? (string) ($current['image'] ?? '')
+                    : (string) ($defaults['collections']['items'][$index]['image'] ?? '');
             }
 
             $collectionsItems[] = [
                 'title' => $this->sanitizeTextValue($request->input("collections.$index.title")),
                 'subtitle' => $this->sanitizeTextValue($request->input("collections.$index.subtitle")),
                 'href' => $this->sanitizeTextValue($request->input("collections.$index.href")),
-                'image' => $image ?: ($defaults['collections']['items'][$index]['image'] ?? ''),
+                'image' => is_string($image) ? $image : '',
             ];
         }
 
@@ -361,19 +364,22 @@ class HomepageSectionController extends Controller
         for ($index = 0; $index < self::OCCASION_COUNT; $index++) {
             $current = $existingOccasions[$index] ?? [];
             $image = trim((string) $request->input("occasions.$index.image", ''));
+            $shouldClear = $request->boolean("clear_occasions_image.$index");
 
-            if ($request->boolean("clear_occasions_image.$index")) {
-                $image = null;
+            if ($shouldClear) {
+                $image = '';
             } elseif ($request->hasFile("occasions_files.$index")) {
                 $image = $this->storeAdminUpload($request->file("occasions_files.$index"), 'homepage/occasions', 'Occasion card');
             } elseif ($image === '') {
-                $image = $current['image'] ?? null;
+                $image = array_key_exists('image', $current)
+                    ? (string) ($current['image'] ?? '')
+                    : (string) ($defaults['occasions']['items'][$index]['image'] ?? '');
             }
 
             $occasionsItems[] = [
                 'title' => $this->sanitizeTextValue($request->input("occasions.$index.title")),
                 'href' => $this->sanitizeTextValue($request->input("occasions.$index.href")),
-                'image' => $image ?: ($defaults['occasions']['items'][$index]['image'] ?? ''),
+                'image' => is_string($image) ? $image : '',
             ];
         }
 
@@ -383,13 +389,16 @@ class HomepageSectionController extends Controller
         for ($index = 0; $index < self::EDITORIAL_PICK_COUNT; $index++) {
             $current = $existingEditorial[$index] ?? [];
             $image = trim((string) $request->input("editorial_picks.$index.image", ''));
+            $shouldClear = $request->boolean("clear_editorial_picks_image.$index");
 
-            if ($request->boolean("clear_editorial_picks_image.$index")) {
-                $image = null;
+            if ($shouldClear) {
+                $image = '';
             } elseif ($request->hasFile("editorial_picks_files.$index")) {
                 $image = $this->storeAdminUpload($request->file("editorial_picks_files.$index"), 'homepage/editorial', 'Editorial pick');
             } elseif ($image === '') {
-                $image = $current['image'] ?? null;
+                $image = array_key_exists('image', $current)
+                    ? (string) ($current['image'] ?? '')
+                    : (string) ($defaults['editorial_picks']['items'][$index]['image'] ?? '');
             }
 
             $editorialPicksItems[] = [
@@ -397,37 +406,43 @@ class HomepageSectionController extends Controller
                 'title' => $this->sanitizeTextValue($request->input("editorial_picks.$index.title")),
                 'description' => $this->sanitizeTextValue($request->input("editorial_picks.$index.description")),
                 'href' => $this->sanitizeTextValue($request->input("editorial_picks.$index.href")),
-                'image' => $image ?: ($defaults['editorial_picks']['items'][$index]['image'] ?? ''),
+                'image' => is_string($image) ? $image : '',
             ];
         }
 
         // 4. About Brand
         $aboutBrandImage = trim((string) $request->input('about_brand_image', ''));
         if ($request->boolean('clear_about_brand_image')) {
-            $aboutBrandImage = null;
+            $aboutBrandImage = '';
         } elseif ($request->hasFile('about_brand_file')) {
             $aboutBrandImage = $this->storeAdminUpload($request->file('about_brand_file'), 'homepage/about', 'About brand image');
         } elseif ($aboutBrandImage === '') {
-            $aboutBrandImage = $existingConfig['about_brand']['image'] ?? null;
+            $aboutBrandImage = array_key_exists('image', $existingConfig['about_brand'] ?? [])
+                ? (string) ($existingConfig['about_brand']['image'] ?? '')
+                : (string) ($defaults['about_brand']['image'] ?? '');
         }
 
         // 5. Founders
         $foundersMainImage = trim((string) $request->input('founders_main_image', ''));
         if ($request->boolean('clear_founders_main_image')) {
-            $foundersMainImage = null;
+            $foundersMainImage = '';
         } elseif ($request->hasFile('founders_main_file')) {
             $foundersMainImage = $this->storeAdminUpload($request->file('founders_main_file'), 'homepage/founders', 'Founders main image');
         } elseif ($foundersMainImage === '') {
-            $foundersMainImage = $existingConfig['founders']['main_image'] ?? null;
+            $foundersMainImage = array_key_exists('main_image', $existingConfig['founders'] ?? [])
+                ? (string) ($existingConfig['founders']['main_image'] ?? '')
+                : (string) ($defaults['founders']['main_image'] ?? '');
         }
 
         $foundersSideImage = trim((string) $request->input('founders_side_image', ''));
         if ($request->boolean('clear_founders_side_image')) {
-            $foundersSideImage = null;
+            $foundersSideImage = '';
         } elseif ($request->hasFile('founders_side_file')) {
             $foundersSideImage = $this->storeAdminUpload($request->file('founders_side_file'), 'homepage/founders', 'Founders side image');
         } elseif ($foundersSideImage === '') {
-            $foundersSideImage = $existingConfig['founders']['side_image'] ?? null;
+            $foundersSideImage = array_key_exists('side_image', $existingConfig['founders'] ?? [])
+                ? (string) ($existingConfig['founders']['side_image'] ?? '')
+                : (string) ($defaults['founders']['side_image'] ?? '');
         }
 
         // 6. Testimonials
@@ -441,17 +456,20 @@ class HomepageSectionController extends Controller
         for ($index = 0; $index < self::INSTAGRAM_TILE_COUNT; $index++) {
             $current = $existingInstagram[$index] ?? [];
             $image = trim((string) $request->input("instagram.tiles.$index.image", ''));
+            $shouldClear = $request->boolean("clear_instagram_tiles_image.$index");
 
-            if ($request->boolean("clear_instagram_tiles_image.$index")) {
-                $image = null;
+            if ($shouldClear) {
+                $image = '';
             } elseif ($request->hasFile("instagram_tiles_files.$index")) {
                 $image = $this->storeAdminUpload($request->file("instagram_tiles_files.$index"), 'homepage/instagram', 'Instagram tile');
             } elseif ($image === '') {
-                $image = $current['image'] ?? null;
+                $image = array_key_exists('image', $current)
+                    ? (string) ($current['image'] ?? '')
+                    : (string) ($defaults['instagram']['tiles'][$index]['image'] ?? '');
             }
 
             $instagramTiles[] = [
-                'image' => $image ?: ($defaults['instagram']['tiles'][$index]['image'] ?? ''),
+                'image' => is_string($image) ? $image : '',
                 'alt' => $this->sanitizeTextValue($request->input("instagram.tiles.$index.alt")),
             ];
         }
@@ -465,20 +483,23 @@ class HomepageSectionController extends Controller
         for ($index = 0; $index < self::FESTIVE_EDIT_COUNT; $index++) {
             $current = $existingFestive[$index] ?? [];
             $image = trim((string) $request->input("festive_edits.$index.image", ''));
+            $shouldClear = $request->boolean("clear_festive_edits_image.$index");
 
-            if ($request->boolean("clear_festive_edits_image.$index")) {
-                $image = null;
+            if ($shouldClear) {
+                $image = '';
             } elseif ($request->hasFile("festive_edits_files.$index")) {
                 $image = $this->storeAdminUpload($request->file("festive_edits_files.$index"), 'homepage/festive', 'Festive edit card');
             } elseif ($image === '') {
-                $image = $current['image'] ?? null;
+                $image = array_key_exists('image', $current)
+                    ? (string) ($current['image'] ?? '')
+                    : (string) ($defaults['festive_edits']['items'][$index]['image'] ?? '');
             }
 
             $festiveEditsItems[] = [
                 'badge' => $this->sanitizeTextValue($request->input("festive_edits.$index.badge")),
                 'title' => $this->sanitizeTextValue($request->input("festive_edits.$index.title")),
                 'href' => $this->sanitizeTextValue($request->input("festive_edits.$index.href")),
-                'image' => $image ?: ($defaults['festive_edits']['items'][$index]['image'] ?? ''),
+                'image' => is_string($image) ? $image : '',
             ];
         }
 
@@ -509,7 +530,7 @@ class HomepageSectionController extends Controller
                 'paragraph_two' => $this->sanitizeTextValue($request->input('about_brand_paragraph_two')),
                 'button_text' => $this->sanitizeTextValue($request->input('about_brand_button_text')),
                 'button_url' => $this->sanitizeTextValue($request->input('about_brand_button_url')),
-                'image' => $aboutBrandImage ?: $defaults['about_brand']['image'],
+                'image' => is_string($aboutBrandImage) ? $aboutBrandImage : '',
             ],
             'founders' => [
                 'is_active' => $request->boolean('founders_is_active'),
@@ -518,8 +539,8 @@ class HomepageSectionController extends Controller
                 'content' => $this->sanitizeTextValue($request->input('founders_content')),
                 'button_text' => $this->sanitizeTextValue($request->input('founders_button_text')),
                 'button_url' => $this->sanitizeTextValue($request->input('founders_button_url')),
-                'main_image' => $foundersMainImage ?: $defaults['founders']['main_image'],
-                'side_image' => $foundersSideImage ?: $defaults['founders']['side_image'],
+                'main_image' => is_string($foundersMainImage) ? $foundersMainImage : '',
+                'side_image' => is_string($foundersSideImage) ? $foundersSideImage : '',
             ],
             'testimonials' => [
                 'is_active' => $request->boolean('testimonials_is_active'),
@@ -764,9 +785,12 @@ class HomepageSectionController extends Controller
 
             foreach ($fields as $field) {
                 $fallbackValue = $fallback[$field] ?? '';
-                $entry[$field] = str_contains($field, 'image')
-                    ? ($this->sanitizeMediaPath($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''))
-                    : ($this->sanitizeTextValue($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''));
+                if (str_contains($field, 'image')) {
+                    $entry[$field] = $this->resolveConfiguredImageValue($current, $field, $fallbackValue);
+                    continue;
+                }
+
+                $entry[$field] = $this->sanitizeTextValue($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : '');
             }
 
             $normalized[] = $entry;
@@ -928,6 +952,19 @@ class HomepageSectionController extends Controller
         return $path !== '' ? $path : null;
     }
 
+    private function resolveConfiguredImageValue(array $current, string $field, mixed $fallbackValue): string
+    {
+        if (array_key_exists($field, $current)) {
+            if (! is_scalar($current[$field]) || $current[$field] === null) {
+                return '';
+            }
+
+            return trim((string) $current[$field]);
+        }
+
+        return is_string($fallbackValue) ? $fallbackValue : '';
+    }
+
     private function sanitizeTextValue(mixed $value): string
     {
         if (! is_scalar($value)) {
@@ -972,9 +1009,12 @@ class HomepageSectionController extends Controller
 
             foreach ($fields as $field) {
                 $fallbackValue = $fallback[$field] ?? '';
-                $entry[$field] = str_contains($field, 'image')
-                    ? ($this->sanitizeMediaPath($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''))
-                    : ($this->sanitizeTextValue($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''));
+                if (str_contains($field, 'image')) {
+                    $entry[$field] = $this->resolveConfiguredImageValue($current, $field, $fallbackValue);
+                    continue;
+                }
+
+                $entry[$field] = $this->sanitizeTextValue($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : '');
             }
 
             if (array_key_exists('image', $entry)) {

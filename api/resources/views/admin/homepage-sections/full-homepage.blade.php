@@ -141,7 +141,8 @@
             background: #fff;
         }
 
-        .studio-preview {
+        .studio-preview,
+        .studio-preview-box {
             width: 130px;
             height: 130px;
             border-radius: 12px;
@@ -156,7 +157,8 @@
             flex-shrink: 0;
         }
 
-        .studio-preview img {
+        .studio-preview img,
+        .studio-preview-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -252,7 +254,8 @@
             padding: 12px;
         }
 
-        .admin-card-styled .studio-preview {
+        .admin-card-styled .studio-preview,
+        .admin-card-styled .studio-preview-box {
             width: 100%;
             height: 140px;
         }
@@ -478,8 +481,15 @@
 
         @media (max-width: 600px) {
             .image-studio {
-                grid-template-columns: 1fr;
-                justify-items: center;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .studio-preview,
+            .studio-preview-box {
+                width: 100%;
+                max-width: none;
             }
         }
     </style>
@@ -1096,6 +1106,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const frontendBaseUrl = @json(rtrim((string) config('app.frontend_url', config('app.url')), '/'));
+
             // --- Tabs Switching Logic ---
             const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
             const tabPanes = Array.from(document.querySelectorAll('.tab-pane'));
@@ -1126,9 +1138,53 @@
                 const clearInput = studio.querySelector('[data-studio-clear]');
                 const previewImg = studio.querySelector('[data-studio-preview]');
                 const placeholder = studio.querySelector('[data-studio-placeholder]');
+                let objectUrl = null;
+
+                const revokeObjectUrl = () => {
+                    if (objectUrl) {
+                        URL.revokeObjectURL(objectUrl);
+                        objectUrl = null;
+                    }
+                };
+
+                const resolvePreviewUrl = (value) => {
+                    const path = value.trim();
+
+                    if (path === '') {
+                        return '';
+                    }
+
+                    if (
+                        path.startsWith('http://') ||
+                        path.startsWith('https://') ||
+                        path.startsWith('blob:') ||
+                        path.startsWith('data:')
+                    ) {
+                        return path;
+                    }
+
+                    if (path.startsWith('/reference-assets/') || path.startsWith('reference-assets/')) {
+                        return `${frontendBaseUrl}/${path.replace(/^\/+/, '')}`;
+                    }
+
+                    if (path.startsWith('/storage/')) {
+                        return `${window.location.origin}${path}`;
+                    }
+
+                    if (path.startsWith('storage/')) {
+                        return `${window.location.origin}/${path}`;
+                    }
+
+                    if (path.startsWith('/')) {
+                        return `${window.location.origin}${path}`;
+                    }
+
+                    return `${window.location.origin}/${path}`;
+                };
 
                 const updatePreview = () => {
                     if (clearInput && clearInput.checked) {
+                        revokeObjectUrl();
                         if (previewImg) previewImg.style.display = 'none';
                         if (placeholder) placeholder.style.display = 'flex';
                         return;
@@ -1137,9 +1193,10 @@
                     // Priority 1: File Upload (object URL preview)
                     if (fileInput && fileInput.files && fileInput.files[0]) {
                         const file = fileInput.files[0];
-                        const tempUrl = URL.createObjectURL(file);
+                        revokeObjectUrl();
+                        objectUrl = URL.createObjectURL(file);
                         if (previewImg) {
-                            previewImg.src = tempUrl;
+                            previewImg.src = objectUrl;
                             previewImg.style.display = 'block';
                         }
                         if (placeholder) placeholder.style.display = 'none';
@@ -1148,11 +1205,8 @@
 
                     // Priority 2: Manual URL
                     if (urlInput && urlInput.value.trim() !== '') {
-                        let path = urlInput.value.trim();
-                        // Resolve local storage preview paths if it starts with /storage/ or storage/
-                        if (!path.startsWith('http') && !path.startsWith('/')) {
-                            path = '/' + path;
-                        }
+                        revokeObjectUrl();
+                        const path = resolvePreviewUrl(urlInput.value);
                         if (previewImg) {
                             previewImg.src = path;
                             previewImg.style.display = 'block';
@@ -1162,11 +1216,22 @@
                     }
 
                     // Default: Hide
+                    revokeObjectUrl();
                     if (previewImg) previewImg.style.display = 'none';
                     if (placeholder) placeholder.style.display = 'flex';
                 };
 
-                if (urlInput) urlInput.addEventListener('input', updatePreview);
+                if (urlInput) {
+                    urlInput.addEventListener('input', function () {
+                        if (clearInput && urlInput.value.trim() !== '') {
+                            clearInput.checked = false;
+                        }
+                        if (fileInput && urlInput.value.trim() !== '') {
+                            fileInput.value = '';
+                        }
+                        updatePreview();
+                    });
+                }
                 if (fileInput) {
                     fileInput.addEventListener('change', function () {
                         if (clearInput) clearInput.checked = false;
