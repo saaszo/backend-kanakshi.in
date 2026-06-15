@@ -124,16 +124,16 @@
 
         /* Image Studio Custom Styles */
         .image-studio {
-            display: grid;
-            grid-template-columns: 130px 1fr;
-            gap: 20px;
+            display: flex;
             align-items: center;
+            gap: 20px;
             background: var(--bg-soft);
             border: 1px dashed var(--border-strong);
             padding: 16px;
             border-radius: var(--radius-md);
             margin-top: 8px;
             transition: all 0.2s ease;
+            width: 100%;
         }
 
         .image-studio:hover {
@@ -141,7 +141,7 @@
             background: #fff;
         }
 
-        .studio-preview-box {
+        .studio-preview {
             width: 130px;
             height: 130px;
             border-radius: 12px;
@@ -153,9 +153,10 @@
             justify-content: center;
             position: relative;
             box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+            flex-shrink: 0;
         }
 
-        .studio-preview-box img {
+        .studio-preview img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -181,33 +182,35 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            flex-grow: 1;
+            min-width: 0;
         }
 
         .studio-btn-row {
             display: flex;
             gap: 8px;
             align-items: center;
-        }
-
-        .studio-btn-row input[type="text"] {
-            font-size: 13px;
+            flex-wrap: wrap;
         }
 
         .studio-upload-label {
             background: #fff;
             border: 1px solid var(--border-strong);
             border-radius: 10px;
-            padding: 9px 14px;
+            padding: 8px 14px;
             font-size: 13px;
             font-weight: 700;
             color: var(--heading);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             margin: 0;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(15,23,42,0.02);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .studio-upload-label:hover {
@@ -221,21 +224,54 @@
             color: #fff;
             border: none;
             border-radius: 10px;
-            padding: 9px 14px;
+            padding: 8px 14px;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             box-shadow: 0 4px 12px var(--primary-glow);
             transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .studio-picker-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
             color: #fff;
+        }
+
+        /* Enforce vertical stack layout inside narrow cards to prevent layout squishing */
+        .admin-card-styled .image-studio {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .admin-card-styled .studio-preview {
+            width: 100%;
+            height: 140px;
+        }
+
+        .admin-card-styled .studio-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .admin-card-styled .studio-upload-label,
+        .admin-card-styled .studio-picker-btn {
+            width: 100%;
+            padding: 8px 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .card-grid {
