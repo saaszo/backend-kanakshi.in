@@ -70,6 +70,12 @@ class PublicSettingsController
                 'data' => [
                     'site_name' => $store?->site_name,
                     'site_tagline' => $store?->site_tagline,
+                    'business_name' => $store?->business_name,
+                    'business_email' => $store?->business_email,
+                    'business_phone' => $store?->business_phone,
+                    'support_email' => $store?->support_email,
+                    'support_phone' => $store?->support_phone,
+                    'whatsapp_number' => $store?->whatsapp_number,
                     'site_email' => $store?->support_email ?: $store?->business_email,
                     'site_phone' => $store?->support_phone ?: $store?->business_phone,
                     'privacy_policy' => $store?->privacy_policy,
@@ -98,7 +104,9 @@ class PublicSettingsController
                     'twitter_handle' => $store?->twitter_handle,
                     'logo_url' => $store?->logo_url,
                     'favicon_url' => $store?->favicon_url,
+                    'invoice_footer_note' => $store?->invoice_footer_note,
                     'footer_copyright_text' => $store?->footer_copyright_text,
+                    'show_logo_on_invoice' => (bool) ($store?->show_logo_on_invoice ?? false),
                     'custom_header_scripts' => $store?->custom_header_scripts,
                     'custom_footer_scripts' => $store?->custom_footer_scripts,
                     'show_topbar' => (bool) ($store?->show_topbar ?? false),
@@ -111,6 +119,17 @@ class PublicSettingsController
                     'social_links' => $socialLinks->values(),
                     'payment_gateways' => $paymentGateways->values(),
                     'registry_allow_buyback' => $this->readRegistryBooleanSetting('registry_allow_buyback', true),
+                    'registry_warranty_duration_months' => $this->readRegistryIntegerSetting('registry_warranty_duration_months', 24),
+                    'registry_allowed_sources' => $this->readRegistryArraySetting(
+                        'registry_allowed_sources',
+                        ['website', 'offline_store', 'amazon', 'other_marketplace']
+                    ),
+                    'registry_allowed_upload_size_mb' => $this->readRegistryIntegerSetting('registry_allowed_upload_size_mb', 5),
+                    'registry_allowed_file_types' => $this->readRegistryArraySetting(
+                        'registry_allowed_file_types',
+                        ['pdf', 'jpg', 'jpeg', 'png', 'webp']
+                    ),
+                    'registry_auto_verify_website_orders' => $this->readRegistryBooleanSetting('registry_auto_verify_website_orders', true),
                     'default_shipping_cost' => $legacySettings->get('default_shipping_cost', '99'),
                     'min_order_free_shipping' => $legacySettings->get('min_order_free_shipping', '499'),
                     'gst_percent' => $legacySettings->get('gst_percent', '18'),
@@ -155,5 +174,47 @@ class PublicSettingsController
         }
 
         return in_array((string) $value, ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function readRegistryIntegerSetting(string $key, int $default): int
+    {
+        if (! Schema::hasTable('settings')) {
+            return $default;
+        }
+
+        $value = Setting::query()->where('key_name', $key)->value('value');
+
+        if ($value === null || ! is_numeric($value)) {
+            return $default;
+        }
+
+        return (int) $value;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function readRegistryArraySetting(string $key, array $default): array
+    {
+        if (! Schema::hasTable('settings')) {
+            return $default;
+        }
+
+        $value = Setting::query()->where('key_name', $key)->value('value');
+
+        if ($value === null) {
+            return $default;
+        }
+
+        $decoded = json_decode((string) $value, true);
+
+        if (is_array($decoded)) {
+            return array_values(array_filter(array_map(
+                static fn ($item) => is_string($item) ? trim($item) : null,
+                $decoded
+            )));
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', (string) $value))));
     }
 }
