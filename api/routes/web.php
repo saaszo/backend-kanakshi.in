@@ -66,6 +66,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/homepage-sections', [HomepageSectionController::class, 'index'])->name('homepage-sections.index');
         Route::get('/homepage-sections/hero/editor', [HomepageSectionController::class, 'editHero'])->name('homepage-sections.hero.edit');
         Route::put('/homepage-sections/hero/editor', [HomepageSectionController::class, 'updateHero'])->name('homepage-sections.hero.update');
+        Route::get('/homepage-sections/full-homepage/editor', [HomepageSectionController::class, 'editFullHomepage'])->name('homepage-sections.full.edit');
+        Route::put('/homepage-sections/full-homepage/editor', [HomepageSectionController::class, 'updateFullHomepage'])->name('homepage-sections.full.update');
         Route::get('/homepage-sections/{homepageSection}/edit', [HomepageSectionController::class, 'edit'])->name('homepage-sections.edit');
         Route::put('/homepage-sections/{homepageSection}', [HomepageSectionController::class, 'update'])->name('homepage-sections.update');
 

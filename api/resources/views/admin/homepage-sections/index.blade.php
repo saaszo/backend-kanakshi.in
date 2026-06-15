@@ -13,7 +13,10 @@
                         <h2>Homepage Sections</h2>
                         <p class="lead" style="margin-top:8px;">Edit hero, slider text, side photos, product section headings, and homepage visibility from here.</p>
                     </div>
-                    <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button small">Open Hero Editor</a>
+                    <div class="button-row">
+                        <a href="{{ route('admin.homepage-sections.full.edit') }}" class="button secondary small">Open Full Homepage</a>
+                        <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button small">Open Hero Editor</a>
+                    </div>
                 </div>
                 @if (session('status'))
                     <div class="admin-toast">
@@ -47,6 +50,8 @@
                                     <td>
                                         @if ($section->section_key === 'hero')
                                             <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button secondary small">Open Hero Editor</a>
+                                        @elseif ($section->section_key === 'full-homepage')
+                                            <a href="{{ route('admin.homepage-sections.full.edit') }}" class="button secondary small">Open Full Homepage</a>
                                         @else
                                             <a href="{{ route('admin.homepage-sections.edit', $section) }}" class="button secondary small">Edit Section</a>
                                         @endif

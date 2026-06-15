@@ -120,6 +120,10 @@
                 <i class="bi bi-sliders2"></i>
                 <span>Hero Slider</span>
             </a>
+            <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.full.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.full.edit') }}">
+                <i class="bi bi-window-stack"></i>
+                <span>Full Homepage</span>
+            </a>
             <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.index') }}">
                 <i class="bi bi-images"></i>
                 <span>Homepage Sections</span>

@@ -18,11 +18,21 @@ class HomepageSectionController extends Controller
 
     private const HERO_SLIDE_COUNT = 5;
     private const HERO_PROMO_COUNT = 2;
+    private const COLLECTION_COUNT = 4;
+    private const OCCASION_COUNT = 5;
+    private const EDITORIAL_PICK_COUNT = 3;
+    private const TESTIMONIAL_COUNT = 3;
+    private const INSTAGRAM_TILE_COUNT = 6;
+    private const STATS_COUNT = 4;
+    private const FESTIVE_EDIT_COUNT = 4;
     private const MEDIA_URL_MAX_LENGTH = 2048;
     private const FRONTEND_REVALIDATE_SECRET_FALLBACK = 'little-divinity-homepage-revalidate';
 
     public function index(): View
     {
+        $this->getHeroSection();
+        $this->getFullHomepageSection();
+
         return view('admin.homepage-sections.index', [
             'sections' => HomepageSection::query()->orderBy('sort_order')->get(),
         ]);
@@ -60,6 +70,16 @@ class HomepageSectionController extends Controller
             'secondaryButtonUrl' => (string) ($config['secondary_button_url'] ?? ''),
             'slides' => $this->normalizeHeroSlides($config['slides'] ?? []),
             'promos' => $this->normalizeHeroPromos($config['promos'] ?? []),
+        ]);
+    }
+
+    public function editFullHomepage(): View
+    {
+        $section = $this->getFullHomepageSection();
+
+        return view('admin.homepage-sections.full-homepage', [
+            'section' => $section,
+            'config' => $this->normalizeFullHomepageConfig($section->config ?? []),
         ]);
     }
 
@@ -259,6 +279,331 @@ class HomepageSectionController extends Controller
         $this->triggerFrontendRevalidation(['/', '/shop']);
 
         return back()->with('status', 'Hero slider updated successfully.');
+    }
+
+    public function updateFullHomepage(Request $request): RedirectResponse
+    {
+        $section = $this->getFullHomepageSection();
+
+        $validated = $request->validate([
+            'label' => ['nullable', 'string', 'max:150'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'sort_order' => ['required', 'integer', 'min:1'],
+            'is_active' => ['nullable', 'boolean'],
+            'collections.*.title' => ['nullable', 'string', 'max:120'],
+            'collections.*.subtitle' => ['nullable', 'string', 'max:160'],
+            'collections.*.image' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
+            'collections.*.href' => ['nullable', 'string', 'max:2048'],
+            'occasions.*.title' => ['nullable', 'string', 'max:120'],
+            'occasions.*.image' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
+            'occasions.*.href' => ['nullable', 'string', 'max:2048'],
+            'editorial_picks.*.badge' => ['nullable', 'string', 'max:120'],
+            'editorial_picks.*.title' => ['nullable', 'string', 'max:120'],
+            'editorial_picks.*.description' => ['nullable', 'string', 'max:255'],
+            'editorial_picks.*.image' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
+            'editorial_picks.*.href' => ['nullable', 'string', 'max:2048'],
+            'testimonials.*.title' => ['nullable', 'string', 'max:120'],
+            'testimonials.*.quote' => ['nullable', 'string', 'max:400'],
+            'testimonials.*.author' => ['nullable', 'string', 'max:120'],
+            'testimonials.*.stars' => ['nullable', 'string', 'max:10'],
+            'instagram.tiles.*.image' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
+            'instagram.tiles.*.alt' => ['nullable', 'string', 'max:160'],
+            'stats.*.value' => ['nullable', 'string', 'max:40'],
+            'stats.*.label' => ['nullable', 'string', 'max:120'],
+            'festive_edits.*.badge' => ['nullable', 'string', 'max:120'],
+            'festive_edits.*.title' => ['nullable', 'string', 'max:120'],
+            'festive_edits.*.image' => ['nullable', 'string', 'max:'.self::MEDIA_URL_MAX_LENGTH],
+            'festive_edits.*.href' => ['nullable', 'string', 'max:2048'],
+        ]);
+
+        $defaults = $this->getDefaultFullHomepageConfig();
+
+        $config = [
+            'collections' => [
+                'is_active' => $request->boolean('collections_section_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('collections_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('collections_title')),
+                'button_text' => $this->sanitizeTextValue($request->input('collections_button_text')),
+                'button_url' => $this->sanitizeTextValue($request->input('collections_button_url')),
+                'items' => $this->buildRepeaterItems($request->input('collections', []), self::COLLECTION_COUNT, $defaults['collections']['items'], ['title', 'subtitle', 'image', 'href']),
+            ],
+            'occasions' => [
+                'is_active' => $request->boolean('occasions_section_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('occasions_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('occasions_title')),
+                'items' => $this->buildRepeaterItems($request->input('occasions', []), self::OCCASION_COUNT, $defaults['occasions']['items'], ['title', 'image', 'href']),
+            ],
+            'editorial_picks' => [
+                'is_active' => $request->boolean('editorial_picks_section_is_active'),
+                'items' => $this->buildRepeaterItems($request->input('editorial_picks', []), self::EDITORIAL_PICK_COUNT, $defaults['editorial_picks']['items'], ['badge', 'title', 'description', 'image', 'href']),
+            ],
+            'about_brand' => [
+                'is_active' => $request->boolean('about_brand_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('about_brand_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('about_brand_title')),
+                'paragraph_one' => $this->sanitizeTextValue($request->input('about_brand_paragraph_one')),
+                'paragraph_two' => $this->sanitizeTextValue($request->input('about_brand_paragraph_two')),
+                'button_text' => $this->sanitizeTextValue($request->input('about_brand_button_text')),
+                'button_url' => $this->sanitizeTextValue($request->input('about_brand_button_url')),
+                'image' => $this->sanitizeMediaPath($request->input('about_brand_image')) ?: $defaults['about_brand']['image'],
+            ],
+            'founders' => [
+                'is_active' => $request->boolean('founders_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('founders_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('founders_title')),
+                'content' => $this->sanitizeTextValue($request->input('founders_content')),
+                'button_text' => $this->sanitizeTextValue($request->input('founders_button_text')),
+                'button_url' => $this->sanitizeTextValue($request->input('founders_button_url')),
+                'main_image' => $this->sanitizeMediaPath($request->input('founders_main_image')) ?: $defaults['founders']['main_image'],
+                'side_image' => $this->sanitizeMediaPath($request->input('founders_side_image')) ?: $defaults['founders']['side_image'],
+            ],
+            'testimonials' => [
+                'is_active' => $request->boolean('testimonials_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('testimonials_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('testimonials_title')),
+                'items' => $this->buildRepeaterItems($request->input('testimonials', []), self::TESTIMONIAL_COUNT, $defaults['testimonials']['items'], ['title', 'quote', 'author', 'stars']),
+            ],
+            'newsletter' => [
+                'is_active' => $request->boolean('newsletter_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('newsletter_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('newsletter_title')),
+                'description' => $this->sanitizeTextValue($request->input('newsletter_description')),
+                'button_text' => $this->sanitizeTextValue($request->input('newsletter_button_text')),
+                'placeholder' => $this->sanitizeTextValue($request->input('newsletter_placeholder')),
+                'footnote' => $this->sanitizeTextValue($request->input('newsletter_footnote')),
+            ],
+            'instagram' => [
+                'is_active' => $request->boolean('instagram_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('instagram_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('instagram_title')),
+                'profile_url' => $this->sanitizeTextValue($request->input('instagram_profile_url')),
+                'profile_label' => $this->sanitizeTextValue($request->input('instagram_profile_label')),
+                'tiles' => $this->buildRepeaterItems($request->input('instagram.tiles', []), self::INSTAGRAM_TILE_COUNT, $defaults['instagram']['tiles'], ['image', 'alt']),
+            ],
+            'stats' => [
+                'is_active' => $request->boolean('stats_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('stats_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('stats_title')),
+                'items' => $this->buildRepeaterItems($request->input('stats', []), self::STATS_COUNT, $defaults['stats']['items'], ['value', 'label']),
+            ],
+            'festive_edits' => [
+                'is_active' => $request->boolean('festive_edits_is_active'),
+                'eyebrow' => $this->sanitizeTextValue($request->input('festive_edits_eyebrow')),
+                'title' => $this->sanitizeTextValue($request->input('festive_edits_title')),
+                'button_text' => $this->sanitizeTextValue($request->input('festive_edits_button_text')),
+                'button_url' => $this->sanitizeTextValue($request->input('festive_edits_button_url')),
+                'items' => $this->buildRepeaterItems($request->input('festive_edits', []), self::FESTIVE_EDIT_COUNT, $defaults['festive_edits']['items'], ['badge', 'title', 'image', 'href']),
+            ],
+        ];
+
+        $section->update([
+            'label' => $validated['label'] ?? $section->label,
+            'title' => $validated['title'] ?? $section->title,
+            'sort_order' => $validated['sort_order'],
+            'is_active' => $request->boolean('is_active'),
+            'config' => $config,
+        ]);
+
+        $this->triggerFrontendRevalidation(['/']);
+
+        return back()->with('status', 'Full homepage content updated successfully.');
+    }
+
+    private function getFullHomepageSection(): HomepageSection
+    {
+        $section = HomepageSection::withTrashed()->firstOrNew([
+            'section_key' => 'full-homepage',
+        ]);
+
+        if ($section->trashed()) {
+            $section->restore();
+        }
+
+        if (! filled($section->section_type)) {
+            $section->section_type = 'homepage_config';
+        }
+
+        if (! filled($section->label)) {
+            $section->label = 'Full Homepage';
+        }
+
+        if (! filled($section->title)) {
+            $section->title = 'Full Homepage Content';
+        }
+
+        if (! $section->sort_order) {
+            $section->sort_order = 10;
+        }
+
+        if (! $section->exists) {
+            $section->is_active = true;
+        }
+
+        $section->config = $this->normalizeFullHomepageConfig($section->config ?? []);
+
+        if (! $section->exists || $section->isDirty()) {
+            $section->save();
+        }
+
+        return $section;
+    }
+
+    private function normalizeFullHomepageConfig(array|string|null $config): array
+    {
+        $defaults = $this->getDefaultFullHomepageConfig();
+        $config = is_array($config) ? $config : [];
+
+        $merged = array_replace_recursive($defaults, $config);
+
+        $merged['collections']['items'] = $this->buildRepeaterItems($merged['collections']['items'] ?? [], self::COLLECTION_COUNT, $defaults['collections']['items'], ['title', 'subtitle', 'image', 'href']);
+        $merged['occasions']['items'] = $this->buildRepeaterItems($merged['occasions']['items'] ?? [], self::OCCASION_COUNT, $defaults['occasions']['items'], ['title', 'image', 'href']);
+        $merged['editorial_picks']['items'] = $this->buildRepeaterItems($merged['editorial_picks']['items'] ?? [], self::EDITORIAL_PICK_COUNT, $defaults['editorial_picks']['items'], ['badge', 'title', 'description', 'image', 'href']);
+        $merged['testimonials']['items'] = $this->buildRepeaterItems($merged['testimonials']['items'] ?? [], self::TESTIMONIAL_COUNT, $defaults['testimonials']['items'], ['title', 'quote', 'author', 'stars']);
+        $merged['instagram']['tiles'] = $this->buildRepeaterItems($merged['instagram']['tiles'] ?? [], self::INSTAGRAM_TILE_COUNT, $defaults['instagram']['tiles'], ['image', 'alt']);
+        $merged['stats']['items'] = $this->buildRepeaterItems($merged['stats']['items'] ?? [], self::STATS_COUNT, $defaults['stats']['items'], ['value', 'label']);
+        $merged['festive_edits']['items'] = $this->buildRepeaterItems($merged['festive_edits']['items'] ?? [], self::FESTIVE_EDIT_COUNT, $defaults['festive_edits']['items'], ['badge', 'title', 'image', 'href']);
+
+        return $merged;
+    }
+
+    private function getDefaultFullHomepageConfig(): array
+    {
+        return [
+            'collections' => [
+                'is_active' => true,
+                'eyebrow' => 'Collections',
+                'title' => 'Shop By Category',
+                'button_text' => 'View all',
+                'button_url' => '/shop',
+                'items' => [
+                    ['title' => 'God Idols', 'subtitle' => 'Temple-inspired classics', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_86f2e0a3_a3c3_4425_a004/screen.png', 'href' => '/shop?category=god-idols'],
+                    ['title' => 'Home Decor', 'subtitle' => 'Statement brass accents', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_3758284a_c859_469d_be0a/screen.png', 'href' => '/shop?category=wall-decor'],
+                    ['title' => 'Pooja Decor', 'subtitle' => 'Sacred corner essentials', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_0b0cbc19_17a3_496c_8345/screen.png', 'href' => '/shop?category=pooja-decor'],
+                    ['title' => 'Kitchen & Utility', 'subtitle' => 'Functional heirloom pieces', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_600x.jpg_v_1683015923/screen.png', 'href' => '/shop?category=home-kitchen'],
+                ],
+            ],
+            'occasions' => [
+                'is_active' => true,
+                'eyebrow' => 'Shop By Occasion',
+                'title' => 'Festival Categories',
+                'items' => [
+                    ['title' => 'Ganesh Chaturthi', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_ganesh/screen.png', 'href' => '/shop?category=ganesh-chaturthi'],
+                    ['title' => 'Janmashtami', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_janmasthami.jpg/screen.png', 'href' => '/shop?category=janmashtami'],
+                    ['title' => 'Navratri', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_navratri.png_v/screen.png', 'href' => '/shop?category=navratri'],
+                    ['title' => 'Diwali', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_diwali.jpg_v/screen.png', 'href' => '/shop?category=diwali'],
+                    ['title' => 'Dhanteras', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_dhanteras.png_v/screen.png', 'href' => '/shop?category=dhanteras'],
+                ],
+            ],
+            'editorial_picks' => [
+                'is_active' => true,
+                'items' => [
+                    ['badge' => 'Editorial Pick', 'title' => 'God Idols', 'description' => 'Discover our curated god idols collection — handcrafted with care for your home and sacred spaces.', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_86f2e0a3_a3c3_4425_a004/screen.png', 'href' => '/shop?category=god-idols'],
+                    ['badge' => 'Editorial Pick', 'title' => 'Wall Decor', 'description' => 'Discover our curated wall decor collection — handcrafted with care for your home and sacred spaces.', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_whatsapp_image_2026_04_15_at/screen.png', 'href' => '/shop?category=wall-decor'],
+                    ['badge' => 'Editorial Pick', 'title' => 'Table Decor', 'description' => 'Discover our curated table decor collection — handcrafted with care for your home and sacred spaces.', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_brass_superfine_shiva_idol/screen.png', 'href' => '/shop?category=table-decor'],
+                ],
+            ],
+            'about_brand' => [
+                'is_active' => true,
+                'eyebrow' => 'About The Brand',
+                'title' => 'A Home For Handcrafted Brass And Heritage Decor',
+                'paragraph_one' => 'Little Divinity is a home for handcrafted brass idols, home decor, pooja essentials, and meaningful gifting pieces. Every product is made by skilled Indian artisans using traditional techniques passed down through generations.',
+                'paragraph_two' => 'Whether you are decorating a sacred corner, gifting a housewarming, or adding warmth to your living space, we curate only the finest pieces in solid brass, wood, and stone. Trusted by over 45,000 happy customers across India.',
+                'button_text' => 'Explore Our Collection',
+                'button_url' => '/shop',
+                'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_banner_4ab_copy_1_800x.jpg_v/screen.png',
+            ],
+            'founders' => [
+                'is_active' => true,
+                'eyebrow' => 'About The Founders',
+                'title' => 'Built Around Craft, Story, And Artisan Heritage',
+                'content' => 'Every piece begins with a craftsperson\'s hands. We work directly with artisan families across Rajasthan and Uttar Pradesh — preserving ancient metalworking traditions while bringing their finest work to homes across India. Our 30+ years of craft expertise ensures every product meets the highest standards of quality and authenticity.',
+                'button_text' => 'Shop Handcrafted Pieces',
+                'button_url' => '/shop',
+                'main_image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_chatgpt_image_mar_5_2026_04_30/screen.png',
+                'side_image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_gemini_generated_image/screen.png',
+            ],
+            'testimonials' => [
+                'is_active' => true,
+                'eyebrow' => 'Testimonials',
+                'title' => 'Customers Love Our Products',
+                'items' => [
+                    ['title' => 'Excellent Quality', 'quote' => 'The finish, weight, and carving detail immediately made the piece feel premium and gift-worthy.', 'author' => 'Saikat Gaur', 'stars' => '★★★★★'],
+                    ['title' => 'Great Collection', 'quote' => 'A strong mix of god idols, decor, and gifting items that feels like a complete handcrafted store.', 'author' => 'Sunita', 'stars' => '★★★★★'],
+                    ['title' => 'Beautiful Design', 'quote' => 'The styling and product presentation made it easy to pick a statement piece for our living room.', 'author' => 'Rita Paria', 'stars' => '★★★★★'],
+                ],
+            ],
+            'newsletter' => [
+                'is_active' => true,
+                'eyebrow' => 'The Divinity Circle',
+                'title' => 'Unlock 10% Off Your First Order',
+                'description' => 'Subscribe to get early access to festive edits, curated gifting guides, care instructions, and exclusive subscriber-only collections.',
+                'button_text' => 'Claim Discount',
+                'placeholder' => 'Enter your email address',
+                'footnote' => 'Join 45,000+ happy homes. Free shipping above ₹999 nationwide.',
+            ],
+            'instagram' => [
+                'is_active' => true,
+                'eyebrow' => 'Follow Us On',
+                'title' => 'Instagram',
+                'profile_url' => 'https://www.instagram.com/littledivinity_official/',
+                'profile_label' => '@littledivinity_official',
+                'tiles' => [
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_3758284a_c859_469d_be0a/screen.png', 'alt' => 'Brass god idol handcrafted'],
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_untitled_design_2025_10_1/screen.png', 'alt' => 'Home decor brass collection'],
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_51_e49ec306_c8b1_411b_937b/screen.png', 'alt' => 'Peacock brass wall art'],
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_brass_buddha_statue_intricate/screen.png', 'alt' => 'Buddha statue brass'],
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_13_86d4189e_e6d5_4292_8326/screen.png', 'alt' => 'Candle stand brass'],
+                    ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_86f2e0a3_a3c3_4425_a004/screen.png', 'alt' => 'God idols collection'],
+                ],
+            ],
+            'stats' => [
+                'is_active' => true,
+                'eyebrow' => 'Trusted By Thousands',
+                'title' => 'Why Customers Choose Little Divinity',
+                'items' => [
+                    ['value' => '50000+', 'label' => 'Orders Fulfilled'],
+                    ['value' => '45000+', 'label' => 'Happy Customers'],
+                    ['value' => '30+', 'label' => 'Years Experience'],
+                    ['value' => '10000+', 'label' => 'Products Available'],
+                ],
+            ],
+            'festive_edits' => [
+                'is_active' => true,
+                'eyebrow' => 'Festive Edits',
+                'title' => 'Occasions, Gifting, And Seasonal Stories',
+                'button_text' => 'View All',
+                'button_url' => '/shop',
+                'items' => [
+                    ['badge' => 'Curated Edit', 'title' => 'Ganesh Chaturthi Edit', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_ganesh/screen.png', 'href' => '/shop?category=gifting-edit'],
+                    ['badge' => 'Curated Edit', 'title' => 'Diwali Styling Picks', 'image' => '/reference-assets/image_from_https_cdn.shopify.com_s_files_1_0709_7421_0333_files_diwali.jpg_v/screen.png', 'href' => '/shop?category=gifting-edit'],
+                    ['badge' => 'Curated Edit', 'title' => 'Wedding Gifting', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_whatsapp_image_2026_02_20_at_5/screen.png', 'href' => '/shop?category=gifting-edit'],
+                    ['badge' => 'Curated Edit', 'title' => 'Artisan Craft Story', 'image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_chatgpt_image_mar_5_2026_04_30/screen.png', 'href' => '/shop?category=gifting-edit'],
+                ],
+            ],
+        ];
+    }
+
+    private function buildRepeaterItems(mixed $items, int $count, array $defaults, array $fields): array
+    {
+        $items = is_array($items) ? array_values($items) : [];
+        $normalized = [];
+
+        for ($index = 0; $index < $count; $index++) {
+            $current = is_array($items[$index] ?? null) ? $items[$index] : [];
+            $fallback = $defaults[$index] ?? [];
+            $entry = [];
+
+            foreach ($fields as $field) {
+                $fallbackValue = $fallback[$field] ?? '';
+                $entry[$field] = str_contains($field, 'image')
+                    ? ($this->sanitizeMediaPath($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''))
+                    : ($this->sanitizeTextValue($current[$field] ?? null) ?: (is_string($fallbackValue) ? $fallbackValue : ''));
+            }
+
+            $normalized[] = $entry;
+        }
+
+        return $normalized;
     }
 
     private function getHeroSection(): HomepageSection
