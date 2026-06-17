@@ -11,11 +11,11 @@ class CustomerEmailService
 {
     public const AUTH_FROM_NAME = 'Kanakshi.in';
 
-    public const AUTH_FROM_EMAIL = 'noreply@kanakshi.in';
+    public const AUTH_FROM_EMAIL = 'no-reply@kanakshi.in';
 
     public const ORDER_FROM_NAME = 'Kanakshi.in Orders';
 
-    public const ORDER_FROM_EMAIL = 'noreply@kanakshi.in';
+    public const ORDER_FROM_EMAIL = 'no-reply@kanakshi.in';
 
     public const SMTP_HOST = 'smtp.hostinger.com';
 
@@ -23,9 +23,9 @@ class CustomerEmailService
 
     public const SMTP_ENCRYPTION = 'ssl';
 
-    public const AUTH_SMTP_USERNAME = 'noreply@kanakshi.in';
+    public const AUTH_SMTP_USERNAME = 'no-reply@kanakshi.in';
 
-    public const ORDER_SMTP_USERNAME = 'noreply@kanakshi.in';
+    public const ORDER_SMTP_USERNAME = 'no-reply@kanakshi.in';
 
     public function canSendAuthEvent(string $event): bool
     {

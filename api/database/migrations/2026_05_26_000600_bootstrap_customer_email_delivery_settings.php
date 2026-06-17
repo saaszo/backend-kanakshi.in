@@ -9,8 +9,8 @@ return new class extends Migration
     {
         $existing = DB::table('customer_email_settings')->where('id', 1)->first();
 
-        $authFromEmail = env('CUSTOMER_AUTH_FROM_EMAIL', 'noreply@kanakshi.in');
-        $orderFromEmail = env('CUSTOMER_ORDER_FROM_EMAIL', 'noreply@kanakshi.in');
+        $authFromEmail = env('CUSTOMER_AUTH_FROM_EMAIL', 'no-reply@kanakshi.in');
+        $orderFromEmail = env('CUSTOMER_ORDER_FROM_EMAIL', 'no-reply@kanakshi.in');
         $replyToEmail = env('CUSTOMER_AUTH_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in'));
         $orderReplyToEmail = env('CUSTOMER_ORDER_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in'));
         $sharedSmtpPassword = env('CUSTOMER_AUTH_SMTP_PASSWORD')

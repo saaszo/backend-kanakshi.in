@@ -386,12 +386,12 @@ class AdminAuthController extends Controller
 
         return [
             'label' => 'customer_fallback',
-            'from_address' => $settings?->from_email ?: 'noreply@kanakshi.in',
+            'from_address' => $settings?->from_email ?: 'no-reply@kanakshi.in',
             'from_name' => $settings?->from_name ?: 'Kanakshi.in',
             'smtp_host' => $settings?->smtp_host ?: 'smtp.hostinger.com',
             'smtp_port' => (int) ($settings?->smtp_port ?: 465),
             'smtp_encryption' => $settings?->smtp_encryption ?: 'ssl',
-            'smtp_username' => $settings?->smtp_username ?: ($settings?->from_email ?: 'noreply@kanakshi.in'),
+            'smtp_username' => $settings?->smtp_username ?: ($settings?->from_email ?: 'no-reply@kanakshi.in'),
             'smtp_password' => $settings?->smtp_password
                 ?: env('CUSTOMER_AUTH_SMTP_PASSWORD')
                 ?: env('CUSTOMER_SMTP_PASSWORD')

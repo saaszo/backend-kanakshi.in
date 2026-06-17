@@ -47,11 +47,11 @@
                             <div class="form-grid">
                                 <div class="field">
                                     <label>Customer Auth Sender</label>
-                                    <input value="{{ ($lockedMailRoutes['auth']['name'] ?? 'Kanakshi.in') . ' <' . ($lockedMailRoutes['auth']['email'] ?? 'noreply@kanakshi.in') . '>' }}" readonly />
+                                    <input value="{{ ($lockedMailRoutes['auth']['name'] ?? 'Kanakshi.in') . ' <' . ($lockedMailRoutes['auth']['email'] ?? 'no-reply@kanakshi.in') . '>' }}" readonly />
                                 </div>
                                 <div class="field">
                                     <label>Order Sender</label>
-                                    <input value="{{ ($lockedMailRoutes['order']['name'] ?? 'Kanakshi.in Orders') . ' <' . ($lockedMailRoutes['order']['email'] ?? 'noreply@kanakshi.in') . '>' }}" readonly />
+                                    <input value="{{ ($lockedMailRoutes['order']['name'] ?? 'Kanakshi.in Orders') . ' <' . ($lockedMailRoutes['order']['email'] ?? 'no-reply@kanakshi.in') . '>' }}" readonly />
                                 </div>
                                 <div class="field">
                                     <label>Admin OTP Sender</label>
