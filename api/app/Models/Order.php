@@ -25,7 +25,7 @@ class Order extends Model
     public static function generateUniqueOrderNumber(): string
     {
         do {
-            $number = 'LD-' . date('Ymd') . '-' . Str::upper(Str::random(5));
+            $number = 'KAN-' . date('Ymd') . '-' . Str::upper(Str::random(5));
         } while (self::query()->where('order_number', $number)->exists());
 
         return $number;
