@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CustomerEmailSetting;
 use App\Models\EmailSetting;
 use App\Models\User;
+use App\Services\CustomerEmailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -283,26 +284,22 @@ class AdminAuthController extends Controller
 
     private function sendOtpMail(string $email, string $subject, string $otp): void
     {
-        foreach ($this->mailProfilesForOtp() as $profile) {
-            try {
-                $this->applyMailerProfile($profile);
-                $this->deliverOtpMail($email, $subject, $otp, $profile['from_address'], $profile['from_name']);
-                return;
-            } catch (\Throwable $throwable) {
-                Log::error('Admin OTP email delivery attempt failed.', [
-                    'to' => $email,
-                    'subject' => $subject,
-                    'mailer' => $profile['label'],
-                    'host' => $profile['smtp_host'],
-                    'port' => $profile['smtp_port'],
-                    'encryption' => $profile['smtp_encryption'],
-                    'username' => $profile['smtp_username'],
-                    'error' => $throwable->getMessage(),
-                ]);
-            }
-        }
+        try {
+            app(CustomerEmailService::class)->sendAuthMail(
+                $email,
+                $subject,
+                "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Kanakshi.in"
+            );
+        } catch (\Throwable $throwable) {
+            Log::error('Admin OTP email delivery attempt failed.', [
+                'to' => $email,
+                'subject' => $subject,
+                'mailer' => 'customer_email_service',
+                'error' => $throwable->getMessage(),
+            ]);
 
-        throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
+            throw new RuntimeException('Unable to send OTP email right now. Please verify SMTP settings.');
+        }
     }
 
     private function deliverOtpMail(string $email, string $subject, string $otp, string $fromAddress, string $fromName): void
