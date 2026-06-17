@@ -360,8 +360,16 @@ class AdminAuthController extends Controller
             ->orderByDesc('id')
             ->first();
 
+        $defaultCustomerAuthAddress = env('CUSTOMER_AUTH_FROM_EMAIL', 'no-reply@kanakshi.in');
+        $defaultCustomerAuthUsername = env('CUSTOMER_AUTH_SMTP_USERNAME', $defaultCustomerAuthAddress);
+        $defaultCustomerAuthPassword = env('CUSTOMER_AUTH_SMTP_PASSWORD')
+            ?: env('CUSTOMER_SMTP_PASSWORD')
+            ?: env('MAIL_PASSWORD');
+
         $fromAddress = $emailSettings?->from_email
-            ?: env('ADMIN_MAIL_FROM_EMAIL', env('ADMIN_DEFAULT_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@kanakshi.in')));
+            ?: env('ADMIN_MAIL_FROM_EMAIL')
+            ?: env('MAIL_FROM_ADDRESS')
+            ?: $defaultCustomerAuthAddress;
         $fromName = $emailSettings?->from_name
             ?: env('ADMIN_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Kanakshi.in Admin'));
 
@@ -372,11 +380,15 @@ class AdminAuthController extends Controller
             'smtp_host' => $emailSettings?->smtp_host ?: 'smtp.hostinger.com',
             'smtp_port' => (int) ($emailSettings?->smtp_port ?: 465),
             'smtp_encryption' => $emailSettings?->smtp_encryption ?: 'ssl',
-            'smtp_username' => $emailSettings?->smtp_username ?: env('ADMIN_SMTP_USERNAME', $fromAddress),
+            'smtp_username' => $emailSettings?->smtp_username
+                ?: env('ADMIN_SMTP_USERNAME')
+                ?: env('MAIL_USERNAME')
+                ?: $defaultCustomerAuthUsername,
             'smtp_password' => $emailSettings?->smtp_password
                 ?: env('ADMIN_SMTP_PASSWORD')
                 ?: env('SMTP_SETTINGS_PASSWORD')
-                ?: env('MAIL_PASSWORD'),
+                ?: env('MAIL_PASSWORD')
+                ?: $defaultCustomerAuthPassword,
         ];
     }
 
