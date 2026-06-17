@@ -38,11 +38,11 @@ class AutoSeoGenerationTest extends TestCase
 
     public function test_product_slug_meta_and_schema_are_auto_generated(): void
     {
-        config(['app.frontend_url' => 'https://littledivinity.in']);
+        config(['app.frontend_url' => 'https://kanakshi.in']);
 
         StoreSetting::query()->create([
-            'site_name' => 'Little Divinity',
-            'custom_domain' => 'https://littledivinity.in',
+            'site_name' => 'Kanakshi.in',
+            'custom_domain' => 'https://kanakshi.in',
             'currency' => 'INR',
         ]);
 
@@ -53,7 +53,7 @@ class AutoSeoGenerationTest extends TestCase
 
         $product = Product::query()->create([
             'category_id' => $category->id,
-            'name' => 'Little Divinity Krishna Brass Idol',
+            'name' => 'Kanakshi.in Krishna Brass Idol',
             'short_desc' => 'A premium handcrafted Krishna idol for sacred corners.',
             'description' => 'Longer handcrafted description for the product page.',
             'price' => 12999,
@@ -63,16 +63,16 @@ class AutoSeoGenerationTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->assertSame('little-divinity-krishna-brass-idol', $product->slug);
-        $this->assertSame('Little Divinity Krishna Brass Idol', $product->meta_title);
+        $this->assertSame('kanakshiin-krishna-brass-idol', $product->slug);
+        $this->assertSame('Kanakshi.in Krishna Brass Idol', $product->meta_title);
         $this->assertSame('A premium handcrafted Krishna idol for sacred corners.', $product->meta_desc);
         $this->assertNotNull($product->custom_schema);
 
         $schema = json_decode((string) $product->custom_schema, true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertSame('Product', $schema['@type']);
-        $this->assertSame('Little Divinity Krishna Brass Idol', $schema['name']);
-        $this->assertSame('https://littledivinity.in/product/little-divinity-krishna-brass-idol', $schema['offers']['url']);
+        $this->assertSame('Kanakshi.in Krishna Brass Idol', $schema['name']);
+        $this->assertSame('https://kanakshi.in/product/kanakshiin-krishna-brass-idol', $schema['offers']['url']);
         $this->assertSame('INR', $schema['offers']['priceCurrency']);
     }
 

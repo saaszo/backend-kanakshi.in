@@ -1,9 +1,8 @@
 <?php
 
 $defaultOrigins = [
-    'https://littledivinity.com',
-    'https://www.littledivinity.com',
-    'https://little-divinity.vercel.app',
+    'https://kanakshi.in',
+    'https://www.kanakshi.in',
 ];
 
 if (in_array(env('APP_ENV', 'production'), ['local', 'development', 'testing'], true)) {

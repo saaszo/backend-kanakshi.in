@@ -121,9 +121,9 @@ class LittleDivinityEditorialBlogPublisher
         return BlogAuthor::query()->firstOrCreate(
             ['slug' => 'little-divinity-editorial'],
             [
-                'name' => 'Little Divinity Editorial',
-                'bio' => 'Little Divinity Editorial curates stories on brass living, ritual-led homes, handcrafted gifting, and the enduring wisdom of Indian metal traditions.',
-                'avatar_alt' => 'Little Divinity Editorial Team',
+                'name' => 'Kanakshi.in Editorial',
+                'bio' => 'Kanakshi.in Editorial curates stories on brass living, ritual-led homes, handcrafted gifting, and the enduring wisdom of Indian metal traditions.',
+                'avatar_alt' => 'Kanakshi.in Editorial Team',
                 'twitter_handle' => null,
             ]
         );
@@ -140,25 +140,25 @@ class LittleDivinityEditorialBlogPublisher
             'brass-living' => [
                 'name' => 'Brass Living',
                 'description' => 'Stories about timeless brass traditions, heritage-led interiors, and meaningful living with handcrafted metal décor.',
-                'meta_title' => 'Brass Living Guides | Little Divinity Blog',
+                'meta_title' => 'Brass Living Guides | Kanakshi.in Blog',
                 'meta_description' => 'Explore brassware traditions, home styling ideas, and cultural insights that bring warmth, wellness, and heritage into everyday living.',
             ],
             'kitchen-rituals' => [
                 'name' => 'Kitchen Rituals',
                 'description' => 'Practical and cultural guides for using brass and kansa in modern kitchens, gifting, and daily table rituals.',
-                'meta_title' => 'Kitchen Rituals & Brassware Guides | Little Divinity',
+                'meta_title' => 'Kitchen Rituals & Brassware Guides | Kanakshi.in',
                 'meta_description' => 'Discover how brass, kansa, and slow rituals can reshape the modern Indian kitchen with craft, wellness, and beauty.',
             ],
             'copper-wellness' => [
                 'name' => 'Copper Wellness',
                 'description' => 'Guides focused on tamra jal, copper hydration habits, and age-old wellness rituals adapted for contemporary homes.',
-                'meta_title' => 'Copper Wellness & Tamra Jal Guides | Little Divinity',
+                'meta_title' => 'Copper Wellness & Tamra Jal Guides | Kanakshi.in',
                 'meta_description' => 'Learn how to adopt copper water rituals, choose the right vessels, and care for copper wellness essentials at home.',
             ],
             'care-and-maintenance' => [
                 'name' => 'Care & Maintenance',
                 'description' => 'Cleaning, polishing, and care instructions for brass, kansa, and handcrafted idols so they age beautifully for years.',
-                'meta_title' => 'Brass & Kansa Care Instructions | Little Divinity',
+                'meta_title' => 'Brass & Kansa Care Instructions | Kanakshi.in',
                 'meta_description' => 'Simple, practical care instructions for brass utensils, kansa serveware, antique-finish idols, and raw brass décor.',
             ],
         ];
@@ -311,7 +311,7 @@ class LittleDivinityEditorialBlogPublisher
                     ],
                 ],
                 'excerpt' => 'A modern Ayurvedic kitchen does not need to feel old-world. Brass and kansa can quietly reintroduce slower, more intentional dining rituals into contemporary homes.',
-                'meta_title' => 'The Ayurvedic Kitchen, Reimagined with Brass and Kansa | Little Divinity',
+                'meta_title' => 'The Ayurvedic Kitchen, Reimagined with Brass and Kansa | Kanakshi.in',
                 'meta_description' => 'Learn how brass and kansa can bring slower rituals, heritage-led dining, and thoughtful serving traditions back into the modern kitchen.',
                 'og_title' => 'The Ayurvedic Kitchen, Reimagined with Brass and Kansa',
                 'og_description' => 'A practical guide to bringing brass and kansa into a more intentional, tradition-rooted kitchen routine.',
@@ -353,7 +353,7 @@ class LittleDivinityEditorialBlogPublisher
                 'content' => $this->tamraJalContent(),
             ],
             [
-                'title' => 'Caring Instructions for Little Divinity Brass, Kansa, and Handcrafted Idols',
+                'title' => 'Caring Instructions for Kanakshi.in Brass, Kansa, and Handcrafted Idols',
                 'slug' => 'caring-instructions-for-little-divinity-brass-kansa-and-handcrafted-idols',
                 'category_id' => $categories['care-and-maintenance'],
                 'published_at' => $publishedBase->copy()->addDays(3),
@@ -377,13 +377,13 @@ class LittleDivinityEditorialBlogPublisher
                         'answer' => 'No. Antique-finish idols should be wiped gently with a soft cloth, because harsh scrubbing can disturb the intentional surface finish.',
                     ],
                 ],
-                'excerpt' => 'A little care goes a long way. With the right cleaning habits, your Little Divinity brass, kansa, and idol pieces can stay beautiful for years.',
-                'meta_title' => 'How to Care for Brass, Kansa, and Handcrafted Idols | Little Divinity',
+                'excerpt' => 'A little care goes a long way. With the right cleaning habits, your Kanakshi.in brass, kansa, and idol pieces can stay beautiful for years.',
+                'meta_title' => 'How to Care for Brass, Kansa, and Handcrafted Idols | Kanakshi.in',
                 'meta_description' => 'Follow simple daily and weekly care routines for brass utensils, kansa serveware, antique-finish idols, and raw brass pieces.',
                 'og_title' => 'How to Care for Brass, Kansa, and Handcrafted Idols',
-                'og_description' => 'Simple care steps to keep your Little Divinity brass, kansa, and handcrafted idols looking beautiful over time.',
+                'og_description' => 'Simple care steps to keep your Kanakshi.in brass, kansa, and handcrafted idols looking beautiful over time.',
                 'twitter_title' => 'How to Care for Brass, Kansa, and Handcrafted Idols',
-                'twitter_description' => 'Simple care steps to keep your Little Divinity brass, kansa, and handcrafted idols looking beautiful over time.',
+                'twitter_description' => 'Simple care steps to keep your Kanakshi.in brass, kansa, and handcrafted idols looking beautiful over time.',
                 'content' => $this->careInstructionsContent(),
             ],
         ];
@@ -413,10 +413,10 @@ class LittleDivinityEditorialBlogPublisher
     private function discoverWhyBrassContent(): string
     {
         return trim(<<<'HTML'
-<p>In a world where trends come and go, some materials never lose their place. Brass is one of them. For generations, Indian homes have reached for brass in temples, dining rituals, gifting traditions, and everyday objects that deserve to last. At Little Divinity, we see brass not just as a beautiful metal, but as a bridge between heritage, home, and daily intention.</p>
+<p>In a world where trends come and go, some materials never lose their place. Brass is one of them. For generations, Indian homes have reached for brass in temples, dining rituals, gifting traditions, and everyday objects that deserve to last. At Kanakshi.in, we see brass not just as a beautiful metal, but as a bridge between heritage, home, and daily intention.</p>
 <h2>Aesthetic Appeal: Brass Adds Timeless Beauty</h2>
 <p>Brass carries a warm golden hue that instantly softens a room and gives it depth. Whether it appears as a deity idol in a pooja corner, a statement décor accent on a console, or serveware placed on a festive table, brass makes a space feel considered and grounded. It reflects light gently, creates warmth without loudness, and brings an heirloom character that many modern materials struggle to imitate.</p>
-<p>At Little Divinity, our brass collections are crafted to feel both rooted and versatile. A piece can hold cultural memory, while still blending beautifully into a contemporary apartment or a carefully styled family home.</p>
+<p>At Kanakshi.in, our brass collections are crafted to feel both rooted and versatile. A piece can hold cultural memory, while still blending beautifully into a contemporary apartment or a carefully styled family home.</p>
 <h2>Health and Everyday Utility: Why Families Still Return to Brass Utensils</h2>
 <p>For many Indian families, brass has long been associated with everyday usefulness as much as beauty. Brass is an alloy of copper and zinc, and traditional households have often valued it in kitchens and dining spaces because it feels substantial, durable, and culturally familiar. Today, many people are rediscovering brass and kansa for slower meal rituals, intentional serving, and a more grounded sensory experience at the table.</p>
 <ul>
@@ -431,12 +431,12 @@ class LittleDivinityEditorialBlogPublisher
 <p>Brass plays a quiet but significant role in Indian spiritual life. It is seen in temples, aartis, oil lamps, puja thalis, and handcrafted idols that become central to a family’s daily rhythm. Bringing brass into the home is often less about display and more about atmosphere: it helps create spaces that feel peaceful, anchored, and reverent.</p>
 <p>Whether it is a brass diya for evening prayers or a deity idol for a dedicated altar, the material itself carries a sense of ritual continuity that many families continue to cherish.</p>
 <h2>Easy to Maintain, Easy to Love</h2>
-<p>Brass rewards consistency, not complexity. Most pieces can be kept beautiful with gentle cleaning, proper drying, and occasional polishing. A small amount of regular care preserves shine and lets the object age gracefully. At Little Divinity, we believe good care is part of the ownership experience, not a burden.</p>
+<p>Brass rewards consistency, not complexity. Most pieces can be kept beautiful with gentle cleaning, proper drying, and occasional polishing. A small amount of regular care preserves shine and lets the object age gracefully. At Kanakshi.in, we believe good care is part of the ownership experience, not a burden.</p>
 <h2>Versatility: Brass for Daily Life and Special Occasions</h2>
 <p>Few materials move as easily between daily use and celebration. Brass fits a bedside water setup, a kitchen shelf, a wedding gift, a festive pooja arrangement, or a living-room styling story with equal ease. That is why it continues to feel relevant: it is practical enough for daily life and meaningful enough for special moments.</p>
 <h2>The Timeless Allure of Brass</h2>
 <p>From its visual elegance to its deep cultural roots, brass remains one of the most emotionally resonant materials you can bring into a home. It connects the present to something older, slower, and more intentional. If you want your spaces to feel warm, storied, and enduring, brass is not a trend to borrow from. It is a tradition worth living with.</p>
-<p><strong>Ready to bring brass home?</strong> Explore the Little Divinity collections and discover pieces designed to add beauty, ritual, and meaning to everyday living.</p>
+<p><strong>Ready to bring brass home?</strong> Explore the Kanakshi.in collections and discover pieces designed to add beauty, ritual, and meaning to everyday living.</p>
 HTML);
     }
 
@@ -526,7 +526,7 @@ HTML);
     private function careInstructionsContent(): string
     {
         return trim(<<<'HTML'
-<p>Little Divinity brass and kansa pieces are designed to be lived with. They are not objects that must sit untouched behind glass. With just a little care, they can stay beautiful through daily use, festive gatherings, and years of family memory. The goal is not perfection. The goal is consistency.</p>
+<p>Kanakshi.in brass and kansa pieces are designed to be lived with. They are not objects that must sit untouched behind glass. With just a little care, they can stay beautiful through daily use, festive gatherings, and years of family memory. The goal is not perfection. The goal is consistency.</p>
 <h2>1. Utensils: Brass and Kansa for Daily Use</h2>
 <p>For everyday cleaning, wash utensils with mild dish soap and a soft sponge. Rinse well and dry immediately to avoid water marks. A weekly deeper clean helps restore shine and keeps the surface feeling fresh.</p>
 <p><strong>Weekly deep-clean routine:</strong></p>
@@ -546,7 +546,7 @@ HTML);
 <p>Raw brass responds beautifully to regular buffing. A dry cloth can bring back a quick glow, while occasional polishing with brass cleaners or a lemon-based paste can restore deeper brightness. Always dry these pieces immediately after washing to avoid spotting.</p>
 <h2>Make Care a Ritual, Not a Chore</h2>
 <p>The easiest way to maintain handcrafted metalware is to make care part of its rhythm. A quick wipe after use, a weekly polish, and gentle handling during storage are often enough. Good care protects the finish, but it also deepens the relationship you have with the object.</p>
-<p>At Little Divinity, we believe the best décor and serveware should feel beautiful both on the day you bring it home and years later. A little maintenance ensures that your brass, kansa, and handcrafted idols continue to do exactly that.</p>
+<p>At Kanakshi.in, we believe the best décor and serveware should feel beautiful both on the day you bring it home and years later. A little maintenance ensures that your brass, kansa, and handcrafted idols continue to do exactly that.</p>
 HTML);
     }
 }

@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtInsert->execute([$order['id'], $userId, $reason, $description, json_encode($images)]);
             
             // 4. Notify Admin
-            $adminEmail = getSetting('site_email', 'noreply@saaszo.in');
+            $adminEmail = getSetting('site_email', 'support@kanakshi.in');
             $subject = "New Return Request - #" . $orderNumber;
             $body = "
                 <h2 style='color: #d63384;'>New Return Request Received</h2>

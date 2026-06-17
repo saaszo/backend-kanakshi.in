@@ -139,7 +139,7 @@ if (time() < $lockout) {
                     <label class="form-label fw-600 text-secondary">Admin Email</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-regular fa-envelope"></i></span>
-                        <input type="email" name="email" class="form-control border-start-0 ps-0" required autofocus placeholder="admin@saaszo.in">
+                        <input type="email" name="email" class="form-control border-start-0 ps-0" required autofocus placeholder="admin@kanakshi.in">
                     </div>
                 </div>
                 

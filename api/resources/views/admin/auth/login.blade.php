@@ -5,7 +5,7 @@
 @section('content')
     <div class="auth-shell">
         <div class="auth-card">
-            <div class="brand">Little Divinity Admin</div>
+            <div class="brand">Kanakshi.in Admin</div>
             <h1>Admin Login</h1>
             <p class="lead">Login only for admin panel access. Signup is disabled for this panel.</p>
 
@@ -26,7 +26,7 @@
                 @csrf
                 <div class="field">
                     <label for="email">Admin Email</label>
-                    <input id="email" type="email" name="email" value="{{ old('email', 'admin@saaszo.in') }}" required autofocus>
+                    <input id="email" type="email" name="email" value="{{ old('email', 'admin@kanakshi.in') }}" required autofocus>
                 </div>
 
                 <div class="field">

@@ -308,7 +308,7 @@ class AdminAuthController extends Controller
     private function deliverOtpMail(string $email, string $subject, string $otp, string $fromAddress, string $fromName): void
     {
         Mail::raw(
-            "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Little Divinity",
+            "Your OTP is {$otp}. It is valid for 10 minutes.\n\nTeam Kanakshi.in",
             function ($message) use ($email, $subject, $fromAddress, $fromName): void {
                 $message->to($email)
                     ->from($fromAddress, $fromName)
@@ -361,9 +361,9 @@ class AdminAuthController extends Controller
             ->first();
 
         $fromAddress = $emailSettings?->from_email
-            ?: env('ADMIN_MAIL_FROM_EMAIL', env('ADMIN_DEFAULT_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@saaszo.in')));
+            ?: env('ADMIN_MAIL_FROM_EMAIL', env('ADMIN_DEFAULT_EMAIL', env('MAIL_FROM_ADDRESS', 'admin@kanakshi.in')));
         $fromName = $emailSettings?->from_name
-            ?: env('ADMIN_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Little Divinity Admin'));
+            ?: env('ADMIN_MAIL_FROM_NAME', env('MAIL_FROM_NAME', 'Kanakshi.in Admin'));
 
         return [
             'label' => 'admin',
@@ -386,16 +386,16 @@ class AdminAuthController extends Controller
 
         return [
             'label' => 'customer_fallback',
-            'from_address' => $settings?->from_email ?: 'noreply@littledivinity.com',
-            'from_name' => $settings?->from_name ?: 'Little Divinity',
+            'from_address' => $settings?->from_email ?: 'noreply@kanakshi.in',
+            'from_name' => $settings?->from_name ?: 'Kanakshi.in',
             'smtp_host' => $settings?->smtp_host ?: 'smtp.hostinger.com',
             'smtp_port' => (int) ($settings?->smtp_port ?: 465),
             'smtp_encryption' => $settings?->smtp_encryption ?: 'ssl',
-            'smtp_username' => $settings?->smtp_username ?: ($settings?->from_email ?: 'noreply@littledivinity.com'),
+            'smtp_username' => $settings?->smtp_username ?: ($settings?->from_email ?: 'noreply@kanakshi.in'),
             'smtp_password' => $settings?->smtp_password
                 ?: env('CUSTOMER_AUTH_SMTP_PASSWORD')
                 ?: env('CUSTOMER_SMTP_PASSWORD')
-                ?: 'Littledivinity@123',
+                ?: env('SMTP_SETTINGS_PASSWORD'),
         ];
     }
 

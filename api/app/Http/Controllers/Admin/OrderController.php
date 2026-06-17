@@ -136,7 +136,7 @@ class OrderController extends Controller
             $freshOrder = $order->fresh('items');
             $this->sendOrderMailSafely(
                 $freshOrder,
-                'Your Little Divinity order status was updated',
+                'Your Kanakshi.in order status was updated',
                 $this->buildOrderMailBody(
                     $freshOrder,
                     ($freshOrder ? ucfirst($freshOrder->status) : ucfirst($newStatus)) . ' update: '
@@ -188,7 +188,7 @@ class OrderController extends Controller
         $trackingUrl = $freshOrder?->tracking_url ? "\nTracking URL: {$freshOrder->tracking_url}" : '';
         $this->sendOrderMailSafely(
             $freshOrder,
-            'Your Little Divinity order has been shipped',
+            'Your Kanakshi.in order has been shipped',
             $this->buildOrderMailBody(
                 $freshOrder,
                 "Your order has been shipped.\nTracking Number: {$freshOrder?->tracking_number}{$trackingUrl}"
@@ -216,7 +216,7 @@ class OrderController extends Controller
         $freshOrder = $order->fresh('items');
         $this->sendOrderMailSafely(
             $freshOrder,
-            'A new Little Divinity tracking update is available',
+            'A new Kanakshi.in tracking update is available',
             $this->buildOrderMailBody(
                 $freshOrder,
                 ($validated['message'] ?: 'A new manual tracking milestone was added to your order.')
@@ -231,7 +231,7 @@ class OrderController extends Controller
     private function buildOrderMailBody(?Order $order, string $headline): string
     {
         if (! $order) {
-            return $headline . "\n\nTeam Little Divinity";
+            return $headline . "\n\nTeam Kanakshi.in";
         }
 
         $itemsSummary = $order->relationLoaded('items')
@@ -255,7 +255,7 @@ class OrderController extends Controller
         }
 
         $lines[] = '';
-        $lines[] = 'Team Little Divinity';
+        $lines[] = 'Team Kanakshi.in';
 
         return implode("\n", $lines);
     }

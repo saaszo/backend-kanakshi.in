@@ -34,7 +34,7 @@
                     <tr>
                         <td style="padding:32px 28px 10px;">
                             <div style="display:inline-block; background:{{ $accentColorSoft }}; color:{{ $accentColor }}; font-size:12px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; padding:8px 12px; border-radius:999px;">
-                                Little Divinity
+                                Kanakshi.in
                             </div>
                             <h1 style="margin:18px 0 0; font-size:30px; line-height:1.2; color:{{ $textColor }};">{{ $subject }}</h1>
                         </td>

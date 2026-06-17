@@ -19,7 +19,7 @@
 <body>
     <div class="top">
         <div>
-            <h1 style="margin:0 0 8px;">Little Divinity</h1>
+            <h1 style="margin:0 0 8px;">Kanakshi.in</h1>
             <div class="muted">Invoice for order {{ $order->order_number }}</div>
         </div>
         <button class="no-print" onclick="window.print()">Print Invoice</button>

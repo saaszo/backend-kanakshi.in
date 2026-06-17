@@ -53,7 +53,7 @@ class NewsletterController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Thank you for subscribing to the Little Divinity newsletter!',
+            'message' => 'Thank you for subscribing to the Kanakshi.in newsletter!',
         ]);
     }
 }

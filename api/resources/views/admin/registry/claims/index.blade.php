@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Warranty Claims Queue | Little Divinity Admin')
+@section('title', 'Warranty Claims Queue | Kanakshi.in Admin')
 
 @section('content')
 <div class="dashboard-shell">

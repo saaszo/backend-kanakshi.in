@@ -9,13 +9,13 @@ use RuntimeException;
 
 class CustomerEmailService
 {
-    public const AUTH_FROM_NAME = 'Little Divinity';
+    public const AUTH_FROM_NAME = 'Kanakshi.in';
 
-    public const AUTH_FROM_EMAIL = 'noreply@littledivinity.com';
+    public const AUTH_FROM_EMAIL = 'noreply@kanakshi.in';
 
-    public const ORDER_FROM_NAME = 'Little Divinity Orders';
+    public const ORDER_FROM_NAME = 'Kanakshi.in Orders';
 
-    public const ORDER_FROM_EMAIL = 'order@littledivinity.com';
+    public const ORDER_FROM_EMAIL = 'noreply@kanakshi.in';
 
     public const SMTP_HOST = 'smtp.hostinger.com';
 
@@ -23,13 +23,9 @@ class CustomerEmailService
 
     public const SMTP_ENCRYPTION = 'ssl';
 
-    public const AUTH_SMTP_USERNAME = 'noreply@littledivinity.com';
+    public const AUTH_SMTP_USERNAME = 'noreply@kanakshi.in';
 
-    public const AUTH_SMTP_PASSWORD = 'Littledivinity@123';
-
-    public const ORDER_SMTP_USERNAME = 'order@littledivinity.com';
-
-    public const ORDER_SMTP_PASSWORD = 'Littledivinity@123';
+    public const ORDER_SMTP_USERNAME = 'noreply@kanakshi.in';
 
     public function canSendAuthEvent(string $event): bool
     {
@@ -109,24 +105,31 @@ class CustomerEmailService
             return [
                 'from_name' => $settings?->from_name ?: self::AUTH_FROM_NAME,
                 'from_email' => $settings?->from_email ?: self::AUTH_FROM_EMAIL,
-                'reply_to_email' => $settings?->reply_to_email ?: ($settings?->from_email ?: self::AUTH_FROM_EMAIL),
+                'reply_to_email' => $settings?->reply_to_email ?: env('CUSTOMER_AUTH_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in')),
                 'smtp_host' => $settings?->smtp_host ?: self::SMTP_HOST,
                 'smtp_port' => $settings?->smtp_port ?: self::SMTP_PORT,
                 'smtp_encryption' => $settings?->smtp_encryption ?: self::SMTP_ENCRYPTION,
                 'smtp_username' => $settings?->smtp_username ?: self::AUTH_SMTP_USERNAME,
-                'smtp_password' => $settings?->smtp_password ?: self::AUTH_SMTP_PASSWORD,
+                'smtp_password' => $settings?->smtp_password
+                    ?: env('CUSTOMER_AUTH_SMTP_PASSWORD')
+                    ?: env('CUSTOMER_SMTP_PASSWORD')
+                    ?: env('SMTP_SETTINGS_PASSWORD'),
             ];
         }
 
         return [
             'from_name' => $settings?->order_from_name ?: self::ORDER_FROM_NAME,
             'from_email' => $settings?->order_from_email ?: self::ORDER_FROM_EMAIL,
-            'reply_to_email' => $settings?->order_reply_to_email ?: ($settings?->order_from_email ?: self::ORDER_FROM_EMAIL),
+            'reply_to_email' => $settings?->order_reply_to_email ?: env('CUSTOMER_ORDER_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in')),
             'smtp_host' => $settings?->smtp_host ?: self::SMTP_HOST,
             'smtp_port' => $settings?->smtp_port ?: self::SMTP_PORT,
             'smtp_encryption' => $settings?->smtp_encryption ?: self::SMTP_ENCRYPTION,
             'smtp_username' => $settings?->order_smtp_username ?: self::ORDER_SMTP_USERNAME,
-            'smtp_password' => $settings?->order_smtp_password ?: self::ORDER_SMTP_PASSWORD,
+            'smtp_password' => $settings?->order_smtp_password
+                ?: env('CUSTOMER_ORDER_SMTP_PASSWORD')
+                ?: env('CUSTOMER_SMTP_PASSWORD')
+                ?: env('CUSTOMER_AUTH_SMTP_PASSWORD')
+                ?: env('SMTP_SETTINGS_PASSWORD'),
         ];
     }
 
@@ -174,7 +177,7 @@ class CustomerEmailService
     private function buildEmailViewData(string $subject, string $body, string $channel): array
     {
         $store = StoreSetting::query()->first();
-        $siteName = $store?->site_name ?: 'Little Divinity';
+        $siteName = $store?->site_name ?: 'Kanakshi.in';
         $supportEmail = $store?->support_email ?: $store?->business_email ?: self::AUTH_FROM_EMAIL;
         $supportPhone = $store?->support_phone ?: $store?->business_phone;
         $siteUrl = $this->resolveSiteUrl($store?->custom_domain);
@@ -226,7 +229,7 @@ class CustomerEmailService
                 break;
             }
 
-            if (preg_match('/^(warm regards|regards|thanks|thank you|team little divinity|littledivinity\.com)$/i', $lastLine)) {
+            if (preg_match('/^(warm regards|regards|thanks|thank you|team kanakshi\.in|kanakshi\.in)$/i', $lastLine)) {
                 array_unshift($closingLines, array_pop($lines));
                 continue;
             }
@@ -298,7 +301,7 @@ class CustomerEmailService
             $detailTitle = 'Summary';
         }
 
-        $actionLabel = 'Open Little Divinity';
+        $actionLabel = 'Open Kanakshi.in';
         if ($actionUrl) {
             if (str_contains(strtolower($subject . ' ' . $normalizedBody), 'track')) {
                 $actionLabel = 'Track Status';
@@ -321,7 +324,7 @@ class CustomerEmailService
             'listSections' => array_values($listSections),
             'actionUrl' => $actionUrl,
             'actionLabel' => $actionLabel,
-            'closingLines' => ! empty($closingLines) ? $closingLines : ['Team Little Divinity'],
+            'closingLines' => ! empty($closingLines) ? $closingLines : ['Team Kanakshi.in'],
         ];
     }
 
@@ -330,7 +333,7 @@ class CustomerEmailService
         $domain = trim((string) $customDomain);
 
         if ($domain === '') {
-            return 'https://www.littledivinity.com';
+            return 'https://kanakshi.in';
         }
 
         if (preg_match('/^https?:\/\//i', $domain)) {

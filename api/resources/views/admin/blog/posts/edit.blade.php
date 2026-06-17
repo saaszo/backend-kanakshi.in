@@ -295,7 +295,7 @@
 
                             <div class="field">
                                 <label>Canonical Reference URL</label>
-                                <input type="url" name="canonical_url" value="{{ old('canonical_url', $post->canonical_url) }}" placeholder="e.g. https://littledivinity.com/blog/..." />
+                                <input type="url" name="canonical_url" value="{{ old('canonical_url', $post->canonical_url) }}" placeholder="e.g. https://kanakshi.in/blog/..." />
                             </div>
 
                             <div class="field">

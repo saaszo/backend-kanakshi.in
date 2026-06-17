@@ -12,7 +12,7 @@ class BlogFeedController extends Controller
     public function rss(): Response
     {
         $store = StoreSetting::first();
-        $siteName = $store?->site_name ?: 'Little Divinity';
+        $siteName = $store?->site_name ?: 'Kanakshi.in';
         $siteTagline = $store?->site_tagline ?: 'Handcrafted Spiritual & E-Commerce Essentials';
         $customDomain = $this->normalizeBaseUrl($store?->custom_domain ?: config('app.frontend_url', 'http://localhost:3000'));
         $backendUrl = $this->normalizeBaseUrl(config('app.url', 'http://localhost'));

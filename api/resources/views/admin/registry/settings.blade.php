@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Registry Settings | Little Divinity Admin')
+@section('title', 'Registry Settings | Kanakshi.in Admin')
 
 @section('content')
 <div class="dashboard-shell">
@@ -54,7 +54,7 @@
                     <div class="d-flex gap-3 flex-wrap bg-light p-3 rounded-3 border">
                         <label class="checkbox-row compact mb-0">
                             <input type="checkbox" name="registry_allowed_sources[]" value="website" {{ in_array('website', $allowedSources) ? 'checked' : '' }}>
-                            <span>Little Divinity Website</span>
+                            <span>Kanakshi.in Website</span>
                         </label>
                         <label class="checkbox-row compact mb-0">
                             <input type="checkbox" name="registry_allowed_sources[]" value="offline_store" {{ in_array('offline_store', $allowedSources) ? 'checked' : '' }}>

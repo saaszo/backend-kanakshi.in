@@ -199,7 +199,7 @@ class RegistryApiController extends Controller
         $verifyStatusText = $status === 'verified' ? 'Verified & Active' : 'Pending Verification';
         $subject = "Ownership Guarantee Certificate Issued - {$reg->registration_code}";
         $body = "Dear {$reg->customer_name},\n\n" .
-                "Thank you for registering your genuine handcrafted solid brass legacy piece with Little Divinity.\n\n" .
+                "Thank you for registering your genuine handcrafted solid brass legacy piece with Kanakshi.in.\n\n" .
                 "We have issued your Ownership Guarantee Certificate details below:\n" .
                 "--------------------------------------------------\n" .
                 "Guarantee Registration Code: {$reg->registration_code}\n" .
@@ -213,10 +213,10 @@ class RegistryApiController extends Controller
                 ($status === 'verified'
                     ? "Your website order has been automatically verified. Your structural guarantee is fully active."
                     : "For offline store, Amazon, or other marketplace purchases, our verification team will review your uploaded invoice document. Once verified, your active guarantee period will start and we will notify you immediately.") . "\n\n" .
-                "To check registration status or claim repairs in the future, please visit: https://littledivinity.com/warranty-status?code={$reg->registration_code}\n\n" .
+                "To check registration status or claim repairs in the future, please visit: https://kanakshi.in/warranty-status?code={$reg->registration_code}\n\n" .
                 "Warm regards,\n" .
-                "Team Little Divinity\n" .
-                "littledivinity.com";
+                "Team Kanakshi.in\n" .
+                "kanakshi.in";
 
         $this->sendNotificationMail($reg->email, $subject, $body);
 
@@ -391,11 +391,11 @@ class RegistryApiController extends Controller
                 "Service Request Type: " . str_replace('_', ' ', ucwords($claim->issue_type)) . "\n" .
                 "Status: SUBMITTED\n" .
                 "--------------------------------------------------\n\n" .
-                "A Little Divinity support representative will inspect the uploaded issue details, review the photos, and contact you via email or WhatsApp within 24-48 business hours to guide you on repair shipping or servicing actions.\n\n" .
-                "To track your service ticket status, please visit: https://littledivinity.com/warranty-status\n\n" .
+                "A Kanakshi.in support representative will inspect the uploaded issue details, review the photos, and contact you via email or WhatsApp within 24-48 business hours to guide you on repair shipping or servicing actions.\n\n" .
+                "To track your service ticket status, please visit: https://kanakshi.in/warranty-status\n\n" .
                 "Warm regards,\n" .
-                "Team Little Divinity\n" .
-                "littledivinity.com";
+                "Team Kanakshi.in\n" .
+                "kanakshi.in";
 
         $this->sendNotificationMail($reg->email, $subject, $body);
 
@@ -503,10 +503,10 @@ class RegistryApiController extends Controller
                 "Status: SUBMITTED (INSPECTION PENDING)\n" .
                 "--------------------------------------------------\n\n" .
                 "Our official brass appraiser will inspect your uploaded condition photos, calculate current solid brass metal valuation ratios, and get in touch with you via your preferred contact channel within 48 business hours to propose a valuation estimate.\n\n" .
-                "To track your vault return ticket status, please visit: https://littledivinity.com/warranty-status\n\n" .
+                "To track your vault return ticket status, please visit: https://kanakshi.in/warranty-status\n\n" .
                 "Warm regards,\n" .
-                "Team Little Divinity\n" .
-                "littledivinity.com";
+                "Team Kanakshi.in\n" .
+                "kanakshi.in";
 
         $this->sendNotificationMail($reg->email, $subject, $body);
 

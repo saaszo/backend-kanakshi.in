@@ -22,7 +22,7 @@ return new class extends Migration
                 ['slug' => $slug],
                 [
                     'name' => $name,
-                    'description' => "{$name} collection for Little Divinity.",
+                    'description' => "{$name} collection for Kanakshi.in.",
                     'is_active' => true,
                     'sort_order' => 10,
                     'updated_at' => $now,
@@ -79,7 +79,7 @@ return new class extends Migration
                 'images' => $this->images(5, ['01-t1.png', '02-t2.png', '03-t3.png', '04-t4.png', '05-t5.png', '06-t7.png', '07-t8.png']),
             ],
             [
-                'name' => 'Little Divinity Brass Idol Set',
+                'name' => 'Kanakshi.in Brass Idol Set',
                 'category' => 'god-idols',
                 'sku' => 'LD-IMP-006',
                 'price' => 10999,
@@ -200,7 +200,7 @@ return new class extends Migration
         foreach ($products as $index => $product) {
             $slug = Str::slug($product['name']);
             $categoryId = $categoryIds[$product['category']] ?? $categoryIds['home-decor'];
-            $shortDescription = "Imported Little Divinity product gallery from product folder " . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) . '.';
+            $shortDescription = "Imported Kanakshi.in product gallery from product folder " . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) . '.';
 
             DB::table('products')->updateOrInsert(
                 ['sku' => $product['sku']],
@@ -208,7 +208,7 @@ return new class extends Migration
                     'category_id' => $categoryId,
                     'name' => $product['name'],
                     'slug' => $slug,
-                    'description' => 'This product was imported from the Little Divinity product image folders. Pricing, stock, category, and copy can be refined from the admin product editor.',
+                    'description' => 'This product was imported from the Kanakshi.in product image folders. Pricing, stock, category, and copy can be refined from the admin product editor.',
                     'short_desc' => $shortDescription,
                     'price' => $product['price'],
                     'sale_price' => $product['sale_price'],

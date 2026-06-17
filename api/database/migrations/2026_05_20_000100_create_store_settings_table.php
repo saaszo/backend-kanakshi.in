@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('store_settings', function (Blueprint $table): void {
             $table->id();
-            $table->string('site_name', 150)->default('Little Divinity');
+            $table->string('site_name', 150)->default('Kanakshi.in');
             $table->string('site_tagline', 255)->nullable();
             $table->string('business_name', 150)->nullable();
             $table->string('business_email', 150)->nullable();
@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('state', 100)->nullable();
             $table->string('pincode', 20)->nullable();
             $table->string('country', 100)->default('India');
-            $table->string('invoice_prefix', 25)->default('LD');
+            $table->string('invoice_prefix', 25)->default('KAN');
             $table->text('invoice_footer_note')->nullable();
             $table->boolean('show_logo_on_invoice')->default(true);
             $table->longText('return_policy')->nullable();

@@ -1,5 +1,5 @@
 @php
-    $siteUrl = env('FRONTEND_SITE_URL', env('APP_FRONTEND_URL', 'https://littledivinity.com'));
+    $siteUrl = env('FRONTEND_SITE_URL', env('APP_FRONTEND_URL', 'https://kanakshi.in'));
 @endphp
 
 <div class="admin-mobile-bar d-lg-none">
@@ -8,7 +8,7 @@
             <i class="bi bi-shop-window"></i>
         </span>
         <div class="sidebar-logo-text">
-            <strong>Little Divinity</strong>
+            <strong>Kanakshi.in</strong>
             <span>Commerce Admin</span>
         </div>
     </div>
@@ -24,7 +24,7 @@
                 <i class="bi bi-shop-window"></i>
             </span>
             <div class="sidebar-logo-text">
-                <strong id="adminSidebarLabel">Little Divinity</strong>
+                <strong id="adminSidebarLabel">Kanakshi.in</strong>
                 <span>Commerce Admin</span>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <i class="bi bi-shop-window"></i>
         </span>
         <div class="sidebar-logo-text">
-            <strong>Little Divinity</strong>
+            <strong>Kanakshi.in</strong>
             <span>Admin Panel</span>
         </div>
     </div>

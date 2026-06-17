@@ -267,7 +267,7 @@
                                 </div>
                                 <div class="form-grid one">
                                     <div @class(['field', 'has-error' => $errors->has('invoice_footer_note')])><label for="invoice_footer_note">Invoice Footer Note</label><textarea id="invoice_footer_note" name="invoice_footer_note">{{ old('invoice_footer_note', $store?->invoice_footer_note) }}</textarea>@error('invoice_footer_note')<div class="field-error">{{ $message }}</div>@enderror</div>
-                                    <div @class(['field', 'has-error' => $errors->has('footer_copyright_text')])><label for="footer_copyright_text">Footer Copyright Text</label><input id="footer_copyright_text" name="footer_copyright_text" value="{{ old('footer_copyright_text', $store?->footer_copyright_text) }}" placeholder="© Little Divinity. All rights reserved to Tadpole Story LLP." />@error('footer_copyright_text')<div class="field-error">{{ $message }}</div>@enderror</div>
+                                    <div @class(['field', 'has-error' => $errors->has('footer_copyright_text')])><label for="footer_copyright_text">Footer Copyright Text</label><input id="footer_copyright_text" name="footer_copyright_text" value="{{ old('footer_copyright_text', $store?->footer_copyright_text) }}" placeholder="© Kanakshi.in. All rights reserved to Tadpole Story LLP." />@error('footer_copyright_text')<div class="field-error">{{ $message }}</div>@enderror</div>
                                 </div>
                                 <div class="settings-actions">
                                     <button type="submit" class="button small">Update Invoice & Footer</button>
@@ -282,7 +282,7 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="form-grid one">
-                                    <div @class(['field', 'has-error' => $errors->has('meta_title')])><label for="meta_title">Default Meta Title</label><input id="meta_title" name="meta_title" value="{{ old('meta_title', $store?->meta_title) }}" placeholder="Little Divinity | Handcrafted Brass Decor & Gifting" />@error('meta_title')<div class="field-error">{{ $message }}</div>@enderror</div>
+                                    <div @class(['field', 'has-error' => $errors->has('meta_title')])><label for="meta_title">Default Meta Title</label><input id="meta_title" name="meta_title" value="{{ old('meta_title', $store?->meta_title) }}" placeholder="Kanakshi.in | Handcrafted Brass Decor & Gifting" />@error('meta_title')<div class="field-error">{{ $message }}</div>@enderror</div>
                                     <div @class(['field', 'has-error' => $errors->has('meta_description')])><label for="meta_description">Default Meta Description</label><textarea id="meta_description" name="meta_description" placeholder="Store-wide SEO description for homepage and main social previews.">{{ old('meta_description', $store?->meta_description) }}</textarea>@error('meta_description')<div class="field-error">{{ $message }}</div>@enderror</div>
                                 </div>
                                 <div class="settings-actions">
@@ -326,7 +326,7 @@
                                 @method('PUT')
                                 <div class="form-grid">
                                     <div @class(['field', 'has-error' => $errors->has('twitter_title')])><label for="twitter_title">Twitter / X Title</label><input id="twitter_title" name="twitter_title" value="{{ old('twitter_title', $store?->twitter_title) }}" placeholder="Card title for Twitter / X shares" />@error('twitter_title')<div class="field-error">{{ $message }}</div>@enderror</div>
-                                    <div @class(['field', 'has-error' => $errors->has('twitter_handle')])><label for="twitter_handle">Twitter / X Handle</label><input id="twitter_handle" name="twitter_handle" value="{{ old('twitter_handle', $store?->twitter_handle) }}" placeholder="@littledivinity" />@error('twitter_handle')<div class="field-error">{{ $message }}</div>@enderror</div>
+                                    <div @class(['field', 'has-error' => $errors->has('twitter_handle')])><label for="twitter_handle">Twitter / X Handle</label><input id="twitter_handle" name="twitter_handle" value="{{ old('twitter_handle', $store?->twitter_handle) }}" placeholder="@kanakshi.in" />@error('twitter_handle')<div class="field-error">{{ $message }}</div>@enderror</div>
                                     <div @class(['field', 'has-error' => $errors->has('twitter_image') || $errors->has('twitter_image_file')])>
                                         <label for="twitter_image">Twitter / X Image URL</label>
                                         <input id="twitter_image" name="twitter_image" value="{{ old('twitter_image', $store?->twitter_image) }}" placeholder="/branding/twitter-festive-card.jpg" />

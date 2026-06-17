@@ -18,7 +18,7 @@
                     <div>
                         <div class="brand">Customer Verification</div>
                         <h2>Email & OTP Verification</h2>
-                        <p class="lead" style="margin-top:8px;">Manage only Little Divinity customer email delivery and verification rules here. Admin OTP and admin reset email settings stay hidden and backend-managed by Saaszo.</p>
+                        <p class="lead" style="margin-top:8px;">Manage only Kanakshi.in customer email delivery and verification rules here. Admin OTP and admin reset email settings stay hidden and backend-managed by Saaszo.</p>
                     </div>
                 </div>
 
@@ -40,18 +40,18 @@
                 <div class="admin-fields">
                     <section class="admin-section">
                         <h3>Customer Email Delivery</h3>
-                        <p>Customer-facing mailboxes are fixed for Little Divinity. Admin OTP and admin reset mail stay on the separate Saaszo-managed mailbox and are not editable here.</p>
+                        <p>Customer-facing mailboxes are fixed for Kanakshi.in. Admin OTP and admin reset mail stay on the separate Saaszo-managed mailbox and are not editable here.</p>
                         <form method="POST" action="{{ route('admin.email-otp.email.update') }}" class="admin-fields">
                             @csrf
                             @method('PUT')
                             <div class="form-grid">
                                 <div class="field">
                                     <label>Customer Auth Sender</label>
-                                    <input value="{{ ($lockedMailRoutes['auth']['name'] ?? 'Little Divinity') . ' <' . ($lockedMailRoutes['auth']['email'] ?? 'noreply@littledivinity.com') . '>' }}" readonly />
+                                    <input value="{{ ($lockedMailRoutes['auth']['name'] ?? 'Kanakshi.in') . ' <' . ($lockedMailRoutes['auth']['email'] ?? 'noreply@kanakshi.in') . '>' }}" readonly />
                                 </div>
                                 <div class="field">
                                     <label>Order Sender</label>
-                                    <input value="{{ ($lockedMailRoutes['order']['name'] ?? 'Little Divinity Orders') . ' <' . ($lockedMailRoutes['order']['email'] ?? 'order@littledivinity.com') . '>' }}" readonly />
+                                    <input value="{{ ($lockedMailRoutes['order']['name'] ?? 'Kanakshi.in Orders') . ' <' . ($lockedMailRoutes['order']['email'] ?? 'noreply@kanakshi.in') . '>' }}" readonly />
                                 </div>
                                 <div class="field">
                                     <label>Admin OTP Sender</label>
@@ -109,7 +109,7 @@
 
                     <section class="admin-section">
                         <h3>Mobile OTP Providers</h3>
-                        <p>Add API credentials for 2-3 providers so admin can enable SMS or WhatsApp OTP whenever Little Divinity wants mobile verification.</p>
+                        <p>Add API credentials for 2-3 providers so admin can enable SMS or WhatsApp OTP whenever Kanakshi.in wants mobile verification.</p>
                         @foreach ($providers as $provider)
                             <form method="POST" action="{{ route('admin.email-otp.provider.update', $provider) }}" class="admin-section" style="margin-top: 16px; padding: 18px;">
                                 @csrf

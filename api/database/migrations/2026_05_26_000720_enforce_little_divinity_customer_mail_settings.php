@@ -8,23 +8,28 @@ return new class extends Migration
     public function up(): void
     {
         $existing = DB::table('customer_email_settings')->where('id', 1)->first();
+        $sharedSmtpPassword = env('CUSTOMER_AUTH_SMTP_PASSWORD')
+            ?: env('CUSTOMER_ORDER_SMTP_PASSWORD')
+            ?: env('CUSTOMER_SMTP_PASSWORD')
+            ?: env('SMTP_SETTINGS_PASSWORD')
+            ?: ($existing->smtp_password ?? null);
 
         DB::table('customer_email_settings')->updateOrInsert(
             ['id' => 1],
             [
-                'from_name' => 'Little Divinity',
-                'from_email' => 'noreply@littledivinity.com',
-                'reply_to_email' => 'noreply@littledivinity.com',
+                'from_name' => 'Kanakshi.in',
+                'from_email' => 'noreply@kanakshi.in',
+                'reply_to_email' => env('CUSTOMER_AUTH_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in')),
                 'smtp_host' => 'smtp.hostinger.com',
                 'smtp_port' => 465,
                 'smtp_encryption' => 'ssl',
-                'smtp_username' => 'noreply@littledivinity.com',
-                'smtp_password' => 'Littledivinity@123',
-                'order_from_name' => 'Little Divinity Orders',
-                'order_from_email' => 'order@littledivinity.com',
-                'order_reply_to_email' => 'order@littledivinity.com',
-                'order_smtp_username' => 'order@littledivinity.com',
-                'order_smtp_password' => 'Littledivinity@123',
+                'smtp_username' => 'noreply@kanakshi.in',
+                'smtp_password' => $sharedSmtpPassword,
+                'order_from_name' => 'Kanakshi.in Orders',
+                'order_from_email' => 'noreply@kanakshi.in',
+                'order_reply_to_email' => env('CUSTOMER_ORDER_REPLY_TO_EMAIL', env('STORE_SUPPORT_EMAIL', 'support@kanakshi.in')),
+                'order_smtp_username' => 'noreply@kanakshi.in',
+                'order_smtp_password' => $sharedSmtpPassword,
                 'send_account_creation_emails' => true,
                 'send_email_verification_emails' => true,
                 'send_password_reset_emails' => true,

@@ -135,10 +135,10 @@ class RegistryController extends Controller
                 "Verification Status: VERIFIED & ACTIVE\n" .
                 "--------------------------------------------------\n\n" .
                 ($validated['admin_notes'] ? "Assessing Officer Notes: {$validated['admin_notes']}\n\n" : "") .
-                "To view certificate status or file repair claims in the future, please visit: https://littledivinity.com/warranty-status?code={$registration->registration_code}\n\n" .
+                "To view certificate status or file repair claims in the future, please visit: https://kanakshi.in/warranty-status?code={$registration->registration_code}\n\n" .
                 "Warm regards,\n" .
-                "Team Little Divinity\n" .
-                "littledivinity.com";
+                "Team Kanakshi.in\n" .
+                "kanakshi.in";
 
         $this->sendNotificationMail($registration->email, $subject, $body);
 
@@ -184,10 +184,10 @@ class RegistryController extends Controller
                 "--------------------------------------------------\n" .
                 "{$validated['admin_notes']}\n" .
                 "--------------------------------------------------\n\n" .
-                "If you believe this was an error or you have a corrected invoice to upload, please register again at: https://littledivinity.com/warranty-portal or contact customer care.\n\n" .
+                "If you believe this was an error or you have a corrected invoice to upload, please register again at: https://kanakshi.in/warranty-portal or contact customer care.\n\n" .
                 "Warm regards,\n" .
-                "Team Little Divinity\n" .
-                "littledivinity.com";
+                "Team Kanakshi.in\n" .
+                "kanakshi.in";
 
         $this->sendNotificationMail($registration->email, $subject, $body);
 

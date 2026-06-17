@@ -16,7 +16,7 @@ class ProductSchemaBuilder
             : null;
 
         $siteUrl = rtrim((string) config('app.frontend_url', config('app.url')), '/');
-        $siteName = $store?->site_name ?: config('app.name', 'Little Divinity');
+        $siteName = $store?->site_name ?: config('app.name', 'Kanakshi.in');
         $currency = $store?->currency ?: 'INR';
         $images = collect((array) $product->images)
             ->filter()

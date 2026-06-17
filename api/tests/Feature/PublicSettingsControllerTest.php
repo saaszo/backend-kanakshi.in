@@ -16,15 +16,15 @@ class PublicSettingsControllerTest extends TestCase
     public function test_public_settings_exposes_storefront_admin_configuration(): void
     {
         StoreSetting::query()->updateOrCreate(['id' => 1], [
-            'site_name' => 'Little Divinity',
-            'business_name' => 'Little Divinity LLP',
+            'site_name' => 'Kanakshi.in',
+            'business_name' => 'Kanakshi.in LLP',
             'business_email' => 'biz@example.com',
             'business_phone' => '+91 9000000001',
             'support_email' => 'support@example.com',
             'support_phone' => '+91 9000000002',
             'whatsapp_number' => '+91 9876543210',
             'invoice_footer_note' => 'Keep this invoice for support.',
-            'custom_domain' => 'littledivinity.com',
+            'custom_domain' => 'kanakshi.in',
             'show_topbar' => true,
             'topbar_offers' => json_encode(['Offer one', 'Offer two']),
         ]);

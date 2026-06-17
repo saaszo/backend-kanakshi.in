@@ -26,7 +26,7 @@
                 @csrf
                 <div class="field">
                     <label for="email">Admin Email</label>
-                    <input id="email" type="email" name="email" value="{{ old('email', 'admin@saaszo.in') }}" required autofocus>
+                    <input id="email" type="email" name="email" value="{{ old('email', 'admin@kanakshi.in') }}" required autofocus>
                 </div>
 
                 <button class="button" type="submit">Send Reset OTP</button>

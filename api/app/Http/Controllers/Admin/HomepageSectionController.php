@@ -26,7 +26,7 @@ class HomepageSectionController extends Controller
     private const STATS_COUNT = 4;
     private const FESTIVE_EDIT_COUNT = 4;
     private const MEDIA_URL_MAX_LENGTH = 2048;
-    private const FRONTEND_REVALIDATE_SECRET_FALLBACK = 'little-divinity-homepage-revalidate';
+    private const FRONTEND_REVALIDATE_SECRET_FALLBACK = 'kanakshi-homepage-revalidate';
 
     public function index(): View
     {
@@ -696,7 +696,7 @@ class HomepageSectionController extends Controller
                 'is_active' => true,
                 'eyebrow' => 'About The Brand',
                 'title' => 'A Home For Handcrafted Brass And Heritage Decor',
-                'paragraph_one' => 'Little Divinity is a home for handcrafted brass idols, home decor, pooja essentials, and meaningful gifting pieces. Every product is made by skilled Indian artisans using traditional techniques passed down through generations.',
+                'paragraph_one' => 'Kanakshi.in is a home for handcrafted brass idols, home decor, pooja essentials, and meaningful gifting pieces. Every product is made by skilled Indian artisans using traditional techniques passed down through generations.',
                 'paragraph_two' => 'Whether you are decorating a sacred corner, gifting a housewarming, or adding warmth to your living space, we curate only the finest pieces in solid brass, wood, and stone. Trusted by over 45,000 happy customers across India.',
                 'button_text' => 'Explore Our Collection',
                 'button_url' => '/shop',
@@ -735,8 +735,8 @@ class HomepageSectionController extends Controller
                 'is_active' => true,
                 'eyebrow' => 'Follow Us On',
                 'title' => 'Instagram',
-                'profile_url' => 'https://www.instagram.com/littledivinity_official/',
-                'profile_label' => '@littledivinity_official',
+                'profile_url' => 'https://kanakshi.in',
+                'profile_label' => 'kanakshi.in',
                 'tiles' => [
                     ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_1_3758284a_c859_469d_be0a/screen.png', 'alt' => 'Brass god idol handcrafted'],
                     ['image' => '/reference-assets/image_from_https_theadvitya.com_cdn_shop_files_untitled_design_2025_10_1/screen.png', 'alt' => 'Home decor brass collection'],
@@ -749,7 +749,7 @@ class HomepageSectionController extends Controller
             'stats' => [
                 'is_active' => true,
                 'eyebrow' => 'Trusted By Thousands',
-                'title' => 'Why Customers Choose Little Divinity',
+                'title' => 'Why Customers Choose Kanakshi.in',
                 'items' => [
                     ['value' => '50000+', 'label' => 'Orders Fulfilled'],
                     ['value' => '45000+', 'label' => 'Happy Customers'],

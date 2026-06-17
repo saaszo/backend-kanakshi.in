@@ -76,8 +76,8 @@ class CustomerAuthController
                 $otp = $this->createOtp(null, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
                 $this->sendCustomerMail(
                     $email,
-                    'Verify your Little Divinity account',
-                    "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
+                    'Verify your Kanakshi.in account',
+                    "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Kanakshi.in"
                 );
 
                 return response()->json([
@@ -106,8 +106,8 @@ class CustomerAuthController
                 try {
                     $this->sendCustomerMail(
                         $user->email,
-                        'Welcome to Little Divinity',
-                        "Your account has been created successfully.\n\nTeam Little Divinity"
+                        'Welcome to Kanakshi.in',
+                        "Your account has been created successfully.\n\nTeam Kanakshi.in"
                     );
                 } catch (RuntimeException) {
                     // Non-critical welcome email failures should not invalidate a successful account creation.
@@ -250,8 +250,8 @@ class CustomerAuthController
             $otp = $this->createOtp($user?->id, $email, self::EMAIL_VERIFICATION_OTP_PURPOSE);
             $this->sendCustomerMail(
                 $email,
-                'Verify your Little Divinity account',
-                "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
+                'Verify your Kanakshi.in account',
+                "Your verification OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Kanakshi.in"
             );
         } catch (RuntimeException $exception) {
             return response()->json([
@@ -336,8 +336,8 @@ class CustomerAuthController
             try {
                 $this->sendCustomerMail(
                     $user->email,
-                    'Welcome to Little Divinity',
-                    "Your email has been verified and your account is now active.\n\nTeam Little Divinity"
+                    'Welcome to Kanakshi.in',
+                    "Your email has been verified and your account is now active.\n\nTeam Kanakshi.in"
                 );
             } catch (RuntimeException) {
                 // Verification is already complete; ignore non-critical welcome mail failures.
@@ -381,8 +381,8 @@ class CustomerAuthController
             $otp = $this->createOtp($user->id, $user->email, self::PASSWORD_RESET_OTP_PURPOSE);
             $this->sendCustomerMail(
                 $user->email,
-                'Your Little Divinity password reset OTP',
-                "Your password reset OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Little Divinity"
+                'Your Kanakshi.in password reset OTP',
+                "Your password reset OTP is {$otp}. It is valid for {$this->otpExpiryMinutes()} minutes.\n\nTeam Kanakshi.in"
             );
         } catch (RuntimeException $exception) {
             return response()->json([

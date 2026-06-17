@@ -116,4 +116,4 @@ jobs:
             --retry 8 \
             --retry-delay 5 \
             --retry-connrefused \
-            "https://ecombeckend.saaszo.in/api/v1/health"
+            "https://backend.kanakshi.in/api/v1/health"

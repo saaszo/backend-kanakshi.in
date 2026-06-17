@@ -20,9 +20,9 @@ use DOMXPath;
 
 class LittleDivinityBlogImporter
 {
-    private const SOURCE_BASE_URL = 'https://littledivinity.com';
-    private const SOURCE_BLOG_INDEX = 'https://littledivinity.com/blogs/news';
-    private const SOURCE_SITEMAP = 'https://littledivinity.com/sitemap_blogs_1.xml';
+    private const SOURCE_BASE_URL = 'https://kanakshi.in';
+    private const SOURCE_BLOG_INDEX = 'https://kanakshi.in/blogs/news';
+    private const SOURCE_SITEMAP = 'https://kanakshi.in/sitemap_blogs_1.xml';
 
     /**
      * @return array{imported:int,updated:int,skipped:int,errors:array<int,string>,urls:array<int,string>}
@@ -70,13 +70,13 @@ class LittleDivinityBlogImporter
             ?: $this->extractTitleFromDocument($dom)
             ?: 'News';
 
-        $name = trim(preg_replace('/\s+–\s+Little Divinity\s*$/u', '', $name) ?? $name);
+        $name = trim(preg_replace('/\s+–\s+Kanakshi.in\s*$/u', '', $name) ?? $name);
 
         return [
             'name' => $name ?: 'News',
             'description' => $this->extractMetaContent($xpath, 'meta[property="og:description"]')
                 ?: $this->extractMetaContent($xpath, 'meta[name="description"]')
-                ?: 'Editorial updates, décor ideas, and brassware guides from Little Divinity.',
+                ?: 'Editorial updates, décor ideas, and brassware guides from Kanakshi.in.',
         ];
     }
 
@@ -135,7 +135,7 @@ class LittleDivinityBlogImporter
         $excerpt = $description ?: Str::limit($contentText, 220, '');
 
         $authorName = trim((string) (($jsonLd['author']['name'] ?? $jsonLd['author'][0]['name'] ?? '')))
-            ?: 'Little Divinity Editorial';
+            ?: 'Kanakshi.in Editorial';
 
         $featureImage = $this->normalizeUrl(
             $this->extractMetaContent($xpath, 'meta[property="og:image:secure_url"]')
@@ -147,7 +147,7 @@ class LittleDivinityBlogImporter
         $updatedAt = !empty($jsonLd['dateModified']) ? Carbon::parse($jsonLd['dateModified']) : $publishedAt;
 
         $metaTitle = trim($this->extractTitleFromDocument($dom) ?: '') ?: $title;
-        $metaTitle = trim(preg_replace('/\s+–\s+Little Divinity\s*$/u', '', $metaTitle) ?? $metaTitle);
+        $metaTitle = trim(preg_replace('/\s+–\s+Kanakshi.in\s*$/u', '', $metaTitle) ?? $metaTitle);
 
         [$primaryKeyword, $secondaryKeywords] = $this->deriveKeywords($title, $description, $contentText);
 
@@ -189,7 +189,7 @@ class LittleDivinityBlogImporter
             ['slug' => Str::slug($article['author_name'])],
             [
                 'name' => $article['author_name'],
-                'bio' => 'Editorial voice at Little Divinity, sharing insights on brassware, spiritual décor, and heritage-inspired living.',
+                'bio' => 'Editorial voice at Kanakshi.in, sharing insights on brassware, spiritual décor, and heritage-inspired living.',
                 'avatar_alt' => $article['author_name'],
             ]
         );
@@ -199,7 +199,7 @@ class LittleDivinityBlogImporter
             [
                 'name' => $blogMeta['name'],
                 'description' => $blogMeta['description'],
-                'meta_title' => $blogMeta['name'] . ' | Little Divinity',
+                'meta_title' => $blogMeta['name'] . ' | Kanakshi.in',
                 'meta_description' => $blogMeta['description'],
             ]
         );

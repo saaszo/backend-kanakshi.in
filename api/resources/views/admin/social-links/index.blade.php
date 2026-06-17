@@ -33,7 +33,7 @@
                                 <div class="field"><label>Handle</label><input name="handle" /></div>
                                 <div class="field">
                                     <label>URL</label>
-                                    <input name="url" placeholder="https://youtube.com/@littledivinity" />
+                                    <input name="url" placeholder="https://kanakshi.in" />
                                     <small class="muted">youtube.com/... bhi chalega, system automatically https:// add kar dega.</small>
                                 </div>
                                 <div class="field"><label>Icon</label><input name="icon" /></div>
@@ -59,7 +59,7 @@
                                         <div class="field"><label>Handle</label><input name="handle" value="{{ $socialLink->handle }}" /></div>
                                         <div class="field">
                                             <label>URL</label>
-                                            <input name="url" value="{{ $socialLink->url }}" placeholder="https://youtube.com/@littledivinity" />
+                                            <input name="url" value="{{ $socialLink->url }}" placeholder="https://kanakshi.in" />
                                         </div>
                                         <div class="field"><label>Icon</label><input name="icon" value="{{ $socialLink->icon }}" /></div>
                                         <div class="field"><label>Sort Order</label><input name="sort_order" value="{{ $socialLink->sort_order }}" /></div>

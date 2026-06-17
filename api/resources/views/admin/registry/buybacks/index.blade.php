@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Buyback Evaluation Queue | Little Divinity Admin')
+@section('title', 'Buyback Evaluation Queue | Kanakshi.in Admin')
 
 @section('content')
 <div class="dashboard-shell">

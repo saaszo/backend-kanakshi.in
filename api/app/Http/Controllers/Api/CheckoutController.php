@@ -330,7 +330,7 @@ class CheckoutController
                 if ($orderStatus !== 'payment_pending') {
                     $this->sendOrderMailSafely(
                         $order->fresh('items'),
-                        'Your Little Divinity order has been placed',
+                        'Your Kanakshi.in order has been placed',
                         $this->buildOrderMailBody(
                             $order->fresh('items'),
                             'Your order has been placed successfully. We will share each fulfillment stage with you on this email.'
@@ -1136,7 +1136,7 @@ class CheckoutController
             if ($freshOrder) {
                 $this->sendOrderMailSafely(
                     $freshOrder,
-                    'Your Little Divinity order is confirmed',
+                    'Your Kanakshi.in order is confirmed',
                     $this->buildOrderMailBody(
                         $freshOrder,
                         'Your payment has been verified and your order is now confirmed.',
@@ -1212,7 +1212,7 @@ class CheckoutController
         $lines[] = '';
         $lines[] = 'We will continue sending you order stage updates on this email address.';
         $lines[] = '';
-        $lines[] = 'Team Little Divinity';
+        $lines[] = 'Team Kanakshi.in';
 
         return implode("\n", $lines);
     }

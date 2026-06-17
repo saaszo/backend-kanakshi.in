@@ -67,9 +67,9 @@ Artisan::command('blog:import-little-divinity {--refresh : Update matching impor
         }
     } else {
         $this->newLine();
-        $this->info('Little Divinity blog import completed successfully.');
+        $this->info('Kanakshi.in blog import completed successfully.');
     }
-})->purpose('Import published Little Divinity Shopify blog articles into the local blog CMS');
+})->purpose('Import published Kanakshi.in Shopify blog articles into the local blog CMS');
 
 Artisan::command('blog:seed-little-divinity-editorial {--no-refresh : Skip existing matching slugs instead of updating them}', function () {
     /** @var LittleDivinityEditorialBlogPublisher $publisher */
@@ -86,8 +86,8 @@ Artisan::command('blog:seed-little-divinity-editorial {--no-refresh : Skip exist
     $this->info("Updated: {$result['updated']}");
     $this->comment("Skipped: {$result['skipped']}");
     $this->newLine();
-    $this->info('Little Divinity editorial blog publish completed successfully.');
-})->purpose('Seed curated Little Divinity editorial blog content into the blog CMS');
+    $this->info('Kanakshi.in editorial blog publish completed successfully.');
+})->purpose('Seed curated Kanakshi.in editorial blog content into the blog CMS');
 
 Artisan::command('catalog:import-amazon-sheet {path : Absolute path to the Amazon spreadsheet} {--refresh : Update existing imported products that match by AMZ-ASIN SKU} {--limit=0 : Import only the first N products for verification}', function () {
     /** @var AmazonSpreadsheetProductImporter $importer */
@@ -115,4 +115,4 @@ Artisan::command('catalog:import-amazon-sheet {path : Absolute path to the Amazo
         $this->newLine();
         $this->info('Amazon product spreadsheet import completed successfully.');
     }
-})->purpose('Import Little Divinity Amazon products from an XLSX sheet without using SP-API');
+})->purpose('Import Kanakshi.in Amazon products from an XLSX sheet without using SP-API');

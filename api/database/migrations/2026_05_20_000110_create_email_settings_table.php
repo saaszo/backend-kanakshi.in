@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('email_settings', function (Blueprint $table): void {
             $table->id();
             $table->string('mailer', 30)->default('smtp');
-            $table->string('from_name', 150)->default('ecomeservice for littledivinity');
+            $table->string('from_name', 150)->default('Kanakshi.in Service');
             $table->string('from_email', 150);
             $table->string('reply_to_email', 150)->nullable();
             $table->string('smtp_host', 150)->nullable();
