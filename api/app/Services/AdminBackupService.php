@@ -16,7 +16,7 @@ class AdminBackupService
     {
         $timestamp = now()->format('Ymd-His');
         $slug = $label ? Str::slug($label) : 'manual-backup';
-        $fileName = "little-divinity-backup-{$timestamp}-{$slug}.zip";
+        $fileName = "kanakshi-backup-{$timestamp}-{$slug}.zip";
         $relativePath = self::BACKUP_DISK_DIRECTORY.'/'.$fileName;
         $absolutePath = storage_path($relativePath);
 
@@ -107,7 +107,7 @@ class AdminBackupService
     private function buildManifest(?string $label): array
     {
         return [
-            'type' => 'little-divinity-admin-backup',
+            'type' => 'kanakshi-admin-backup',
             'label' => $label ?: 'Manual backup',
             'created_at' => now()->toIso8601String(),
             'app_env' => app()->environment(),
