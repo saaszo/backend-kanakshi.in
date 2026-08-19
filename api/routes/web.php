@@ -61,6 +61,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');
         Route::put('/settings/store', [StoreSettingsController::class, 'updateStore']);
+        Route::get('/settings/marketing-pixels', [StoreSettingsController::class, 'marketingPixels'])->name('settings.marketing-pixels');
+        Route::put('/settings/marketing-pixels', [StoreSettingsController::class, 'updateMarketingPixels'])->name('settings.marketing-pixels.update');
         Route::put('/settings/gateways/{gateway}', [StoreSettingsController::class, 'updateGateway'])->name('settings.gateway.update');
         Route::put('/settings/delivery-partners/{partner}', [StoreSettingsController::class, 'updateDeliveryPartner'])->name('settings.delivery.update');
 

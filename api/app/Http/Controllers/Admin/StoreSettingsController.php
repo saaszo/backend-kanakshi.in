@@ -246,4 +246,31 @@ class StoreSettingsController extends Controller
 
         return back()->with('status', "{$partner->name} delivery settings updated.");
     }
+
+    public function marketingPixels(): View
+    {
+        $store = StoreSetting::query()->first();
+
+        return view('admin.settings.marketing-pixels', [
+            'store' => $store,
+        ]);
+    }
+
+    public function updateMarketingPixels(Request $request): RedirectResponse
+    {
+        $store = StoreSetting::query()->first();
+
+        $validated = $request->validate([
+            'facebook_pixel_id' => ['nullable', 'string', 'max:80'],
+            'google_tag_manager_id' => ['nullable', 'string', 'max:80'],
+            'custom_header_scripts' => ['nullable', 'string'],
+            'custom_footer_scripts' => ['nullable', 'string'],
+        ]);
+
+        if ($store) {
+            $store->update($validated);
+        }
+
+        return back()->with('status', 'Marketing pixels, GTM tags, and custom tracking scripts updated successfully.');
+    }
 }

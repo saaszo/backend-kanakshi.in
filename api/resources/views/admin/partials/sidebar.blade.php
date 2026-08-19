@@ -237,9 +237,13 @@
                 </div>
             </div>
             <div class="submenu-list {{ request()->routeIs('admin.settings.*', 'admin.payment-settings.*', 'admin.email-otp.*') ? 'expanded' : '' }}">
-                <a href="{{ route('admin.settings.edit') }}" class="submenu-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.settings.edit') }}" class="submenu-link {{ request()->routeIs('admin.settings.edit') ? 'active' : '' }}">
                     <i class="bi bi-sliders2"></i>
                     <span>General Store Info</span>
+                </a>
+                <a href="{{ route('admin.settings.marketing-pixels') }}" class="submenu-link {{ request()->routeIs('admin.settings.marketing-pixels') ? 'active' : '' }}">
+                    <i class="bi bi-code-slash"></i>
+                    <span>Marketing & Pixel Tracking</span>
                 </a>
                 <a href="{{ route('admin.payment-settings.index') }}" class="submenu-link {{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}">
                     <i class="bi bi-credit-card-2-front"></i>

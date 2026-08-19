@@ -62,14 +62,14 @@ class KanakshiJewelleryMigrationSeeder extends Seeder
                 'name' => '925 Sterling Silver',
                 'slug' => 'silver-jewellery',
                 'description' => 'Pure 925 sterling silver hallmarked with anti-tarnish rhodium protective coating.',
-                'image' => '/jewellery/drop-earrings.jpg',
+                'image' => '/jewellery/silver-collection.jpg',
                 'sort_order' => 6,
             ],
             [
                 'name' => 'Modern Mangalsutra',
                 'slug' => 'mangalsutra',
                 'description' => 'Contemporary minimalist and everyday solitaires for modern brides.',
-                'image' => '/jewellery/heart-necklace.jpg',
+                'image' => '/jewellery/mangalsutra-collection.jpg',
                 'sort_order' => 7,
             ],
             [
@@ -83,7 +83,7 @@ class KanakshiJewelleryMigrationSeeder extends Seeder
                 'name' => 'Gifts & Hampers',
                 'slug' => 'gifting-edits',
                 'description' => 'Curated luxury gift boxes with velvet pouch, certificate card, and personal note.',
-                'image' => '/jewellery/couple-promise-rings.jpg',
+                'image' => '/jewellery/gift-set-combo.jpg',
                 'sort_order' => 9,
             ],
         ];
