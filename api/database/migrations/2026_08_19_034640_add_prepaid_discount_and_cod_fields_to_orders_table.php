@@ -12,10 +12,10 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table): void {
             if (! Schema::hasColumn('orders', 'prepaid_discount')) {
-                $table->decimal('prepaid_discount', 10, 2)->default(0)->after('discount');
+                $table->decimal('prepaid_discount', 10, 2)->default(0);
             }
             if (! Schema::hasColumn('orders', 'cod_fee')) {
-                $table->decimal('cod_fee', 10, 2)->default(0)->after('shipping_cost');
+                $table->decimal('cod_fee', 10, 2)->default(0);
             }
         });
 

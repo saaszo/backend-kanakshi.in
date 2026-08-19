@@ -10,28 +10,28 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table): void {
             if (! Schema::hasColumn('orders', 'courier_name')) {
-                $table->string('courier_name', 100)->nullable()->after('coupon_id');
+                $table->string('courier_name', 100)->nullable();
             }
             if (! Schema::hasColumn('orders', 'dispatched_at')) {
-                $table->timestamp('dispatched_at')->nullable()->after('tracking_url');
+                $table->timestamp('dispatched_at')->nullable();
             }
             if (! Schema::hasColumn('orders', 'estimated_delivery_date')) {
-                $table->date('estimated_delivery_date')->nullable()->after('dispatched_at');
+                $table->date('estimated_delivery_date')->nullable();
             }
         });
 
         Schema::table('order_returns', function (Blueprint $table): void {
             if (! Schema::hasColumn('order_returns', 'pickup_courier_name')) {
-                $table->string('pickup_courier_name', 100)->nullable()->after('reason');
+                $table->string('pickup_courier_name', 100)->nullable();
             }
             if (! Schema::hasColumn('order_returns', 'pickup_tracking_number')) {
-                $table->string('pickup_tracking_number', 100)->nullable()->after('pickup_courier_name');
+                $table->string('pickup_tracking_number', 100)->nullable();
             }
             if (! Schema::hasColumn('order_returns', 'pickup_tracking_url')) {
-                $table->text('pickup_tracking_url')->nullable()->after('pickup_tracking_number');
+                $table->text('pickup_tracking_url')->nullable();
             }
             if (! Schema::hasColumn('order_returns', 'pickup_scheduled_date')) {
-                $table->date('pickup_scheduled_date')->nullable()->after('pickup_tracking_url');
+                $table->date('pickup_scheduled_date')->nullable();
             }
         });
     }

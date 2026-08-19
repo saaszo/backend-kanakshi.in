@@ -10,13 +10,13 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('users', 'wallet_balance')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->decimal('wallet_balance', 10, 2)->default(0.00)->after('profile_image');
+                $table->decimal('wallet_balance', 10, 2)->default(0.00);
             });
         }
 
         if (!Schema::hasColumn('orders', 'wallet_discount')) {
             Schema::table('orders', function (Blueprint $table) {
-                $table->decimal('wallet_discount', 10, 2)->default(0.00)->after('prepaid_discount');
+                $table->decimal('wallet_discount', 10, 2)->default(0.00);
             });
         }
 

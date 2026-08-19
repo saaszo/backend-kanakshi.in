@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::table('order_returns', function (Blueprint $table): void {
             if (!Schema::hasColumn('order_returns', 'refund_mode')) {
-                $table->string('refund_mode', 30)->default('wallet')->after('approved_amount');
+                $table->string('refund_mode', 30)->default('wallet');
             }
             if (!Schema::hasColumn('order_returns', 'refund_processed_at')) {
-                $table->timestamp('refund_processed_at')->nullable()->after('refund_mode');
+                $table->timestamp('refund_processed_at')->nullable();
             }
             if (!Schema::hasColumn('order_returns', 'reason_detail')) {
-                $table->string('reason_detail', 255)->nullable()->after('reason');
+                $table->string('reason_detail', 255)->nullable();
             }
         });
     }

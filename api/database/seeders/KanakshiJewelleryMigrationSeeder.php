@@ -10,7 +10,11 @@ class KanakshiJewelleryMigrationSeeder extends Seeder
     public function run(): void
     {
         $now = now();
-        DB::statement('PRAGMA foreign_keys = OFF;');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = OFF;');
+        } else {
+            DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+        }
 
         // Delete all old products and non-jewellery data
         DB::table('product_variants')->truncate();
@@ -758,6 +762,10 @@ class KanakshiJewelleryMigrationSeeder extends Seeder
             'updated_at' => $now,
         ]);
 
-        DB::statement('PRAGMA foreign_keys = ON;');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = ON;');
+        } else {
+            DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+        }
     }
 }
