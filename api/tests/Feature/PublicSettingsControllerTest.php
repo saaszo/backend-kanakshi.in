@@ -29,8 +29,8 @@ class PublicSettingsControllerTest extends TestCase
             'topbar_offers' => json_encode(['Offer one', 'Offer two']),
         ]);
 
-        PaymentGatewaySetting::query()->create([
-            'provider' => 'phonepe',
+        PaymentGatewaySetting::query()->update(['is_active' => false]);
+        PaymentGatewaySetting::query()->updateOrCreate(['provider' => 'phonepe'], [
             'display_name' => 'PhonePe',
             'is_active' => true,
             'is_test_mode' => false,
