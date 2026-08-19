@@ -104,6 +104,7 @@ jobs:
             find "\$APP_PATH/storage/backups" -type f -name 'database-*.sqlite' -mtime +14 -delete
           fi
           php artisan migrate --force
+          php artisan db:seed --class=KanakshiJewelleryMigrationSeeder --force
           php artisan optimize:clear
           php artisan config:cache
           php artisan route:cache
