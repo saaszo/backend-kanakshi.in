@@ -53,9 +53,12 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/checkout/cancel-order', [CheckoutController::class, 'cancelOrder']);
     Route::post('/checkout/webhooks/razorpay', [CheckoutController::class, 'razorpayWebhook']);
     Route::get('/orders/track', [OrderTrackingController::class, 'track']);
+    Route::post('/returns/lookup', [\App\Http\Controllers\Api\PublicReturnController::class, 'lookup']);
+    Route::post('/returns/submit', [\App\Http\Controllers\Api\PublicReturnController::class, 'submit']);
     Route::get('/customer/orders', [CustomerOrderController::class, 'index']);
     Route::get('/customer/orders/{order_number}', [CustomerOrderController::class, 'show']);
     Route::post('/customer/orders/{order_number}/returns', [CustomerOrderController::class, 'requestReturn']);
+    Route::get('/customer/wallet', [\App\Http\Controllers\Api\CustomerWalletController::class, 'show']);
     Route::get('/customer/addresses', [CustomerAddressController::class, 'index']);
     Route::post('/customer/addresses', [CustomerAddressController::class, 'store']);
     Route::put('/customer/addresses/{id}', [CustomerAddressController::class, 'update']);
@@ -76,6 +79,9 @@ Route::prefix('v1')->group(function (): void {
 
     // Public Newsletter Signup
     Route::post('/newsletter/subscribe', [\App\Http\Controllers\Api\NewsletterController::class, 'subscribe']);
+
+    // Public Contact Inquiry Endpoint
+    Route::post('/contact', [\App\Http\Controllers\Api\ContactInquiryController::class, 'store']);
 
     // Warranty & Buyback Registry Routes
     Route::prefix('registry')->group(function (): void {

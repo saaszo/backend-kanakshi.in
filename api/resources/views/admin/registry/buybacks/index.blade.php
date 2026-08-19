@@ -103,13 +103,13 @@
                                 </td>
                                 <td>
                                     @if($bb->status === 'completed')
-                                        <span class="admin-badge success">✓ Vaulted</span>
+                                        <span class="admin-badge success">Vaulted</span>
                                     @elseif($bb->status === 'submitted')
-                                        <span class="admin-badge primary">⚠ Submitted</span>
+                                        <span class="admin-badge primary">Submitted</span>
                                     @elseif($bb->status === 'inspection_pending')
-                                        <span class="admin-badge warning">✈ In-Transit</span>
+                                        <span class="admin-badge warning">In-Transit</span>
                                     @elseif($bb->status === 'rejected')
-                                        <span class="admin-badge danger">✗ Rejected</span>
+                                        <span class="admin-badge danger">Rejected</span>
                                     @else
                                         <span class="admin-badge success">{{ ucfirst($bb->status) }}</span>
                                     @endif

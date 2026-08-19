@@ -7,32 +7,35 @@
         /* Modern Tabs CSS */
         .admin-tabs-nav {
             display: flex;
-            gap: 8px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
+            gap: 4px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0px;
             margin-bottom: 24px;
         }
         .admin-tab-btn {
             padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-soft);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #64748b;
             background: transparent;
             border: none;
+            border-bottom: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: -2px;
         }
         .admin-tab-btn:hover {
-            color: var(--heading);
-            background: rgba(15, 23, 42, 0.04);
+            color: #0f172a;
+            background: #f1f5f9;
         }
         .admin-tab-btn.active {
-            color: var(--primary);
-            background: var(--primary-glow);
+            color: #090d16;
+            background: #ffffff;
+            border-bottom: 2px solid #090d16;
+            font-weight: 800;
         }
         .admin-tab-panel {
             display: none;
@@ -45,31 +48,31 @@
         .admin-subtabs-nav {
             display: flex;
             gap: 4px;
-            background: rgba(15, 23, 42, 0.03);
+            background: #f1f5f9;
             padding: 4px;
-            border-radius: 10px;
             margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
         }
         .admin-subtab-btn {
             flex: 1;
             padding: 8px 12px;
-            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--text-soft);
+            color: #64748b;
             background: transparent;
             border: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             text-align: center;
         }
         .admin-subtab-btn:hover {
-            color: var(--heading);
+            color: #0f172a;
         }
         .admin-subtab-btn.active {
-            background: #fff;
-            color: var(--primary);
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+            background: #ffffff;
+            color: #090d16;
+            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         /* Viewport Optimized Scrollable Table */
@@ -77,10 +80,8 @@
             max-height: calc(100vh - 380px);
             overflow-y: auto;
             overflow-x: auto;
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            border: 1px solid #e2e8f0;
             background: #fff;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
         }
         .admin-product-table-wrap thead th {
             position: sticky;
@@ -168,14 +169,14 @@
         .admin-modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(9, 13, 22, 0.75);
             backdrop-filter: blur(4px);
             z-index: 1000;
             display: none;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.15s ease;
         }
         .admin-modal-overlay.active {
             display: flex;
@@ -183,21 +184,22 @@
         }
         .admin-modal-content {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 0px;
+            border: 1px solid #1e293b;
             width: 100%;
             max-width: 600px;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            transform: translateY(10px);
+            transition: transform 0.15s ease;
         }
         .admin-modal-overlay.active .admin-modal-content {
             transform: translateY(0);
         }
         .admin-modal-header {
-            padding: 20px 24px;
+            padding: 18px 24px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
@@ -422,7 +424,7 @@
                                                     <a class="button small secondary" href="{{ route('admin.products.edit', $product) }}" title="Full Edit">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </a>
-                                                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Remove this product?')" style="display:inline;">
+                                                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" data-confirm="Are you sure you want to permanently delete '{{ $product->name }}' from your store catalog?" data-confirm-title="Delete Product" data-confirm-btn="Delete Product" style="display:inline;">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button class="button danger small" type="submit" title="Delete">

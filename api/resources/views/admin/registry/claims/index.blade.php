@@ -97,13 +97,13 @@
                                 <td>{{ $claim->created_at->format('Y-m-d H:i') }}</td>
                                 <td>
                                     @if($claim->status === 'completed')
-                                        <span class="admin-badge success">✓ Resolved</span>
+                                        <span class="admin-badge success">Resolved</span>
                                     @elseif($claim->status === 'submitted')
-                                        <span class="admin-badge primary">⚠ Submitted</span>
+                                        <span class="admin-badge primary">Submitted</span>
                                     @elseif($claim->status === 'under_review')
-                                        <span class="admin-badge warning">✎ Reviewing</span>
+                                        <span class="admin-badge warning">Reviewing</span>
                                     @elseif($claim->status === 'rejected')
-                                        <span class="admin-badge danger">✗ Rejected</span>
+                                        <span class="admin-badge danger">Rejected</span>
                                     @else
                                         <span class="admin-badge success">{{ ucfirst($claim->status) }}</span>
                                     @endif

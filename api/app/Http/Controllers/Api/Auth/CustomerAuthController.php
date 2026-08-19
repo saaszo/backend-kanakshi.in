@@ -46,6 +46,7 @@ class CustomerAuthController
                 'otp_expiry_minutes' => (int) ($verification?->otp_expiry_minutes ?? 10),
                 'resend_wait_seconds' => (int) ($verification?->resend_wait_seconds ?? 60),
                 'customer_email_active' => $customerEmailService->isCustomerEmailDeliveryActive(),
+                'wallet' => (new \App\Services\CustomerWalletService())->getWalletConfig(),
             ],
         ]);
     }
@@ -57,7 +58,37 @@ class CustomerAuthController
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ], [
+            'email.unique' => 'This email address is already registered. Please sign in or use forgot password.',
         ]);
+
+        if (! empty($validated['phone'])) {
+            $rawPhone = trim($validated['phone']);
+            $digitsOnly = preg_replace('/[^0-9]/', '', $rawPhone);
+            $last10 = substr($digitsOnly, -10);
+
+            $existingPhoneUser = User::query()
+                ->whereNotNull('phone')
+                ->where('phone', '!=', '')
+                ->where(function ($q) use ($rawPhone, $digitsOnly, $last10): void {
+                    $q->where('phone', $rawPhone);
+                    if (strlen($digitsOnly) >= 10) {
+                        $q->orWhere('phone', $digitsOnly)
+                            ->orWhere('phone', 'like', "%{$last10}");
+                    }
+                })
+                ->exists();
+
+            if ($existingPhoneUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This mobile number is already registered with an account. Please sign in or use forgot password.',
+                    'errors' => [
+                        'phone' => ['This mobile number is already registered with an account.'],
+                    ],
+                ], 422);
+            }
+        }
 
         try {
             $verification = $this->verificationSettings();
@@ -101,6 +132,9 @@ class CustomerAuthController
                 'password' => $validated['password'],
                 'email_verified_at' => now(),
             ]);
+
+            // Award welcome signup bonus
+            app(\App\Services\CustomerWalletService::class)->awardSignupBonus($user);
 
             if ($this->canSendCustomerMail('account_creation')) {
                 try {
@@ -330,6 +364,10 @@ class CustomerAuthController
         }
 
         $this->markOtpUsed((int) $otp->id);
+        
+        // Award welcome signup bonus
+        app(\App\Services\CustomerWalletService::class)->awardSignupBonus($user);
+
         [$plainTextToken, $token] = $this->issueToken($user);
 
         if ($this->canSendCustomerMail('account_creation')) {
@@ -503,6 +541,7 @@ class CustomerAuthController
             'city' => $user->city,
             'state' => $user->state,
             'pincode' => $user->pincode,
+            'wallet_balance' => (float) ($user->wallet_balance ?? 0.00),
             'email_verified_at' => optional($user->email_verified_at)?->toIso8601String(),
             'role' => $user->role,
         ];

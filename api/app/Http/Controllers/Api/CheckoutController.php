@@ -11,6 +11,7 @@ use App\Models\Coupon;
 use App\Models\CustomerAccessToken;
 use App\Models\CustomerAddress;
 use App\Models\PaymentGatewaySetting;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\CustomerEmailService;
 use App\Services\PendingOrderReservationService;
@@ -52,6 +53,8 @@ class CheckoutController
             'payment_id' => ['nullable', 'string', 'max:150'],
             'coupon_code' => ['nullable', 'string', 'max:60'],
             'notes' => ['nullable', 'string'],
+            'use_wallet' => ['nullable', 'boolean'],
+            'wallet_amount' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
@@ -217,14 +220,74 @@ class CheckoutController
                 }
 
                 $shippingCost = $defaultShippingCost + $customShippingCost;
-                
+
+                // Step 3b: Prepaid Discount & COD Handling
+                $prepaidDiscount = 0.00;
+                $codFee = 0.00;
+                $isPrepaid = $validated['payment_method'] !== 'cod';
+
+                if ($isPrepaid) {
+                    $prepaidEnabled = Setting::query()->where('key_name', 'prepaid_discount_enabled')->value('value');
+                    if (in_array((string)$prepaidEnabled, ['1', 'true', 'yes', 'on'], true) || $prepaidEnabled === null) {
+                        $minOrder = (float) (Setting::query()->where('key_name', 'prepaid_discount_min_order')->value('value') ?: 0);
+                        if ($netSubtotal >= $minOrder) {
+                            $discType = Setting::query()->where('key_name', 'prepaid_discount_type')->value('value') ?: 'percent';
+                            $discVal = (float) (Setting::query()->where('key_name', 'prepaid_discount_value')->value('value') ?: 5);
+                            $maxDisc = (float) (Setting::query()->where('key_name', 'prepaid_discount_max_amount')->value('value') ?: 500);
+
+                            if ($discType === 'percent') {
+                                $prepaidDiscount = $netSubtotal * ($discVal / 100);
+                                if ($maxDisc > 0 && $prepaidDiscount > $maxDisc) {
+                                    $prepaidDiscount = $maxDisc;
+                                }
+                            } else {
+                                $prepaidDiscount = $discVal;
+                            }
+
+                            if ($prepaidDiscount > $netSubtotal) {
+                                $prepaidDiscount = $netSubtotal;
+                            }
+                        }
+                    }
+                } else {
+                    $codGateway = PaymentGatewaySetting::query()->where('provider', 'cod')->first();
+                    $codEnabled = Setting::query()->where('key_name', 'cod_enabled')->value('value');
+                    $isCodActive = ($codGateway ? (bool) $codGateway->is_active : true) && (in_array((string)$codEnabled, ['1', 'true', 'yes', 'on'], true) || $codEnabled === null);
+
+                    if (! $isCodActive) {
+                        $this->failCheckout('Cash on Delivery (COD) is currently disabled. Please choose an online payment method.');
+                    }
+
+                    $maxCodLimit = (float) (Setting::query()->where('key_name', 'cod_max_order_amount')->value('value') ?: 50000);
+                    if ($maxCodLimit > 0 && $netSubtotal > $maxCodLimit) {
+                        $this->failCheckout("Cash on Delivery is available for orders up to ₹" . number_format($maxCodLimit, 0) . ".");
+                    }
+
+                    $codFee = (float) (Setting::query()->where('key_name', 'cod_fee')->value('value') ?: 0);
+                }
+
+                // Step 3c: Wallet Redemption
+                $payableBeforeWallet = max(0, ($netSubtotal - $prepaidDiscount) + $shippingCost + $codFee);
+                $walletDiscount = 0.00;
+
+                if (!empty($validated['use_wallet']) && $checkoutCustomer) {
+                    $customerWalletBalance = (float)($checkoutCustomer->wallet_balance ?? 0.00);
+                    if ($customerWalletBalance > 0 && $payableBeforeWallet > 0) {
+                        $requestedWallet = isset($validated['wallet_amount']) && (float)$validated['wallet_amount'] > 0
+                            ? (float)$validated['wallet_amount']
+                            : $customerWalletBalance;
+                        $walletDiscount = min($customerWalletBalance, $requestedWallet, $payableBeforeWallet);
+                        $walletDiscount = round(max(0, $walletDiscount), 2);
+                    }
+                }
+
                 // Final order amount
-                $totalAmount = $netSubtotal + $shippingCost;
+                $totalAmount = max(0, $payableBeforeWallet - $walletDiscount);
 
                 $gatewaySetting = null;
                 $gatewayConfig = null;
 
-                if ($validated['payment_method'] !== 'cod') {
+                if ($validated['payment_method'] !== 'cod' && $totalAmount > 0) {
                     $gatewaySetting = $this->resolveStorefrontGateway($validated['payment_method']);
 
                     if (!$gatewaySetting) {
@@ -236,7 +299,10 @@ class CheckoutController
                 $orderStatus = 'pending';
                 $paymentStatus = 'pending';
                 
-                if ($validated['payment_method'] !== 'cod') {
+                if ($totalAmount == 0) {
+                    $orderStatus = 'processing';
+                    $paymentStatus = 'paid';
+                } elseif ($validated['payment_method'] !== 'cod') {
                     $orderStatus = 'payment_pending';
                 }
 
@@ -246,8 +312,11 @@ class CheckoutController
                     'status' => $orderStatus,
                     'subtotal' => $subtotal,
                     'discount' => $discount,
+                    'prepaid_discount' => $prepaidDiscount,
+                    'wallet_discount' => $walletDiscount,
                     'tax' => $totalTax,
                     'shipping_cost' => $shippingCost,
+                    'cod_fee' => $codFee,
                     'total_amount' => $totalAmount,
                     'payment_method' => $validated['payment_method'],
                     'payment_status' => $paymentStatus,
@@ -263,6 +332,19 @@ class CheckoutController
                     'notes' => $validated['notes'] ?? null,
                     'coupon_id' => $coupon ? $coupon->id : null,
                 ]);
+
+                // Deduct wallet balance if applied
+                if ($walletDiscount > 0 && $checkoutCustomer) {
+                    $checkoutCustomer->debitWallet(
+                        $walletDiscount,
+                        'checkout_redemption',
+                        $order->id,
+                        "Applied on Order #{$order->order_number}"
+                    );
+                }
+
+                // Schedule post-purchase reward cashback (unlocked post 7-day return period)
+                app(\App\Services\CustomerWalletService::class)->scheduleOrderCashback($order);
 
                 if ($checkoutCustomer && ($validated['save_address'] ?? false)) {
                     $this->syncCheckoutCustomerAddress($checkoutCustomer, $validated);
@@ -746,7 +828,35 @@ class CheckoutController
             return $authenticatedUser;
         }
 
-        return null;
+        $email = strtolower(trim($validated['ship_email']));
+        $user = User::query()->where('email', $email)->first();
+        if (!$user) {
+            $user = User::query()->create([
+                'name' => $validated['ship_name'],
+                'email' => $email,
+                'phone' => $validated['ship_phone'],
+                'address' => $validated['ship_address'],
+                'city' => $validated['ship_city'],
+                'state' => $validated['ship_state'],
+                'pincode' => $validated['ship_pincode'],
+                'role' => 'customer',
+                'status' => 'active',
+                'is_active' => true,
+                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+                'email_verified_at' => now(),
+            ]);
+        } else {
+            $user->forceFill([
+                'name' => $validated['ship_name'],
+                'phone' => $validated['ship_phone'],
+                'address' => $validated['ship_address'],
+                'city' => $validated['ship_city'],
+                'state' => $validated['ship_state'],
+                'pincode' => $validated['ship_pincode'],
+            ])->save();
+        }
+
+        return $user;
     }
 
     private function syncCheckoutCustomerAddress(User $user, array $validated): void

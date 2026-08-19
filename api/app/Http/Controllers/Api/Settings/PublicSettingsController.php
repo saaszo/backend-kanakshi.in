@@ -118,6 +118,19 @@ class PublicSettingsController
                     'mobile_menu' => $mobileMenu->values(),
                     'social_links' => $socialLinks->values(),
                     'payment_gateways' => $paymentGateways->values(),
+                    'prepaid_discount' => [
+                        'is_enabled' => $this->readRegistryBooleanSetting('prepaid_discount_enabled', true),
+                        'title' => (string) $legacySettings->get('prepaid_discount_title', 'Extra 5% OFF on Online Payment'),
+                        'type' => (string) $legacySettings->get('prepaid_discount_type', 'percent'),
+                        'value' => (float) $legacySettings->get('prepaid_discount_value', '5'),
+                        'min_order_amount' => (float) $legacySettings->get('prepaid_discount_min_order', '0'),
+                        'max_discount' => (float) $legacySettings->get('prepaid_discount_max_amount', '500'),
+                    ],
+                    'cod_settings' => [
+                        'is_enabled' => $this->readRegistryBooleanSetting('cod_enabled', true) && ($paymentGateways->contains('provider', 'cod')),
+                        'fee' => (float) $legacySettings->get('cod_fee', '0'),
+                        'max_order_amount' => (float) $legacySettings->get('cod_max_order_amount', '50000'),
+                    ],
                     'registry_allow_buyback' => $this->readRegistryBooleanSetting('registry_allow_buyback', true),
                     'registry_warranty_duration_months' => $this->readRegistryIntegerSetting('registry_warranty_duration_months', 24),
                     'registry_allowed_sources' => $this->readRegistryArraySetting(

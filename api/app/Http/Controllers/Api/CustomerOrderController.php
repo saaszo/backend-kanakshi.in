@@ -96,6 +96,8 @@ class CustomerOrderController
 
         $validated = $request->validate([
             'reason' => ['required', 'string', 'max:150'],
+            'reason_detail' => ['nullable', 'string', 'max:255'],
+            'refund_mode' => ['nullable', 'string', 'in:wallet,original_payment'],
             'customer_notes' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer'],
@@ -161,12 +163,16 @@ class CustomerOrderController
             $requestedAmount += ((float) $orderItem->price * (int) $requestItem['quantity']);
         }
 
+        $refundMode = $validated['refund_mode'] ?? 'wallet';
+
         $returnRequest = OrderReturn::query()->create([
             'order_id' => $order->id,
             'user_id' => $user->id,
             'return_number' => 'RET-' . now()->format('Ymd') . '-' . Str::upper(Str::random(5)),
             'status' => 'requested',
             'reason' => $validated['reason'],
+            'reason_detail' => $validated['reason_detail'] ?? null,
+            'refund_mode' => $refundMode,
             'customer_notes' => $validated['customer_notes'] ?? null,
             'requested_items' => $normalizedItems,
             'images' => $validated['images'] ?? [],
@@ -177,7 +183,7 @@ class CustomerOrderController
         $order->trackingUpdates()->create([
             'status' => 'Return Requested',
             'location' => 'Customer Portal',
-            'message' => 'Customer created return request ' . $returnRequest->return_number . '.',
+            'message' => 'Customer created return request ' . $returnRequest->return_number . ' (Refund mode: ' . ($refundMode === 'wallet' ? 'Instant Wallet Credit' : 'Original Payment') . ').',
         ]);
 
         return response()->json([
@@ -210,9 +216,11 @@ class CustomerOrderController
             'created_at' => $order->created_at->toIso8601String(),
             'items_count' => $order->items->sum('quantity'),
             'first_item_image' => $order->items->first()?->image,
-            'first_item_name' => $order->items->first()?->name,
+            'courier_name' => $order->courier_name,
             'tracking_number' => $order->tracking_number,
             'tracking_url' => $order->tracking_url,
+            'dispatched_at' => optional($order->dispatched_at)->toIso8601String(),
+            'estimated_delivery_date' => optional($order->estimated_delivery_date)->format('Y-m-d'),
         ];
     }
 
@@ -242,8 +250,11 @@ class CustomerOrderController
             'ship_state' => $order->ship_state,
             'ship_pincode' => $order->ship_pincode,
             'notes' => $order->notes,
+            'courier_name' => $order->courier_name,
             'tracking_number' => $order->tracking_number,
             'tracking_url' => $order->tracking_url,
+            'dispatched_at' => optional($order->dispatched_at)->toIso8601String(),
+            'estimated_delivery_date' => optional($order->estimated_delivery_date)->format('Y-m-d'),
             'created_at' => $order->created_at->toIso8601String(),
             'items' => $order->items->map(function ($item) {
                 return [
@@ -276,6 +287,13 @@ class CustomerOrderController
                     'return_number' => $return->return_number,
                     'status' => $return->status,
                     'reason' => $return->reason,
+                    'reason_detail' => $return->reason_detail,
+                    'refund_mode' => $return->refund_mode ?: 'wallet',
+                    'refund_processed_at' => optional($return->refund_processed_at)->toIso8601String(),
+                    'pickup_courier_name' => $return->pickup_courier_name,
+                    'pickup_tracking_number' => $return->pickup_tracking_number,
+                    'pickup_tracking_url' => $return->pickup_tracking_url,
+                    'pickup_scheduled_date' => optional($return->pickup_scheduled_date)->format('Y-m-d'),
                     'requested_amount' => (float) $return->requested_amount,
                     'approved_amount' => (float) $return->approved_amount,
                     'requested_at' => optional($return->requested_at)->toIso8601String(),

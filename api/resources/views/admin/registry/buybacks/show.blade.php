@@ -16,11 +16,11 @@
             </div>
             <div class="toolbar-actions">
                 @if($buyback->status === 'completed')
-                    <span class="admin-badge success px-3 py-2 fs-6">✓ Vaulted & Completed</span>
+                    <span class="admin-badge success px-3 py-2 fs-6">Vaulted & Completed</span>
                 @elseif($buyback->status === 'submitted')
-                    <span class="admin-badge primary px-3 py-2 fs-6">⚠ New Buyback Case</span>
+                    <span class="admin-badge primary px-3 py-2 fs-6">New Buyback Case</span>
                 @elseif($buyback->status === 'rejected')
-                    <span class="admin-badge danger px-3 py-2 fs-6">✗ Rejected Case</span>
+                    <span class="admin-badge danger px-3 py-2 fs-6">Rejected Case</span>
                 @else
                     <span class="admin-badge warning px-3 py-2 fs-6">{{ ucfirst(str_replace('_', ' ', $buyback->status)) }}</span>
                 @endif

@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Hero Slider Editor')
+@section('title', 'Hero Slider & Promo Banners Studio')
 
 @php
     $heroEnabledCount = collect($slides)->where('is_active', true)->count();
@@ -14,7 +14,7 @@
         .hero-preview-shell {
             display: grid;
             grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-            gap: 18px;
+            gap: 16px;
         }
 
         .hero-stage,
@@ -25,15 +25,14 @@
         .hero-stage {
             position: relative;
             min-height: 420px;
-            border-radius: 18px;
             overflow: hidden;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            background: #0f172a;
             border: 1px solid var(--border);
         }
 
         .hero-promo-stack {
             display: grid;
-            gap: 18px;
+            gap: 16px;
             grid-template-rows: repeat(2, minmax(0, 1fr));
         }
 
@@ -42,34 +41,34 @@
             position: absolute;
             inset: auto auto 0 0;
             z-index: 2;
-            padding: 28px;
+            padding: 24px;
             max-width: 440px;
-            color: #fff;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.02) 0%, rgba(15, 23, 42, 0.72) 72%, rgba(15, 23, 42, 0.92) 100%);
+            color: #ffffff;
+            background: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 60%, rgba(9, 13, 22, 0.98) 100%);
         }
 
         .hero-stage-copy h4,
         .hero-promo-copy h4 {
-            margin: 0 0 8px;
-            font-size: 28px;
-            color: #fff;
+            margin: 0 0 6px;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
         }
 
         .hero-stage-copy p,
         .hero-promo-copy p {
             margin: 0;
-            color: rgba(255, 255, 255, 0.82);
-            font-size: 14px;
+            color: #cbd5e1;
+            font-size: 13.5px;
             line-height: 1.5;
         }
 
         .hero-promo-card {
             position: relative;
             min-height: 200px;
-            border-radius: 18px;
             overflow: hidden;
             border: 1px solid var(--border);
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            background: #0f172a;
         }
 
         .hero-empty-state {
@@ -78,38 +77,42 @@
             min-height: 100%;
             padding: 24px;
             text-align: center;
-            color: var(--text-soft);
-            font-size: 14px;
+            color: #64748b;
+            font-size: 13.5px;
         }
 
         .hero-library-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
         }
 
         .hero-media-card {
             border: 1px solid var(--border);
-            border-radius: 18px;
-            background: #fff;
+            background: #ffffff;
             overflow: hidden;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
             display: flex;
             flex-direction: column;
+            transition: all 0.15s ease;
+        }
+
+        .hero-media-card:hover {
+            border-color: #090d16;
         }
 
         .hero-media-card-top {
             position: relative;
             aspect-ratio: 1.1 / 1;
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            background: #f1f5f9;
             border-bottom: 1px solid var(--border);
             overflow: hidden;
         }
 
         .hero-media-card-body {
             padding: 18px;
-            display: grid;
-            gap: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .hero-card-meta {
@@ -121,45 +124,40 @@
 
         .hero-card-meta h4 {
             margin: 0 0 4px;
-            font-size: 17px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .hero-card-meta p,
         .hero-media-note {
             margin: 0;
             font-size: 12px;
-            color: var(--text-soft);
+            color: #64748b;
             line-height: 1.5;
         }
 
         .hero-card-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .hero-card-actions .button {
-            flex: 1 1 auto;
+            margin-top: 4px;
         }
 
         .hero-media-tag-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
 
         .hero-media-filename {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 11px;
-            color: var(--text-soft);
-            background: var(--bg-soft);
-            border-radius: 999px;
-            padding: 6px 10px;
-            border: 1px solid var(--border);
+            color: #475569;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border: 1px solid #e2e8f0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            max-width: 100%;
         }
 
         .hero-media-preview {
@@ -175,32 +173,33 @@
         .hero-media-overlay {
             position: absolute;
             inset: auto 0 0 0;
-            padding: 14px 16px;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.72) 100%);
+            padding: 12px 14px;
+            background: linear-gradient(180deg, rgba(9, 13, 22, 0) 0%, rgba(9, 13, 22, 0.85) 100%);
             color: #fff;
             display: flex;
             align-items: flex-end;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
             z-index: 2;
         }
 
         .hero-media-overlay strong {
             display: block;
             font-size: 13px;
-            color: #fff;
+            color: #ffffff;
         }
 
         .hero-media-overlay span {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.76);
+            color: #cbd5e1;
         }
 
+        /* Modal Overlay & Dialog */
         .hero-editor-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.58);
-            backdrop-filter: blur(8px);
+            background: rgba(9, 13, 22, 0.75);
+            backdrop-filter: blur(4px);
             padding: 24px;
             display: none;
             align-items: center;
@@ -215,11 +214,10 @@
         .hero-editor-dialog {
             width: min(1120px, 100%);
             max-height: calc(100vh - 48px);
-            overflow: auto;
-            background: #fff;
-            border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.24);
-            border: 1px solid rgba(15, 23, 42, 0.08);
+            overflow-y: auto;
+            background: #ffffff;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            border: 1px solid #1e293b;
         }
 
         .hero-editor-header {
@@ -230,46 +228,48 @@
             align-items: center;
             justify-content: space-between;
             gap: 18px;
-            padding: 22px 24px;
+            padding: 18px 24px;
             border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
         }
 
         .hero-editor-header h4 {
-            margin: 0 0 6px;
-            font-size: 22px;
+            margin: 0 0 2px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
         }
 
         .hero-editor-header p {
             margin: 0;
-            color: var(--text-soft);
-            font-size: 13px;
+            color: #64748b;
+            font-size: 12.5px;
         }
 
         .hero-editor-body {
             padding: 24px;
             display: grid;
-            grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.9fr);
+            grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.9fr);
             gap: 24px;
+            background: #ffffff;
         }
 
         .hero-crop-stage {
-            display: grid;
-            gap: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .hero-crop-preview {
             position: relative;
-            min-height: 420px;
-            border-radius: 22px;
+            min-height: 380px;
             overflow: hidden;
-            border: 1px solid var(--border);
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            border: 1px solid #cbd5e1;
+            background: #f1f5f9;
         }
 
         .hero-crop-preview.is-promo {
-            min-height: 320px;
+            min-height: 300px;
         }
 
         .hero-crop-guides {
@@ -283,7 +283,7 @@
         .hero-crop-guides::after {
             content: '';
             position: absolute;
-            background: rgba(255, 255, 255, 0.48);
+            background: rgba(0, 0, 0, 0.15);
         }
 
         .hero-crop-guides::before {
@@ -305,49 +305,44 @@
         .hero-crop-toolbar {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
+            gap: 10px;
         }
 
         .hero-slider-control {
-            display: grid;
-            gap: 6px;
-            padding: 14px 16px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         .hero-slider-control label {
             margin: 0;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: var(--text-soft);
+            color: #64748b;
         }
 
         .hero-slider-control output {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 800;
-            color: var(--heading);
+            color: #0f172a;
         }
 
         .hero-side-panel {
-            display: grid;
-            gap: 18px;
-            align-content: start;
-        }
-
-        .hero-side-panel .admin-field,
-        .hero-side-panel .admin-fields {
-            gap: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .hero-preview-note {
-            padding: 14px 16px;
-            border-radius: 16px;
-            border: 1px solid rgba(37, 99, 235, 0.14);
-            background: rgba(37, 99, 235, 0.06);
-            color: var(--primary-dark);
+            padding: 12px 16px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e40af;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -356,8 +351,9 @@
             position: sticky;
             bottom: 0;
             z-index: 4;
-            padding: 18px 24px 24px;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.96) 24%, rgba(255,255,255,0.98) 100%);
+            padding: 16px 24px;
+            background: #ffffff;
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -366,81 +362,62 @@
 
         .hero-editor-footer p {
             margin: 0;
-            color: var(--text-soft);
-            font-size: 13px;
+            color: #64748b;
+            font-size: 12.5px;
         }
 
-        .hero-modal-button-row {
+        .admin-sticky-savebar {
+            position: sticky;
+            bottom: 0;
+            z-index: 90;
+            background: #090d16;
+            border-top: 1px solid #1e293b;
+            padding: 16px 36px;
+            margin: 32px -36px -32px -36px;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
         }
 
-        .hero-hidden-url {
-            display: none;
-        }
-
-        @media (max-width: 1100px) {
+        @media (max-width: 991px) {
             .hero-preview-shell,
             .hero-editor-body {
                 grid-template-columns: 1fr;
             }
-        }
-
-        @media (max-width: 768px) {
-            .hero-library-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-editor-overlay {
-                padding: 12px;
-            }
-
-            .hero-editor-header,
-            .hero-editor-body,
-            .hero-editor-footer {
-                padding-left: 16px;
-                padding-right: 16px;
-            }
-
-            .hero-editor-footer {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .hero-modal-button-row {
-                width: 100%;
-            }
-
-            .hero-modal-button-row .button {
-                width: 100%;
-            }
-
-            .hero-crop-toolbar {
-                grid-template-columns: 1fr;
+            .admin-sticky-savebar {
+                margin: 20px -16px -20px -16px;
+                padding: 14px 16px;
             }
         }
     </style>
 
     <div class="dashboard-shell">
         @include('admin.partials.sidebar')
+
         <main class="admin-main">
-            <div class="admin-shell">
+            <div class="admin-shell-grid">
+                <!-- Top Header Banner -->
                 <div class="admin-banner">
                     <div>
-                        <div class="brand">Homepage Settings</div>
-                        <h2>Hero Slider Configuration</h2>
-                        <p>Manage hero media like a small asset studio: clear active previews, popup editing, and crop tuning before you save.</p>
+                        <div class="brand">Storefront Media Studio</div>
+                        <h2>Hero Carousel & Promo Banners</h2>
+                        <p class="lead" style="margin-top: 4px;">Live preview, interactive crop controls, slide rotations, and side spotlights.</p>
                     </div>
-                    <a href="{{ route('admin.homepage-sections.index') }}" class="button secondary small">
-                        <i class="bi bi-arrow-left"></i> Back To Sections
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.homepage-sections.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back To Sections
+                        </a>
+                        <button type="submit" form="hero-editor-form" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Save All Changes
+                        </button>
+                    </div>
                 </div>
 
                 @if ($errors->any())
-                    <div class="admin-errors">
-                        <strong>Please fix the highlighted fields to continue.</strong>
-                        <ul>
+                    <div class="p-3 mb-4" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-weight: 600;">
+                        <strong>Please resolve the highlighted fields:</strong>
+                        <ul class="mb-0 mt-2 ps-3">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -449,29 +426,34 @@
                 @endif
 
                 @if (session('status'))
-                    <div class="admin-toast" id="admin-success">
-                        <div>
-                            <strong>Changes Saved Successfully</strong>
-                            <p>{{ session('status') }}</p>
-                        </div>
-                        <button type="button" class="button secondary small" id="admin-toast-close">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
+                    <div class="p-3 mb-4" style="background: #e8f7ee; border: 1px solid #c2ebd1; color: #0d532b; font-weight: 600;">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('status') }}
                     </div>
                 @endif
 
-                <div class="admin-overview">
+                <!-- KPI Metric Tiles -->
+                <div class="metrics-grid mb-4">
                     <div class="admin-stat">
-                        <span>Main Slides Active</span>
-                        <strong>{{ $heroEnabledCount }} <span style="color: var(--text-soft); font-size: 18px;">/ {{ count($slides) }}</span></strong>
+                        <small>Main Slides Active</small>
+                        <strong style="color: #2563eb;">{{ $heroEnabledCount }} <span style="color: #64748b; font-size: 16px;">/ {{ count($slides) }}</span></strong>
+                        <span>Rotating hero slides</span>
                     </div>
                     <div class="admin-stat">
-                        <span>Promo Banners Active</span>
-                        <strong>{{ $promoEnabledCount }} <span style="color: var(--text-soft); font-size: 18px;">/ {{ count($promos) }}</span></strong>
+                        <small>Promo Spotlights</small>
+                        <strong style="color: #16a34a;">{{ $promoEnabledCount }} <span style="color: #64748b; font-size: 16px;">/ {{ count($promos) }}</span></strong>
+                        <span>Right side banners</span>
                     </div>
                     <div class="admin-stat">
-                        <span>Autoplay Speed</span>
-                        <strong>{{ old('autoplay_ms', $sliderSettings['autoplay_ms']) }} <span style="color: var(--text-soft); font-size: 18px;">ms</span></strong>
+                        <small>Autoplay Duration</small>
+                        <strong>{{ old('autoplay_ms', $sliderSettings['autoplay_ms']) }} <span style="color: #64748b; font-size: 16px;">ms</span></strong>
+                        <span>Slide transition interval</span>
+                    </div>
+                    <div class="admin-stat">
+                        <small>Section Status</small>
+                        <strong style="color: {{ $section->is_active ? '#16a34a' : '#dc2626' }};">
+                            {{ $section->is_active ? 'Live Published' : 'Disabled' }}
+                        </strong>
+                        <span>Storefront visibility</span>
                     </div>
                 </div>
 
@@ -479,13 +461,18 @@
                     @csrf
                     @method('PUT')
 
-                    <section class="admin-section">
-                        <div class="admin-section-header">
-                            <h3>Storefront Preview</h3>
-                            <p>This shows which media is currently active for the hero area before you open any popup editor.</p>
+                    <!-- Live Storefront Simulation Stage -->
+                    <section class="admin-section mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h3 class="mb-0">Live Storefront Simulation</h3>
+                                <p class="muted mb-0" style="font-size: 13px;">Exact visual presentation rendered on the customer-facing storefront.</p>
+                            </div>
+                            <span class="badge bg-primary">Live View</span>
                         </div>
 
                         <div class="hero-preview-shell">
+                            <!-- Main Hero Slide Preview -->
                             <div class="hero-stage">
                                 @if (!empty($activeSlide['image'] ?? null))
                                     <img
@@ -495,20 +482,21 @@
                                         style="object-position: {{ $activeSlide['crop_x'] ?? 50 }}% {{ $activeSlide['crop_y'] ?? 50 }}%; transform: scale({{ $activeSlide['crop_zoom'] ?? 1 }});"
                                     >
                                     <div class="hero-stage-copy">
-                                        <span class="admin-badge success" style="margin-bottom: 12px;">Active main slide</span>
-                                        <h4>{{ $activeSlide['title'] ?: 'No slide title set yet' }}</h4>
-                                        <p>{{ $activeSlide['href'] ?: 'No target URL set for this slide yet.' }}</p>
+                                        <span class="badge bg-success mb-2">Active Main Slide</span>
+                                        <h4>{{ $activeSlide['title'] ?: 'Fine Jewellery Collection' }}</h4>
+                                        <p>{{ $activeSlide['href'] ?: '/shop' }}</p>
                                     </div>
                                 @else
                                     <div class="hero-empty-state">
                                         <div>
-                                            <i class="bi bi-image" style="font-size: 28px; display: block; margin-bottom: 10px;"></i>
+                                            <i class="bi bi-image" style="font-size: 32px; display: block; margin-bottom: 10px;"></i>
                                             No active main slide image yet.
                                         </div>
                                     </div>
                                 @endif
                             </div>
 
+                            <!-- Right-Side Promo Cards Preview -->
                             <div class="hero-promo-stack">
                                 @foreach ([0, 1] as $promoIndex)
                                     @php
@@ -523,16 +511,16 @@
                                                 style="object-position: {{ $previewPromo['crop_x'] ?? 50 }}% {{ $previewPromo['crop_y'] ?? 50 }}%; transform: scale({{ $previewPromo['crop_zoom'] ?? 1 }});"
                                             >
                                             <div class="hero-promo-copy">
-                                                <span class="admin-badge {{ !empty($previewPromo['is_active']) ? 'success' : 'muted' }}" style="margin-bottom: 10px;">
-                                                    {{ !empty($previewPromo['is_active']) ? 'Active promo' : 'Inactive promo' }}
+                                                <span class="badge {{ !empty($previewPromo['is_active']) ? 'bg-success' : 'bg-secondary' }} mb-2">
+                                                    {{ !empty($previewPromo['is_active']) ? 'Active Promo' : 'Inactive' }}
                                                 </span>
-                                                <h4 style="font-size: 18px;">{{ $previewPromo['title'] ?: 'Promo banner '.($promoIndex + 1) }}</h4>
-                                                <p>{{ $previewPromo['subtitle'] ?: ($previewPromo['href'] ?: 'No promo copy yet.') }}</p>
+                                                <h4 style="font-size: 18px;">{{ $previewPromo['title'] ?: 'Promo Banner '.($promoIndex + 1) }}</h4>
+                                                <p>{{ $previewPromo['subtitle'] ?: ($previewPromo['href'] ?: 'Curated Fine Jewellery') }}</p>
                                             </div>
                                         @else
                                             <div class="hero-empty-state">
                                                 <div>
-                                                    <i class="bi bi-card-image" style="font-size: 22px; display: block; margin-bottom: 10px;"></i>
+                                                    <i class="bi bi-card-image" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
                                                     Promo banner {{ $promoIndex + 1 }} has no image yet.
                                                 </div>
                                             </div>
@@ -543,101 +531,89 @@
                         </div>
                     </section>
 
-                    <section class="admin-section">
-                        <div class="admin-section-header">
-                            <h3>Hero Settings & Options</h3>
-                            <p>Core section behavior and visibility settings stay on the main page. Media details open in popups.</p>
-                        </div>
+                    <!-- Core Hero Settings & Configuration -->
+                    <section class="admin-section mb-4">
+                        <h3 class="mb-1">Hero Section Parameters</h3>
+                        <p class="muted mb-3" style="font-size: 13px;">Manage section titles, overlay CTA action buttons, and autoplay intervals.</p>
 
-                        <div class="admin-fields">
-                            <div class="admin-field">
-                                <label for="label">Admin Label</label>
-                                <input id="label" name="label" value="{{ old('label', $section->label) }}" placeholder="e.g. Homepage Hero" />
-                                @error('label') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Admin Label</label>
+                                <input id="label" name="label" class="form-control" value="{{ old('label', $section->label) }}" placeholder="e.g. Homepage Hero" />
                             </div>
-                            <div class="admin-field">
-                                <label for="title">Section Title</label>
-                                <input id="title" name="title" value="{{ old('title', $section->title) }}" placeholder="Public section title" />
-                                @error('title') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Section Title</label>
+                                <input id="title" name="title" class="form-control" value="{{ old('title', $section->title) }}" placeholder="Public section title" />
                             </div>
-                            <div class="admin-field">
-                                <label for="subtitle">Section Subtitle</label>
-                                <input id="subtitle" name="subtitle" value="{{ old('subtitle', $section->subtitle) }}" />
-                                @error('subtitle') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Section Subtitle</label>
+                                <input id="subtitle" name="subtitle" class="form-control" value="{{ old('subtitle', $section->subtitle) }}" />
                             </div>
-                            <div class="admin-field">
-                                <label for="heading">Section Heading</label>
-                                <input id="heading" name="heading" value="{{ old('heading', $section->heading) }}" />
-                                @error('heading') <div class="admin-inline-error">{{ $message }}</div> @enderror
+
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Primary Button Text</label>
+                                <input id="button_text" name="button_text" class="form-control" value="{{ old('button_text', $section->button_text) }}" placeholder="Shop the Collection">
                             </div>
-                            <div class="admin-field" style="grid-column: 1 / -1;">
-                                <label for="content">Overlay Description</label>
-                                <textarea id="content" name="content" rows="3" placeholder="Short supporting copy shown on the homepage hero">{{ old('content', $section->content) }}</textarea>
-                                @error('content') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Primary Button URL</label>
+                                <input id="button_url" name="button_url" class="form-control" value="{{ old('button_url', $section->button_url) }}" placeholder="/shop">
                             </div>
-                            <div class="admin-field">
-                                <label for="button_text">Primary Button Text</label>
-                                <input id="button_text" name="button_text" value="{{ old('button_text', $section->button_text) }}" placeholder="e.g. Shop the Collection">
-                                @error('button_text') <div class="admin-inline-error">{{ $message }}</div> @enderror
+
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Secondary Button Text</label>
+                                <input id="secondary_button_text" name="secondary_button_text" class="form-control" value="{{ old('secondary_button_text', $secondaryButtonText) }}" placeholder="Explore Gifting Picks">
                             </div>
-                            <div class="admin-field">
-                                <label for="button_url">Primary Button URL</label>
-                                <input id="button_url" name="button_url" value="{{ old('button_url', $section->button_url) }}" placeholder="/shop">
-                                @error('button_url') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Secondary Button URL</label>
+                                <input id="secondary_button_url" name="secondary_button_url" class="form-control" value="{{ old('secondary_button_url', $secondaryButtonUrl) }}" placeholder="/shop?category=rings">
                             </div>
-                            <div class="admin-field">
-                                <label for="secondary_button_text">Secondary Button Text</label>
-                                <input id="secondary_button_text" name="secondary_button_text" value="{{ old('secondary_button_text', $secondaryButtonText) }}" placeholder="e.g. Explore Gifting Picks">
-                                @error('secondary_button_text') <div class="admin-inline-error">{{ $message }}</div> @enderror
+
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Autoplay Speed (ms)</label>
+                                <input id="autoplay_ms" name="autoplay_ms" type="number" min="1000" max="15000" step="100" class="form-control" value="{{ old('autoplay_ms', $sliderSettings['autoplay_ms']) }}" />
+                                <small class="text-muted">Default is 4000ms (4 seconds per slide).</small>
                             </div>
-                            <div class="admin-field">
-                                <label for="secondary_button_url">Secondary Button URL</label>
-                                <input id="secondary_button_url" name="secondary_button_url" value="{{ old('secondary_button_url', $secondaryButtonUrl) }}" placeholder="/shop?category=gifting-edit">
-                                @error('secondary_button_url') <div class="admin-inline-error">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="admin-field">
-                                <label for="sort_order">Display Sort Order</label>
-                                <input id="sort_order" name="sort_order" type="number" value="{{ old('sort_order', $section->sort_order) }}" />
-                                @error('sort_order') <div class="admin-inline-error">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="admin-field">
-                                <label for="autoplay_ms">Slider Transition Speed (ms)</label>
-                                <input id="autoplay_ms" name="autoplay_ms" type="number" min="1000" max="15000" step="100" value="{{ old('autoplay_ms', $sliderSettings['autoplay_ms']) }}" />
-                                <div class="admin-help">Recommended speed is between 3000ms and 4500ms.</div>
-                                @error('autoplay_ms') <div class="admin-inline-error">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="admin-field">
-                                <label for="nav_gap">Navigation Gap (px)</label>
-                                <input id="nav_gap" name="nav_gap" type="number" min="0" max="240" value="{{ old('nav_gap', $sliderSettings['nav_gap']) }}" />
-                                <div class="admin-help">Spacing between slider navigation components.</div>
-                                @error('nav_gap') <div class="admin-inline-error">{{ $message }}</div> @enderror
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-weight: 600; font-size: 13px;">Display Sort Order</label>
+                                <input id="sort_order" name="sort_order" type="number" class="form-control" value="{{ old('sort_order', $section->sort_order) }}" />
                             </div>
                         </div>
 
-                        <div class="admin-toggle-row">
-                            <label class="admin-toggle">
-                                <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $section->is_active))>
-                                <span>Entire Hero Section Active</span>
-                            </label>
-                            <label class="admin-toggle">
-                                <input type="checkbox" name="show_text" value="1" @checked(old('show_text', $sliderSettings['show_text']))>
-                                <span>Show Slide Title Text</span>
-                            </label>
-                            <label class="admin-toggle">
-                                <input type="checkbox" name="show_dots" value="1" @checked(old('show_dots', $sliderSettings['show_dots']))>
-                                <span>Enable Slider Dots</span>
-                            </label>
-                            <label class="admin-toggle">
-                                <input type="checkbox" name="show_arrows" value="1" @checked(old('show_arrows', $sliderSettings['show_arrows']))>
-                                <span>Enable Navigation Arrows</span>
-                            </label>
+                        <div class="d-flex gap-4 flex-wrap pt-2" style="border-top: 1px solid var(--border);">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" @checked(old('is_active', $section->is_active))>
+                                <label class="form-check-label" for="is_active" style="font-weight: 600; font-size: 13px;">
+                                    Publish Entire Hero Section
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="show_text" value="1" id="show_text" @checked(old('show_text', $sliderSettings['show_text']))>
+                                <label class="form-check-label" for="show_text" style="font-weight: 600; font-size: 13px;">
+                                    Show Slide Text Overlays
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="show_dots" value="1" id="show_dots" @checked(old('show_dots', $sliderSettings['show_dots']))>
+                                <label class="form-check-label" for="show_dots" style="font-weight: 600; font-size: 13px;">
+                                    Enable Navigation Dots
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="show_arrows" value="1" id="show_arrows" @checked(old('show_arrows', $sliderSettings['show_arrows']))>
+                                <label class="form-check-label" for="show_arrows" style="font-weight: 600; font-size: 13px;">
+                                    Enable Navigation Arrows
+                                </label>
+                            </div>
                         </div>
                     </section>
 
-                    <section class="admin-section">
-                        <div class="admin-section-header">
-                            <h3>Main Hero Slides</h3>
-                            <p>Each slide now opens inside a popup editor with media preview and crop controls. Recommended size: <strong>1600 × 1100 px</strong>.</p>
+                    <!-- Main Hero Carousel Slides Grid -->
+                    <section class="admin-section mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h3 class="mb-0">Main Carousel Slides</h3>
+                                <p class="muted mb-0" style="font-size: 13px;">Recommended dimensions: <strong>1600 × 1100 px</strong>. Click Edit to adjust crop and media.</p>
+                            </div>
                         </div>
 
                         <div class="hero-library-grid">
@@ -658,17 +634,17 @@
                                             <div class="hero-media-overlay">
                                                 <div>
                                                     <strong>{{ $slide['title'] ?: 'Slide '.($index + 1) }}</strong>
-                                                    <span>{{ old("slides.$index.is_active", $slide['is_active']) ? 'Currently visible on storefront rotation' : 'Saved but hidden' }}</span>
+                                                    <span>{{ old("slides.$index.is_active", $slide['is_active']) ? 'Visible in Rotation' : 'Hidden' }}</span>
                                                 </div>
-                                                <span class="admin-badge {{ old("slides.$index.is_active", $slide['is_active']) ? 'success' : 'muted' }}">
+                                                <span class="badge {{ old("slides.$index.is_active", $slide['is_active']) ? 'bg-success' : 'bg-secondary' }}">
                                                     {{ old("slides.$index.is_active", $slide['is_active']) ? 'Active' : 'Hidden' }}
                                                 </span>
                                             </div>
                                         @else
                                             <div class="hero-empty-state">
                                                 <div>
-                                                    <i class="bi bi-image" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
-                                                    No image uploaded yet
+                                                    <i class="bi bi-image" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                                                    No image uploaded
                                                 </div>
                                             </div>
                                         @endif
@@ -677,16 +653,17 @@
                                         <div class="hero-card-meta">
                                             <div>
                                                 <h4>Slide {{ $index + 1 }}</h4>
-                                                <p>{{ $slide['href'] ?: 'No click URL set yet' }}</p>
+                                                <p>{{ $slide['href'] ?: 'No target link' }}</p>
                                             </div>
-                                            <span class="admin-badge primary">1600 x 1100</span>
+                                            <span class="badge bg-primary">1600 × 1100</span>
                                         </div>
                                         <div class="hero-media-tag-row">
                                             <span class="hero-media-filename">{{ $slideImageName }}</span>
                                         </div>
-                                        <p class="hero-media-note">Edit title, upload a new image, fine-tune crop, and control publish state from the popup.</p>
                                         <div class="hero-card-actions">
-                                            <button type="button" class="button small" data-open-hero-editor="slide-{{ $index }}">Edit Slide</button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-open-hero-editor="slide-{{ $index }}" onclick="openHeroEditor('slide-{{ $index }}')">
+                                                <i class="bi bi-pencil-square me-1"></i> Edit Slide
+                                            </button>
                                         </div>
                                     </div>
                                 </article>
@@ -694,10 +671,13 @@
                         </div>
                     </section>
 
-                    <section class="admin-section">
-                        <div class="admin-section-header">
-                            <h3>Right-Side Promo Banners</h3>
-                            <p>Supporting banners also open in a popup editor, with their own crop and preview controls. Recommended size: <strong>900 × 620 px</strong>.</p>
+                    <!-- Right-Side Promo Spotlight Banners Grid -->
+                    <section class="admin-section mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h3 class="mb-0">Right-Side Promo Spotlights</h3>
+                                <p class="muted mb-0" style="font-size: 13px;">Recommended dimensions: <strong>900 × 620 px</strong>. Click Edit to customize banners.</p>
+                            </div>
                         </div>
 
                         <div class="hero-library-grid">
@@ -716,18 +696,18 @@
                                             >
                                             <div class="hero-media-overlay">
                                                 <div>
-                                                    <strong>{{ $promo['title'] ?: 'Promo banner '.($index + 1) }}</strong>
-                                                    <span>{{ old("promos.$index.is_active", $promo['is_active']) ? 'Included in the right-side stack' : 'Saved but hidden' }}</span>
+                                                    <strong>{{ $promo['title'] ?: 'Promo '.($index + 1) }}</strong>
+                                                    <span>{{ old("promos.$index.is_active", $promo['is_active']) ? 'Active Spotlight' : 'Hidden' }}</span>
                                                 </div>
-                                                <span class="admin-badge {{ old("promos.$index.is_active", $promo['is_active']) ? 'success' : 'muted' }}">
+                                                <span class="badge {{ old("promos.$index.is_active", $promo['is_active']) ? 'bg-success' : 'bg-secondary' }}">
                                                     {{ old("promos.$index.is_active", $promo['is_active']) ? 'Active' : 'Hidden' }}
                                                 </span>
                                             </div>
                                         @else
                                             <div class="hero-empty-state">
                                                 <div>
-                                                    <i class="bi bi-card-image" style="font-size: 22px; display: block; margin-bottom: 10px;"></i>
-                                                    No promo image uploaded yet
+                                                    <i class="bi bi-card-image" style="font-size: 24px; display: block; margin-bottom: 8px;"></i>
+                                                    No image uploaded
                                                 </div>
                                             </div>
                                         @endif
@@ -736,19 +716,17 @@
                                         <div class="hero-card-meta">
                                             <div>
                                                 <h4>Promo {{ $index + 1 }}</h4>
-                                                <p>{{ $promo['subtitle'] ?: ($promo['href'] ?: 'No promo destination set yet') }}</p>
+                                                <p>{{ $promo['subtitle'] ?: ($promo['href'] ?: 'No target link') }}</p>
                                             </div>
-                                            <span class="admin-badge primary">900 x 620</span>
+                                            <span class="badge bg-primary">900 × 620</span>
                                         </div>
                                         <div class="hero-media-tag-row">
                                             <span class="hero-media-filename">{{ $promoImageName }}</span>
-                                            @if (old("promos.$index.show_text", $promo['show_text']))
-                                                <span class="admin-badge warning">Overlay text on</span>
-                                            @endif
                                         </div>
-                                        <p class="hero-media-note">Open popup editor to change image, crop, overlay copy, and publish state.</p>
                                         <div class="hero-card-actions">
-                                            <button type="button" class="button small" data-open-hero-editor="promo-{{ $index }}">Edit Promo</button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm w-100" data-open-hero-editor="promo-{{ $index }}" onclick="openHeroEditor('promo-{{ $index }}')">
+                                                <i class="bi bi-pencil-square me-1"></i> Edit Promo
+                                            </button>
                                         </div>
                                     </div>
                                 </article>
@@ -756,15 +734,16 @@
                         </div>
                     </section>
 
+                    <!-- Slide Modal Editors (Popups) -->
                     @foreach ($slides as $index => $slide)
                         <div class="hero-editor-overlay" data-hero-editor="slide-{{ $index }}" aria-hidden="true">
                             <div class="hero-editor-dialog">
                                 <div class="hero-editor-header">
                                     <div>
                                         <h4>Edit Slide {{ $index + 1 }}</h4>
-                                        <p>Upload or replace media, adjust crop, and decide whether this slide should stay active in the rotation.</p>
+                                        <p>Upload or replace media, adjust crop, and configure target URLs.</p>
                                     </div>
-                                    <button type="button" class="button secondary small" data-close-hero-editor>Close</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-close-hero-editor>Close</button>
                                 </div>
                                 <div class="hero-editor-body">
                                     <div class="hero-crop-stage">
@@ -813,61 +792,62 @@
                                             <strong>{{ $slide['image'] ? basename((string) parse_url($slide['image'], PHP_URL_PATH)) : 'No image uploaded yet' }}</strong>
                                         </div>
 
-                                        <div class="admin-fields" style="grid-template-columns: 1fr;">
-                                            <div class="admin-field">
-                                                <label>Slide Image URL</label>
-                                                <input name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", '') }}" maxlength="255" placeholder="Paste new image URL only if replacing current image" data-source-input>
-                                                <div class="admin-help">Leave blank to keep the current slide image. Paste a shorter replacement URL only when needed.</div>
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Upload New Image</label>
-                                                <input type="file" name="slide_files[{{ $index }}]" accept="image/*" data-upload-input>
-                                                <div class="admin-help">JPG, PNG, and WebP supported. File preview updates immediately.</div>
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Display Title</label>
-                                                <input name="slides[{{ $index }}][title]" value="{{ old("slides.$index.title", $slide['title']) }}" placeholder="e.g. Summer Collection">
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Image Alt Text</label>
-                                                <input name="slides[{{ $index }}][alt]" value="{{ old("slides.$index.alt", $slide['alt']) }}" placeholder="Descriptive accessibility text">
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Target URL</label>
-                                                <input name="slides[{{ $index }}][href]" value="{{ old("slides.$index.href", $slide['href']) }}" placeholder="/shop?category=featured">
-                                            </div>
+                                        <div class="admin-field">
+                                            <label>Slide Image URL</label>
+                                            <input name="slide_urls[{{ $index }}]" value="{{ old("slide_urls.$index", '') }}" maxlength="255" placeholder="Paste new image URL" data-source-input>
+                                            <div class="admin-help">Leave blank to retain current slide asset.</div>
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Upload New Image File</label>
+                                            <input type="file" name="slide_files[{{ $index }}]" accept="image/*" data-upload-input>
+                                            <div class="admin-help">Supported formats: JPG, PNG, WebP.</div>
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Display Title</label>
+                                            <input name="slides[{{ $index }}][title]" value="{{ old("slides.$index.title", $slide['title']) }}" placeholder="e.g. Solitaire Diamond Edit">
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Image Alt Text</label>
+                                            <input name="slides[{{ $index }}][alt]" value="{{ old("slides.$index.alt", $slide['alt']) }}" placeholder="Descriptive accessibility label">
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Target URL</label>
+                                            <input name="slides[{{ $index }}][href]" value="{{ old("slides.$index.href", $slide['href']) }}" placeholder="/shop?category=rings">
                                         </div>
 
-                                        <label class="admin-toggle">
-                                            <input type="checkbox" name="slides[{{ $index }}][is_active]" value="1" @checked(old("slides.$index.is_active", $slide['is_active']))>
-                                            <span>Publish this slide</span>
-                                        </label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="slides[{{ $index }}][is_active]" value="1" id="slide_active_{{ $index }}" @checked(old("slides.$index.is_active", $slide['is_active']))>
+                                            <label class="form-check-label" for="slide_active_{{ $index }}" style="font-weight: 600; font-size: 13px;">
+                                                Publish this slide in rotation
+                                            </label>
+                                        </div>
 
-                                        <label class="admin-toggle">
-                                            <input type="checkbox" name="clear_slide_image[{{ $index }}]" value="1" data-clear-input>
-                                            <span style="color: var(--danger);">Remove current image on save</span>
-                                        </label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="clear_slide_image[{{ $index }}]" value="1" id="clear_slide_{{ $index }}" data-clear-input>
+                                            <label class="form-check-label text-danger" for="clear_slide_{{ $index }}" style="font-weight: 600; font-size: 13px;">
+                                                Remove current slide image on save
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="hero-editor-footer">
-                                    <p>Popup editor keeps the main screen clean, but all fields still save together when you submit the page.</p>
-                                    <div class="hero-modal-button-row">
-                                        <button type="button" class="button secondary small" data-close-hero-editor>Done</button>
-                                    </div>
+                                    <p>Popup editor updates preview immediately. Click Save All Changes to persist to database.</p>
+                                    <button type="button" class="btn btn-primary btn-sm" data-close-hero-editor>Done</button>
                                 </div>
                             </div>
                         </div>
                     @endforeach
 
+                    <!-- Promo Modal Editors (Popups) -->
                     @foreach ($promos as $index => $promo)
                         <div class="hero-editor-overlay" data-hero-editor="promo-{{ $index }}" aria-hidden="true">
                             <div class="hero-editor-dialog">
                                 <div class="hero-editor-header">
                                     <div>
                                         <h4>Edit Promo Banner {{ $index + 1 }}</h4>
-                                        <p>Set promo image, crop focus, overlay copy, and visibility without cluttering the main page.</p>
+                                        <p>Upload or replace media, adjust crop, and configure headline text.</p>
                                     </div>
-                                    <button type="button" class="button secondary small" data-close-hero-editor>Close</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-close-hero-editor>Close</button>
                                 </div>
                                 <div class="hero-editor-body">
                                     <div class="hero-crop-stage">
@@ -884,7 +864,7 @@
                                                 <div class="hero-empty-state" data-preview-empty>
                                                     <div>
                                                         <i class="bi bi-card-image" style="font-size: 28px; display: block; margin-bottom: 10px;"></i>
-                                                        Upload a promo image or paste its URL to preview the crop.
+                                                        Upload an image or paste a media URL to preview crop here.
                                                     </div>
                                                 </div>
                                             @endif
@@ -916,251 +896,181 @@
                                             <strong>{{ $promo['image'] ? basename((string) parse_url($promo['image'], PHP_URL_PATH)) : 'No image uploaded yet' }}</strong>
                                         </div>
 
-                                        <div class="admin-fields" style="grid-template-columns: 1fr;">
-                                            <div class="admin-field">
-                                                <label>Promo Image URL</label>
-                                                <input name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", '') }}" maxlength="255" placeholder="Paste new promo URL only if replacing current image" data-source-input>
-                                                <div class="admin-help">Leave blank to keep the current promo image. Paste a shorter replacement URL only when needed.</div>
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Upload New Image</label>
-                                                <input type="file" name="promo_files[{{ $index }}]" accept="image/*" data-upload-input>
-                                                <div class="admin-help">Promo preview refreshes immediately when you pick a file.</div>
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Primary Title</label>
-                                                <input name="promos[{{ $index }}][title]" value="{{ old("promos.$index.title", $promo['title']) }}" placeholder="e.g. Wall Decor">
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Secondary Subtitle</label>
-                                                <input name="promos[{{ $index }}][subtitle]" value="{{ old("promos.$index.subtitle", $promo['subtitle']) }}" placeholder="e.g. Up to 40% Off">
-                                            </div>
-                                            <div class="admin-field">
-                                                <label>Target URL</label>
-                                                <input name="promos[{{ $index }}][href]" value="{{ old("promos.$index.href", $promo['href']) }}" placeholder="/shop?category=decor">
-                                            </div>
+                                        <div class="admin-field">
+                                            <label>Promo Image URL</label>
+                                            <input name="promo_urls[{{ $index }}]" value="{{ old("promo_urls.$index", '') }}" maxlength="255" placeholder="Paste replacement image URL" data-source-input>
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Upload New Image File</label>
+                                            <input type="file" name="promo_files[{{ $index }}]" accept="image/*" data-upload-input>
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Display Title</label>
+                                            <input name="promos[{{ $index }}][title]" value="{{ old("promos.$index.title", $promo['title']) }}" placeholder="e.g. Festive Gold Spotlight">
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Subtitle / Caption</label>
+                                            <input name="promos[{{ $index }}][subtitle]" value="{{ old("promos.$index.subtitle", $promo['subtitle']) }}" placeholder="e.g. Flat 10% OFF with code KANAKSHI10">
+                                        </div>
+                                        <div class="admin-field">
+                                            <label>Target URL</label>
+                                            <input name="promos[{{ $index }}][href]" value="{{ old("promos.$index.href", $promo['href']) }}" placeholder="/shop?category=earrings">
                                         </div>
 
-                                        <label class="admin-toggle">
-                                            <input type="checkbox" name="promos[{{ $index }}][is_active]" value="1" @checked(old("promos.$index.is_active", $promo['is_active']))>
-                                            <span>Publish this promo</span>
-                                        </label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="promos[{{ $index }}][is_active]" value="1" id="promo_active_{{ $index }}" @checked(old("promos.$index.is_active", $promo['is_active']))>
+                                            <label class="form-check-label" for="promo_active_{{ $index }}" style="font-weight: 600; font-size: 13px;">
+                                                Include in Right-Side Stack
+                                            </label>
+                                        </div>
 
-                                        <label class="admin-toggle">
-                                            <input type="checkbox" name="promos[{{ $index }}][show_text]" value="1" @checked(old("promos.$index.show_text", $promo['show_text']))>
-                                            <span>Show overlay text on image</span>
-                                        </label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="promos[{{ $index }}][show_text]" value="1" id="promo_show_text_{{ $index }}" @checked(old("promos.$index.show_text", $promo['show_text']))>
+                                            <label class="form-check-label" for="promo_show_text_{{ $index }}" style="font-weight: 600; font-size: 13px;">
+                                                Show Title & Subtitle Overlays
+                                            </label>
+                                        </div>
 
-                                        <label class="admin-toggle">
-                                            <input type="checkbox" name="clear_promo_image[{{ $index }}]" value="1" data-clear-input>
-                                            <span style="color: var(--danger);">Remove current image on save</span>
-                                        </label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="clear_promo_image[{{ $index }}]" value="1" id="clear_promo_{{ $index }}" data-clear-input>
+                                            <label class="form-check-label text-danger" for="clear_promo_{{ $index }}" style="font-weight: 600; font-size: 13px;">
+                                                Remove current promo image on save
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="hero-editor-footer">
-                                    <p>You can tune promo framing here without losing the overview on the main editor page.</p>
-                                    <div class="hero-modal-button-row">
-                                        <button type="button" class="button secondary small" data-close-hero-editor>Done</button>
-                                    </div>
+                                    <p>Popup editor updates preview immediately. Click Save All Changes to persist.</p>
+                                    <button type="button" class="btn btn-primary btn-sm" data-close-hero-editor>Done</button>
                                 </div>
                             </div>
                         </div>
                     @endforeach
 
-                    <div class="admin-savebar">
-                        <div class="admin-savebar-text">
-                            <strong>Ready to Apply Changes?</strong>
-                            <p>Popup editors keep the UI lighter. Save once here to publish all hero, promo, and crop updates together.</p>
+                    <!-- Sticky Bottom Action Bar -->
+                    <div class="admin-sticky-savebar">
+                        <div style="color: #94a3b8; font-size: 13px;">
+                            <i class="bi bi-info-circle me-1"></i> Changes will update live on the storefront immediately after saving.
                         </div>
-                        <div class="button-row">
-                            <a href="{{ route('admin.homepage-sections.index') }}" class="button secondary" style="min-width: 120px;">Cancel</a>
-                            <button class="button" type="submit" style="min-width: 160px; padding-left: 24px; padding-right: 24px;">
-                                <i class="bi bi-cloud-upload"></i> Save Dashboard Configuration
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('admin.homepage-sections.index') }}" class="btn btn-outline-secondary">Discard</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i> Save All Changes
                             </button>
                         </div>
                     </div>
                 </form>
+
             </div>
         </main>
     </div>
+@endsection
 
+@push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const successBox = document.getElementById('admin-success');
-            if (successBox) {
-                successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            const closeToastButton = document.getElementById('admin-toast-close');
-            if (closeToastButton && successBox) {
-                closeToastButton.addEventListener('click', function () {
-                    successBox.style.opacity = '0';
-                    setTimeout(() => successBox.remove(), 300);
-                });
-            }
-
-            const editorOverlays = Array.from(document.querySelectorAll('[data-hero-editor]'));
-            const openButtons = Array.from(document.querySelectorAll('[data-open-hero-editor]'));
-            const closeButtons = Array.from(document.querySelectorAll('[data-close-hero-editor]'));
-
-            const openEditor = (editorId) => {
-                const overlay = document.querySelector(`[data-hero-editor="${editorId}"]`);
-                if (!overlay) return;
+        // Global open/close helper functions
+        window.openHeroEditor = function(targetId) {
+            const overlay = document.querySelector(`[data-hero-editor="${targetId}"]`);
+            if (overlay) {
                 overlay.classList.add('is-open');
                 overlay.setAttribute('aria-hidden', 'false');
                 document.body.style.overflow = 'hidden';
-            };
+            }
+        };
 
-            const closeEditor = (overlay) => {
-                if (!overlay) return;
+        window.closeHeroEditor = function(elementOrId) {
+            let overlay;
+            if (typeof elementOrId === 'string') {
+                overlay = document.querySelector(`[data-hero-editor="${elementOrId}"]`);
+            } else if (elementOrId && elementOrId.closest) {
+                overlay = elementOrId.closest('.hero-editor-overlay');
+            }
+            if (overlay) {
                 overlay.classList.remove('is-open');
                 overlay.setAttribute('aria-hidden', 'true');
-                if (!document.querySelector('.hero-editor-overlay.is-open')) {
-                    document.body.style.overflow = '';
-                }
-            };
+                document.body.style.overflow = '';
+            }
+        };
 
-            openButtons.forEach((button) => {
-                button.addEventListener('click', function () {
-                    openEditor(button.getAttribute('data-open-hero-editor'));
+        document.addEventListener('DOMContentLoaded', () => {
+            // Open editor popup via data attribute
+            document.querySelectorAll('[data-open-hero-editor]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-open-hero-editor');
+                    window.openHeroEditor(targetId);
                 });
             });
 
-            closeButtons.forEach((button) => {
-                button.addEventListener('click', function () {
-                    closeEditor(button.closest('.hero-editor-overlay'));
+            // Close editor popup via data attribute
+            document.querySelectorAll('[data-close-hero-editor]').forEach(button => {
+                button.addEventListener('click', () => {
+                    window.closeHeroEditor(button);
                 });
             });
 
-            editorOverlays.forEach((overlay) => {
-                overlay.addEventListener('click', function (event) {
-                    if (event.target === overlay) {
-                        closeEditor(overlay);
+            // Close on backdrop click
+            document.querySelectorAll('.hero-editor-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        window.closeHeroEditor(overlay);
                     }
                 });
             });
 
-            document.addEventListener('keydown', function (event) {
-                if (event.key !== 'Escape') return;
-                const visibleOverlay = document.querySelector('.hero-editor-overlay.is-open');
-                if (visibleOverlay) {
-                    closeEditor(visibleOverlay);
-                }
-            });
+            // Live Slider Crop & Zoom Updates
+            const updateTransform = (container) => {
+                const img = container.querySelector('[data-preview-image]');
+                if (!img) return;
 
-            const updatePreviewPresentation = (overlay) => {
-                const image = overlay.querySelector('[data-preview-image]');
-                const emptyState = overlay.querySelector('[data-preview-empty]');
-                const sourceInput = overlay.querySelector('[data-source-input]');
-                const uploadInput = overlay.querySelector('[data-upload-input]');
-                const cropXInput = overlay.querySelector('[data-crop-x]');
-                const cropYInput = overlay.querySelector('[data-crop-y]');
-                const cropZoomInput = overlay.querySelector('[data-crop-zoom]');
-                const clearInput = overlay.querySelector('[data-clear-input]');
+                const cropX = container.querySelector('[data-crop-x]')?.value || 50;
+                const cropY = container.querySelector('[data-crop-y]')?.value || 50;
+                const zoom = container.querySelector('[data-crop-zoom]')?.value || 1;
 
-                if (cropXInput) {
-                    const output = cropXInput.closest('.hero-slider-control')?.querySelector('[data-range-output]');
-                    if (output) output.textContent = `${cropXInput.value}%`;
-                }
-                if (cropYInput) {
-                    const output = cropYInput.closest('.hero-slider-control')?.querySelector('[data-range-output]');
-                    if (output) output.textContent = `${cropYInput.value}%`;
-                }
-                if (cropZoomInput) {
-                    const output = cropZoomInput.closest('.hero-slider-control')?.querySelector('[data-range-output]');
-                    if (output) output.textContent = `${Number(cropZoomInput.value).toFixed(2)}x`;
-                }
-
-                if (!image) {
-                    return;
-                }
-
-                const shouldClear = clearInput && clearInput.checked;
-                if (shouldClear) {
-                    image.style.display = 'none';
-                    if (emptyState) emptyState.style.display = 'grid';
-                    return;
-                }
-
-                const uploadedPreviewSource = uploadInput?.dataset.previewUrl?.trim() || '';
-                const manualSource = sourceInput && sourceInput.value.trim() !== '' ? sourceInput.value.trim() : '';
-                const source = uploadedPreviewSource || manualSource || image.getAttribute('src');
-                if (source) {
-                    image.setAttribute('src', source);
-                    image.style.display = 'block';
-                    image.style.objectPosition = `${cropXInput ? cropXInput.value : 50}% ${cropYInput ? cropYInput.value : 50}%`;
-                    image.style.transform = `scale(${cropZoomInput ? cropZoomInput.value : 1})`;
-                    if (emptyState) emptyState.style.display = 'none';
-                } else {
-                    image.style.display = 'none';
-                    if (emptyState) emptyState.style.display = 'grid';
-                }
+                img.style.objectPosition = `${cropX}% ${cropY}%`;
+                img.style.transform = `scale(${zoom})`;
             };
 
-            editorOverlays.forEach((overlay) => {
-                const sourceInput = overlay.querySelector('[data-source-input]');
-                const uploadInput = overlay.querySelector('[data-upload-input]');
-                const cropInputs = overlay.querySelectorAll('[data-crop-x], [data-crop-y], [data-crop-zoom]');
-                const clearInput = overlay.querySelector('[data-clear-input]');
-
-                if (sourceInput) {
-                    sourceInput.addEventListener('input', function () {
-                        if (uploadInput?.dataset.previewUrl) {
-                            delete uploadInput.dataset.previewUrl;
+            document.querySelectorAll('.hero-editor-dialog').forEach(dialog => {
+                dialog.querySelectorAll('input[type="range"]').forEach(input => {
+                    input.addEventListener('input', () => {
+                        const output = input.parentElement.querySelector('[data-range-output]');
+                        if (output) {
+                            output.textContent = input.name.includes('zoom') ? `${parseFloat(input.value).toFixed(2)}x` : `${input.value}%`;
                         }
-                        if (clearInput) clearInput.checked = false;
-                        updatePreviewPresentation(overlay);
-                    });
-                }
-
-                if (uploadInput) {
-                    uploadInput.addEventListener('change', function () {
-                        const [file] = uploadInput.files || [];
-                        if (!file) {
-                            if (uploadInput.dataset.previewUrl) {
-                                delete uploadInput.dataset.previewUrl;
-                            }
-                            updatePreviewPresentation(overlay);
-                            return;
-                        }
-                        const reader = new FileReader();
-                        reader.onload = function (event) {
-                            if (typeof event.target?.result === 'string') {
-                                uploadInput.dataset.previewUrl = event.target.result;
-                            }
-                            if (clearInput) clearInput.checked = false;
-                            updatePreviewPresentation(overlay);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                cropInputs.forEach((input) => {
-                    input.addEventListener('input', function () {
-                        updatePreviewPresentation(overlay);
+                        updateTransform(dialog);
                     });
                 });
 
-                if (clearInput) {
-                    clearInput.addEventListener('change', function () {
-                        if (clearInput.checked && uploadInput?.dataset.previewUrl) {
-                            delete uploadInput.dataset.previewUrl;
+                // Live File Upload Preview
+                const fileInput = dialog.querySelector('[data-upload-input]');
+                if (fileInput) {
+                    fileInput.addEventListener('change', () => {
+                        if (fileInput.files && fileInput.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                let img = dialog.querySelector('[data-preview-image]');
+                                const stage = dialog.querySelector('[data-preview-stage]');
+                                const empty = dialog.querySelector('[data-preview-empty]');
+
+                                if (empty) empty.style.display = 'none';
+
+                                if (!img && stage) {
+                                    img = document.createElement('img');
+                                    img.className = 'hero-media-preview';
+                                    img.setAttribute('data-preview-image', '');
+                                    stage.prepend(img);
+                                }
+
+                                if (img) {
+                                    img.src = e.target.result;
+                                    updateTransform(dialog);
+                                }
+                            };
+                            reader.readAsDataURL(fileInput.files[0]);
                         }
-                        updatePreviewPresentation(overlay);
                     });
                 }
-
-                updatePreviewPresentation(overlay);
             });
-
-            @if ($errors->any())
-                const firstOpenOverlay = document.querySelector('[data-hero-editor]');
-                if (firstOpenOverlay) {
-                    firstOpenOverlay.classList.add('is-open');
-                    firstOpenOverlay.setAttribute('aria-hidden', 'false');
-                    document.body.style.overflow = 'hidden';
-                }
-            @endif
         });
     </script>
-@endsection
+@endpush

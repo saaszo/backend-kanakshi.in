@@ -1,229 +1,274 @@
 @php
-    $siteUrl = env('FRONTEND_SITE_URL', env('APP_FRONTEND_URL', 'https://kanakshi.in'));
+    $siteUrl = env('FRONTEND_SITE_URL', env('APP_FRONTEND_URL', 'http://localhost:3000'));
+    $pendingInquiries = \Illuminate\Support\Facades\DB::table('contact_inquiries')->where('status', 'pending')->count();
+    $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
+    $pendingReturns = \App\Models\OrderReturn::where('status', 'requested')->count();
 @endphp
 
-<div class="admin-mobile-bar d-lg-none">
-    <div class="admin-mobile-brand">
-        <span class="sidebar-logo-mark">
-            <i class="bi bi-shop-window"></i>
-        </span>
-        <div class="sidebar-logo-text">
-            <strong>Kanakshi.in</strong>
-            <span>Commerce Admin</span>
+<aside class="admin-sidebar" id="adminSidebar">
+    <!-- Brand Header -->
+    <div class="sidebar-brand">
+        <div class="brand-logo-square">
+            <i class="bi bi-gem"></i>
+        </div>
+        <div class="brand-info">
+            <span class="brand-title">KANAKSHI</span>
+            <span class="brand-badge">ADMIN CONSOLE</span>
         </div>
     </div>
-    <button class="btn btn-primary admin-mobile-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar">
-        <i class="bi bi-list"></i>
-    </button>
-</div>
 
-<aside class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
-    <div class="offcanvas-header admin-offcanvas-header d-lg-none">
-        <div class="admin-mobile-brand">
-            <span class="sidebar-logo-mark">
-                <i class="bi bi-shop-window"></i>
-            </span>
-            <div class="sidebar-logo-text">
-                <strong id="adminSidebarLabel">Kanakshi.in</strong>
-                <span>Commerce Admin</span>
-            </div>
-        </div>
-        <button type="button" class="btn-close text-reset shadow-none" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close"></button>
-    </div>
-
-    <div class="offcanvas-body p-0">
+    <!-- Navigation Scroll Container -->
     <div class="sidebar-scroll">
-    <div class="sidebar-logo d-none d-lg-flex">
-        <span class="sidebar-logo-mark">
-            <i class="bi bi-shop-window"></i>
-        </span>
-        <div class="sidebar-logo-text">
-            <strong>Kanakshi.in</strong>
-            <span>Admin Panel</span>
+        <!-- Quick Dashboard Link -->
+        <div class="sidebar-section">
+            <a href="{{ route('admin.dashboard') }}" class="sidebar-direct-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i>
+                <span>Executive Dashboard</span>
+            </a>
         </div>
-    </div>
 
-    <div class="sidebar-status">
-        <span class="sidebar-status-label">Workspace</span>
-        <strong>Single Store Control</strong>
-        <span>Catalog, orders, content, and settings in one place.</span>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Overview</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                <i class="bi bi-grid-1x2"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" href="{{ route('admin.reports.index') }}">
-                <i class="bi bi-bar-chart-line"></i>
-                <span>Reports</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Sales & Fulfillments</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" href="{{ route('admin.orders.index') }}">
-                <i class="bi bi-cart-check"></i>
-                <span>Orders Management</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.returns.*') ? 'active' : '' }}" href="{{ route('admin.returns.index') }}">
-                <i class="bi bi-arrow-repeat"></i>
-                <span>Returns & Refunds</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" href="{{ route('admin.reviews.index') }}">
-                <i class="bi bi-chat-square-quote"></i>
-                <span>Product Reviews</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Guarantees & Buybacks</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.registry.registrations.*') ? 'active' : '' }}" href="{{ route('admin.registry.registrations.index') }}">
-                <i class="bi bi-shield-check"></i>
-                <span>Registrations</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.registry.claims.*') ? 'active' : '' }}" href="{{ route('admin.registry.claims.index') }}">
-                <i class="bi bi-wrench-adjustable"></i>
-                <span>Claims Queue</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.registry.buybacks.*') ? 'active' : '' }}" href="{{ route('admin.registry.buybacks.index') }}">
-                <i class="bi bi-safe2"></i>
-                <span>Buybacks Queue</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.registry.settings.*') ? 'active' : '' }}" href="{{ route('admin.registry.settings.edit') }}">
-                <i class="bi bi-sliders"></i>
-                <span>Registry Settings</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Live Auctions</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.auctions.*') ? 'active' : '' }}" href="{{ route('admin.auctions.index') }}">
-                <i class="bi bi-gavel"></i>
-                <span>Auctions</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Storefront Content</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.hero.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.hero.edit') }}">
-                <i class="bi bi-sliders2"></i>
-                <span>Hero Slider</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.full.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.full.edit') }}">
-                <i class="bi bi-window-stack"></i>
-                <span>Full Homepage</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.homepage-sections.*') ? 'active' : '' }}" href="{{ route('admin.homepage-sections.index') }}">
-                <i class="bi bi-images"></i>
-                <span>Homepage Sections</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.menu-items.*') ? 'active' : '' }}" href="{{ route('admin.menu-items.index') }}">
-                <i class="bi bi-menu-button-wide"></i>
-                <span>Header / Footer Menu</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.social-links.*') ? 'active' : '' }}" href="{{ route('admin.social-links.index') }}">
-                <i class="bi bi-share"></i>
-                <span>Social Links</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Catalog</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
-                <i class="bi bi-tags"></i>
-                <span>Categories</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">
-                <i class="bi bi-box-seam"></i>
-                <span>Products</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}" href="{{ route('admin.inventory.index') }}">
-                <i class="bi bi-boxes"></i>
-                <span>Inventory</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}" href="{{ route('admin.coupons.index') }}">
-                <i class="bi bi-ticket-perforated"></i>
-                <span>Coupons & Offers</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Editorial & Blog</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.blog.posts.*') ? 'active' : '' }}" href="{{ route('admin.blog.posts.index') }}">
-                <i class="bi bi-journal-text"></i>
-                <span>Blog Posts</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.blog.categories.*') ? 'active' : '' }}" href="{{ route('admin.blog.categories.index') }}">
-                <i class="bi bi-collection"></i>
-                <span>Blog Categories</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.blog.tags.*') ? 'active' : '' }}" href="{{ route('admin.blog.tags.index') }}">
-                <i class="bi bi-hash"></i>
-                <span>Blog Tags</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.blog.authors.*') ? 'active' : '' }}" href="{{ route('admin.blog.authors.index') }}">
-                <i class="bi bi-people"></i>
-                <span>Blog Authors</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-group">
-        <div class="sidebar-label">Configuration</div>
-        <nav class="sidebar-nav">
-            <a class="sidebar-link {{ request()->routeIs('admin.homepage-products.*') ? 'active' : '' }}" href="{{ route('admin.homepage-products.index') }}">
-                <i class="bi bi-layout-text-window"></i>
-                <span>Homepage Products</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.edit') }}">
-                <i class="bi bi-gear"></i>
-                <span>Store Settings</span>
-            </a>
-            <a class="sidebar-link {{ request()->routeIs('admin.email-otp.*') ? 'active' : '' }}" href="{{ route('admin.email-otp.edit') }}">
-                <i class="bi bi-envelope-check"></i>
-                <span>Email & OTP Verification</span>
-            </a>
-        </nav>
-    </div>
-
-    <div class="sidebar-footer">
-        <div class="sidebar-quick">
-            <span class="sidebar-quick-label">Quick Access</span>
-            <div class="sidebar-quick-links">
-                <a href="{{ route('admin.products.index') }}">Catalog</a>
-                <a href="{{ route('admin.orders.index') }}">Orders</a>
-                <a href="{{ route('admin.settings.edit') }}">Settings</a>
+        <!-- Group: Commerce & Orders -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.orders.*', 'admin.returns.*', 'admin.inquiries.*', 'admin.reviews.*', 'admin.reports.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-cart3"></i>
+                    <span>Orders & Sales</span>
+                </div>
+                <div class="parent-meta">
+                    @if ($pendingOrders > 0)
+                        <span class="badge-count">{{ $pendingOrders }}</span>
+                    @endif
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.orders.*', 'admin.returns.*', 'admin.inquiries.*', 'admin.reviews.*', 'admin.reports.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.orders.index') }}" class="submenu-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                    <i class="bi bi-bag-check"></i>
+                    <span>Orders Management</span>
+                    @if ($pendingOrders > 0)
+                        <span class="sub-badge">{{ $pendingOrders }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.inquiries.index') }}" class="submenu-link {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
+                    <i class="bi bi-envelope-paper"></i>
+                    <span>Contact Inquiries</span>
+                    @if ($pendingInquiries > 0)
+                        <span class="sub-badge warn">{{ $pendingInquiries }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.returns.index') }}" class="submenu-link {{ request()->routeIs('admin.returns.*') ? 'active' : '' }}">
+                    <i class="bi bi-arrow-return-left"></i>
+                    <span>Returns & Refunds</span>
+                    @if ($pendingReturns > 0)
+                        <span class="sub-badge warn">{{ $pendingReturns }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.reviews.index') }}" class="submenu-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                    <i class="bi bi-star"></i>
+                    <span>Product Reviews</span>
+                </a>
+                <a href="{{ route('admin.reports.index') }}" class="submenu-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Sales Analytics</span>
+                </a>
             </div>
         </div>
-        <div class="button-row">
-            <a href="{{ $siteUrl }}" target="_blank" rel="noreferrer" class="button small">
-                <i class="bi bi-box-arrow-up-right"></i>
-                <span>View Site</span>
-            </a>
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button class="button secondary small" type="submit">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </button>
-            </form>
+
+        <!-- Group: Catalog & Inventory -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.products.*', 'admin.categories.*', 'admin.inventory.*', 'admin.coupons.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Catalog & Stock</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.products.*', 'admin.categories.*', 'admin.inventory.*', 'admin.coupons.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.products.index') }}" class="submenu-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <span>All Products</span>
+                </a>
+                <a href="{{ route('admin.categories.index') }}" class="submenu-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="{{ route('admin.inventory.index') }}" class="submenu-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}">
+                    <i class="bi bi-boxes"></i>
+                    <span>Inventory Levels</span>
+                </a>
+                <a href="{{ route('admin.coupons.index') }}" class="submenu-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                    <i class="bi bi-percent"></i>
+                    <span>Coupons & Offers</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Group: Guarantees & Registry -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.registry.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Warranty & Registry</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.registry.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.registry.registrations.index') }}" class="submenu-link {{ request()->routeIs('admin.registry.registrations.*') ? 'active' : '' }}">
+                    <i class="bi bi-award"></i>
+                    <span>Registrations</span>
+                </a>
+                <a href="{{ route('admin.registry.claims.index') }}" class="submenu-link {{ request()->routeIs('admin.registry.claims.*') ? 'active' : '' }}">
+                    <i class="bi bi-tools"></i>
+                    <span>Warranty Claims</span>
+                </a>
+                <a href="{{ route('admin.registry.buybacks.index') }}" class="submenu-link {{ request()->routeIs('admin.registry.buybacks.*') ? 'active' : '' }}">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Buyback Queue</span>
+                </a>
+                <a href="{{ route('admin.registry.settings.edit') }}" class="submenu-link {{ request()->routeIs('admin.registry.settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-sliders"></i>
+                    <span>Registry Config</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Group: Live Auctions -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.auctions.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-hammer"></i>
+                    <span>Live Auctions</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.auctions.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.auctions.index') }}" class="submenu-link {{ request()->routeIs('admin.auctions.index') ? 'active' : '' }}">
+                    <i class="bi bi-list-ul"></i>
+                    <span>All Auctions</span>
+                </a>
+                <a href="{{ route('admin.auctions.create') }}" class="submenu-link {{ request()->routeIs('admin.auctions.create') ? 'active' : '' }}">
+                    <i class="bi bi-plus-square"></i>
+                    <span>Create Auction</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Group: Editorial CMS -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.blog.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-journal-richtext"></i>
+                    <span>Editorial & Blog</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.blog.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.blog.posts.index') }}" class="submenu-link {{ request()->routeIs('admin.blog.posts.*') ? 'active' : '' }}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Articles & Posts</span>
+                </a>
+                <a href="{{ route('admin.blog.categories.index') }}" class="submenu-link {{ request()->routeIs('admin.blog.categories.*') ? 'active' : '' }}">
+                    <i class="bi bi-folder"></i>
+                    <span>Blog Categories</span>
+                </a>
+                <a href="{{ route('admin.blog.tags.index') }}" class="submenu-link {{ request()->routeIs('admin.blog.tags.*') ? 'active' : '' }}">
+                    <i class="bi bi-hash"></i>
+                    <span>Tags</span>
+                </a>
+                <a href="{{ route('admin.blog.authors.index') }}" class="submenu-link {{ request()->routeIs('admin.blog.authors.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Authors</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Group: Storefront & Design -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.homepage-sections.*', 'admin.homepage-products.*', 'admin.menu-items.*', 'admin.social-links.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-palette"></i>
+                    <span>Storefront & Layout</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.homepage-sections.*', 'admin.homepage-products.*', 'admin.menu-items.*', 'admin.social-links.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="submenu-link {{ request()->routeIs('admin.homepage-sections.hero.*') ? 'active' : '' }}">
+                    <i class="bi bi-display"></i>
+                    <span>Hero Banner Slider</span>
+                </a>
+                <a href="{{ route('admin.homepage-sections.full.edit') }}" class="submenu-link {{ request()->routeIs('admin.homepage-sections.full.*') ? 'active' : '' }}">
+                    <i class="bi bi-layout-wtf"></i>
+                    <span>Full Homepage Builder</span>
+                </a>
+                <a href="{{ route('admin.homepage-products.index') }}" class="submenu-link {{ request()->routeIs('admin.homepage-products.*') ? 'active' : '' }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Featured Collections</span>
+                </a>
+                <a href="{{ route('admin.menu-items.index') }}" class="submenu-link {{ request()->routeIs('admin.menu-items.*') ? 'active' : '' }}">
+                    <i class="bi bi-menu-app"></i>
+                    <span>Header & Footer Nav</span>
+                </a>
+                <a href="{{ route('admin.social-links.index') }}" class="submenu-link {{ request()->routeIs('admin.social-links.*') ? 'active' : '' }}">
+                    <i class="bi bi-share"></i>
+                    <span>Social Media Channels</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Group: Settings & Integrations -->
+        <div class="sidebar-menu-group">
+            <div class="menu-item-parent {{ request()->routeIs('admin.settings.*', 'admin.email-otp.*') ? 'active open' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="parent-label">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings & System</span>
+                </div>
+                <div class="parent-meta">
+                    <i class="bi bi-chevron-down arrow-icon"></i>
+                </div>
+            </div>
+            <div class="submenu-list {{ request()->routeIs('admin.settings.*', 'admin.payment-settings.*', 'admin.email-otp.*') ? 'expanded' : '' }}">
+                <a href="{{ route('admin.settings.edit') }}" class="submenu-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-sliders2"></i>
+                    <span>General Store Info</span>
+                </a>
+                <a href="{{ route('admin.payment-settings.index') }}" class="submenu-link {{ request()->routeIs('admin.payment-settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    <span>Payment & Prepaid Offers</span>
+                </a>
+                <a href="{{ route('admin.wallet.index') }}" class="submenu-link {{ request()->routeIs('admin.wallet.*') ? 'active' : '' }}">
+                    <i class="bi bi-wallet2"></i>
+                    <span>Customer Wallet & Rewards</span>
+                </a>
+                <a href="{{ route('admin.email-otp.edit') }}" class="submenu-link {{ request()->routeIs('admin.email-otp.*') ? 'active' : '' }}">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Email & OTP Security</span>
+                </a>
+            </div>
         </div>
     </div>
-    </div>
+
+    <!-- Sidebar Footer with Quick Actions -->
+    <div class="sidebar-footer">
+        <a href="{{ $siteUrl }}" target="_blank" rel="noreferrer" class="footer-action-btn store-btn">
+            <i class="bi bi-arrow-up-right-square"></i>
+            <span>View Live Store</span>
+        </a>
+        <form method="POST" action="{{ route('admin.logout') }}" style="margin: 0;">
+            @csrf
+            <button type="submit" class="footer-action-btn logout-btn">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
+        </form>
     </div>
 </aside>

@@ -16,11 +16,11 @@
             </div>
             <div class="toolbar-actions">
                 @if($claim->status === 'completed')
-                    <span class="admin-badge success px-3 py-2 fs-6">✓ Resolved Case</span>
+                    <span class="admin-badge success px-3 py-2 fs-6">Resolved Case</span>
                 @elseif($claim->status === 'submitted')
-                    <span class="admin-badge primary px-3 py-2 fs-6">⚠ New Case Submission</span>
+                    <span class="admin-badge primary px-3 py-2 fs-6">New Case Submission</span>
                 @elseif($claim->status === 'rejected')
-                    <span class="admin-badge danger px-3 py-2 fs-6">✗ Rejected Case</span>
+                    <span class="admin-badge danger px-3 py-2 fs-6">Rejected Case</span>
                 @else
                     <span class="admin-badge warning px-3 py-2 fs-6">{{ ucfirst(str_replace('_', ' ', $claim->status)) }}</span>
                 @endif

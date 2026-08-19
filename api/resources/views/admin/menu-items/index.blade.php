@@ -123,14 +123,14 @@
         .admin-modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(9, 13, 22, 0.75);
             backdrop-filter: blur(4px);
             z-index: 1000;
             display: none;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.15s ease;
         }
         .admin-modal-overlay.active {
             display: flex;
@@ -138,20 +138,21 @@
         }
         .admin-modal {
             background: #fff;
-            border-radius: 16px;
+            border-radius: 0px;
+            border: 1px solid #1e293b;
             width: 100%;
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transform: translateY(20px) scale(0.98);
-            transition: all 0.2s ease;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            transform: translateY(10px);
+            transition: all 0.15s ease;
         }
         .admin-modal-overlay.active .admin-modal {
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
         .admin-modal-header {
-            padding: 20px 24px;
+            padding: 18px 24px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
@@ -308,7 +309,7 @@
                                                     <i class="bi bi-pencil-square"></i>
                                                     <span>Edit</span>
                                                 </button>
-                                                <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" onsubmit="return confirm('Delete this menu item? Child items will stay but become top-level.');">
+                                                <form method="POST" action="{{ route('admin.menu-items.destroy', $menuItem) }}" style="display: inline;" data-confirm="Delete menu item '{{ $menuItem->title }}'? Child items will stay but become top-level." data-confirm-title="Delete Menu Link" data-confirm-btn="Delete Link">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="button danger small" type="submit">

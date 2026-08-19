@@ -20,6 +20,7 @@ class OrderTrackingController
 
         $orderNumber = trim($validated['number']);
         $contact = trim($validated['contact']);
+        $cleanContactPhone = preg_replace('/\D+/', '', $contact);
 
         // Look up order matching the number
         $order = Order::query()
@@ -30,7 +31,13 @@ class OrderTrackingController
             ->first();
 
         // Security check: Must match order ship_email or ship_phone
-        if (!$order || (strtolower($order->ship_email) !== strtolower($contact) && $order->ship_phone !== $contact)) {
+        $emailMatch = $order && strtolower((string) $order->ship_email) === strtolower($contact);
+        $cleanOrderPhone = $order ? preg_replace('/\D+/', '', (string) $order->ship_phone) : '';
+        $phoneMatch = $order && $cleanContactPhone !== '' && (
+            str_contains($cleanOrderPhone, $cleanContactPhone) || str_contains($cleanContactPhone, $cleanOrderPhone)
+        );
+
+        if (!$order || (!$emailMatch && !$phoneMatch)) {
             return response()->json([
                 'success' => false,
                 'message' => 'No order found with the matching order number and email/phone number combination.',
@@ -47,8 +54,11 @@ class OrderTrackingController
                 'ship_city' => $order->ship_city,
                 'ship_state' => $order->ship_state,
                 'created_at' => $order->created_at->toIso8601String(),
+                'courier_name' => $order->courier_name,
                 'tracking_number' => $order->tracking_number,
                 'tracking_url' => $order->tracking_url,
+                'dispatched_at' => optional($order->dispatched_at)->toIso8601String(),
+                'estimated_delivery_date' => optional($order->estimated_delivery_date)->format('Y-m-d'),
                 'payment_method' => $order->payment_method,
                 'payment_status' => $order->payment_status,
                 'total_amount' => (float) $order->total_amount,

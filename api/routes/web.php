@@ -53,11 +53,26 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/reviews/{review}/visibility', [ProductReviewController::class, 'updateVisibility'])->name('reviews.visibility');
         Route::delete('/reviews/{review}', [ProductReviewController::class, 'destroy'])->name('reviews.destroy');
 
+        Route::get('/inquiries', [\App\Http\Controllers\Admin\ContactInquiryController::class, 'index'])->name('inquiries.index');
+        Route::get('/inquiries/{id}', [\App\Http\Controllers\Admin\ContactInquiryController::class, 'show'])->name('inquiries.show');
+        Route::put('/inquiries/{id}/status', [\App\Http\Controllers\Admin\ContactInquiryController::class, 'updateStatus'])->name('inquiries.update-status');
+        Route::delete('/inquiries/{id}', [\App\Http\Controllers\Admin\ContactInquiryController::class, 'destroy'])->name('inquiries.destroy');
+
         Route::get('/settings', [StoreSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [StoreSettingsController::class, 'updateStore'])->name('settings.store.update');
         Route::put('/settings/store', [StoreSettingsController::class, 'updateStore']);
         Route::put('/settings/gateways/{gateway}', [StoreSettingsController::class, 'updateGateway'])->name('settings.gateway.update');
         Route::put('/settings/delivery-partners/{partner}', [StoreSettingsController::class, 'updateDeliveryPartner'])->name('settings.delivery.update');
+
+        Route::get('/payment-settings', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'index'])->name('payment-settings.index');
+        Route::put('/payment-settings/prepaid', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'updatePrepaidOffer'])->name('payment-settings.prepaid.update');
+        Route::put('/payment-settings/cod', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'updateCod'])->name('payment-settings.cod.update');
+        Route::put('/payment-settings/gateways/{provider}', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'updateGateway'])->name('payment-settings.gateway.update');
+
+        Route::get('/wallet-settings', [\App\Http\Controllers\Admin\WalletSettingsController::class, 'index'])->name('wallet.index');
+        Route::put('/wallet-settings', [\App\Http\Controllers\Admin\WalletSettingsController::class, 'updateSettings'])->name('wallet.update');
+        Route::post('/wallet-settings/adjust', [\App\Http\Controllers\Admin\WalletSettingsController::class, 'adjustCustomerBalance'])->name('wallet.adjust');
+
         Route::get('/email-otp-verification', [EmailOtpVerificationController::class, 'edit'])->name('email-otp.edit');
         Route::put('/email-otp-verification/email', [EmailOtpVerificationController::class, 'updateEmail'])->name('email-otp.email.update');
         Route::put('/email-otp-verification/verification', [EmailOtpVerificationController::class, 'updateVerification'])->name('email-otp.verification.update');

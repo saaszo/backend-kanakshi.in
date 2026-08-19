@@ -125,11 +125,11 @@
                                 <td>{{ $reg->warranty_end_date ? $reg->warranty_end_date->format('Y-m-d') : 'N/A' }}</td>
                                 <td>
                                     @if($reg->verification_status === 'verified')
-                                        <span class="admin-badge success">✓ Active</span>
+                                        <span class="admin-badge success">Active</span>
                                     @elseif($reg->verification_status === 'pending_verification')
-                                        <span class="admin-badge warning">⚠ Pending</span>
+                                        <span class="admin-badge warning">Pending</span>
                                     @elseif($reg->verification_status === 'rejected')
-                                        <span class="admin-badge danger">✗ Rejected</span>
+                                        <span class="admin-badge danger">Rejected</span>
                                     @else
                                         <span class="admin-badge muted">Expired</span>
                                     @endif

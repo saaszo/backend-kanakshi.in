@@ -16,11 +16,11 @@
             </div>
             <div class="toolbar-actions">
                 @if($reg->verification_status === 'verified')
-                    <span class="admin-badge success px-3 py-2 fs-6">✓ Verified Guarantee</span>
+                    <span class="admin-badge success px-3 py-2 fs-6">Verified Guarantee</span>
                 @elseif($reg->verification_status === 'pending_verification')
-                    <span class="admin-badge warning px-3 py-2 fs-6">⚠ Pending Verification</span>
+                    <span class="admin-badge warning px-3 py-2 fs-6">Pending Verification</span>
                 @elseif($reg->verification_status === 'rejected')
-                    <span class="admin-badge danger px-3 py-2 fs-6">✗ Rejected Registration</span>
+                    <span class="admin-badge danger px-3 py-2 fs-6">Rejected Registration</span>
                 @else
                     <span class="admin-badge muted px-3 py-2 fs-6">Expired Guarantee</span>
                 @endif

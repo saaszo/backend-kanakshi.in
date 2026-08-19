@@ -151,36 +151,33 @@ class OrderController extends Controller
     public function updateTracking(Request $request, Order $order): RedirectResponse
     {
         $validated = $request->validate([
+            'courier_name' => ['required', 'string', 'max:100'],
             'tracking_number' => ['required', 'string', 'max:100'],
             'tracking_url' => ['nullable', 'url', 'max:500'],
-            'courier_name' => ['nullable', 'string', 'max:100'],
+            'estimated_delivery_date' => ['nullable', 'date'],
+            'location' => ['nullable', 'string', 'max:150'],
         ]);
 
         DB::transaction(function () use ($order, $validated): void {
-            $courier = $validated['courier_name'] ?? 'Courier Partner';
-            $trackingUrl = $validated['tracking_url'];
-
-            // Automatically build standard URL if none provided and courier is Delhivery or BlueDart
-            if (empty($trackingUrl)) {
-                $cleanNo = trim($validated['tracking_number']);
-                if (stripos($courier, 'delhivery') !== false) {
-                    $trackingUrl = 'https://www.delhivery.com/track/package/' . $cleanNo;
-                } elseif (stripos($courier, 'blue dart') !== false || stripos($courier, 'bluedart') !== false) {
-                    $trackingUrl = 'https://www.bluedart.com/tracking';
-                }
-            }
+            $courier = trim($validated['courier_name']);
+            $trackingNo = trim($validated['tracking_number']);
+            $trackingUrl = $validated['tracking_url'] ?: $this->buildCourierTrackingUrl($courier, $trackingNo);
+            $location = $validated['location'] ?: 'Central Fulfillment Center';
 
             $order->update([
-                'tracking_number' => $validated['tracking_number'],
+                'courier_name' => $courier,
+                'tracking_number' => $trackingNo,
                 'tracking_url' => $trackingUrl,
-                'status' => 'shipped' // Automatically transition status to shipped
+                'dispatched_at' => $order->dispatched_at ?: now(),
+                'estimated_delivery_date' => $validated['estimated_delivery_date'] ?? $order->estimated_delivery_date,
+                'status' => 'shipped'
             ]);
 
             OrderTracking::query()->create([
                 'order_id' => $order->id,
-                'status' => 'Shipped via ' . $courier,
-                'location' => 'Dispatched Hub',
-                'message' => 'Your order has been dispatched. Track your package using Tracking Number: ' . $validated['tracking_number'],
+                'status' => 'Dispatched via ' . $courier,
+                'location' => $location,
+                'message' => "Shipment handed over to {$courier}. Tracking / AWB No: {$trackingNo}.",
             ]);
         });
 
@@ -191,11 +188,47 @@ class OrderController extends Controller
             'Your Kanakshi.in order has been shipped',
             $this->buildOrderMailBody(
                 $freshOrder,
-                "Your order has been shipped.\nTracking Number: {$freshOrder?->tracking_number}{$trackingUrl}"
+                "Your order has been dispatched via {$freshOrder?->courier_name}.\nTracking Number (AWB): {$freshOrder?->tracking_number}{$trackingUrl}"
             )
         );
 
-        return back()->with('status', 'Courier tracking information assigned and order marked as shipped.');
+        return back()->with('status', 'Courier tracking assigned and order marked as shipped.');
+    }
+
+    private function buildCourierTrackingUrl(string $courier, string $awb): ?string
+    {
+        $cleanAwb = urlencode(trim($awb));
+        $lower = strtolower($courier);
+
+        if (str_contains($lower, 'delhivery')) {
+            return "https://www.delhivery.com/track/package/{$cleanAwb}";
+        }
+        if (str_contains($lower, 'bluedart') || str_contains($lower, 'blue dart')) {
+            return "https://www.bluedart.com/tracking?trackNumber={$cleanAwb}";
+        }
+        if (str_contains($lower, 'dtdc')) {
+            return "https://www.dtdc.in/tracking/tracking_results.asp?Ttype=awb_no&strCNNO={$cleanAwb}";
+        }
+        if (str_contains($lower, 'shiprocket')) {
+            return "https://shiprocket.co/tracking/{$cleanAwb}";
+        }
+        if (str_contains($lower, 'xpressbee') || str_contains($lower, 'xpressbees')) {
+            return "https://www.xpressbees.com/track?isawb=Yes&trackid={$cleanAwb}";
+        }
+        if (str_contains($lower, 'shadowfax')) {
+            return "https://tracker.shadowfax.in/track?orderId={$cleanAwb}";
+        }
+        if (str_contains($lower, 'ekart')) {
+            return "https://ekartlogistics.com/shipmenttrack/{$cleanAwb}";
+        }
+        if (str_contains($lower, 'ecom')) {
+            return "https://ecomexpress.in/tracking/?awb_field={$cleanAwb}";
+        }
+        if (str_contains($lower, 'post') || str_contains($lower, 'speed post') || str_contains($lower, 'india post')) {
+            return "https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx";
+        }
+
+        return null;
     }
 
     public function addTrackingLog(Request $request, Order $order): RedirectResponse

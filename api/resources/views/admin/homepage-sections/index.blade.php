@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Homepage Sections')
+@section('title', 'Homepage Sections Management')
 
 @section('content')
     <div class="dashboard-shell">
@@ -10,57 +10,80 @@
                 <div class="admin-banner">
                     <div>
                         <div class="brand">Homepage CMS</div>
-                        <h2>Homepage Sections</h2>
-                        <p class="lead" style="margin-top:8px;">Edit hero, slider text, side photos, product section headings, and homepage visibility from here.</p>
+                        <h2>Homepage Sections Management</h2>
+                        <p class="lead" style="margin-top: 4px;">Control banner sliders, promotional cards, product spotlights, and section ordering.</p>
                     </div>
-                    <div class="button-row">
-                        <a href="{{ route('admin.homepage-sections.full.edit') }}" class="button secondary small">Open Full Homepage</a>
-                        <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button small">Open Hero Editor</a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.homepage-sections.full.edit') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-layout-text-window-reverse me-1"></i> Full Homepage Builder
+                        </a>
+                        <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="btn btn-primary">
+                            <i class="bi bi-sliders me-1"></i> Hero Carousel Studio
+                        </a>
                     </div>
                 </div>
+
                 @if (session('status'))
-                    <div class="admin-toast">
-    <div>
-        <strong>Success!</strong>
-        <p>{{ session('status') }}</p>
-    </div>
-</div>
+                    <div class="p-3 mb-4" style="background: #e8f7ee; border: 1px solid #c2ebd1; color: #0d532b; font-weight: 600;">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('status') }}
+                    </div>
                 @endif
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Section</th>
-                                <th>Key</th>
-                                <th>Status</th>
-                                <th>Sort</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($sections as $section)
+
+                <section class="admin-section">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <strong>{{ $section->label ?: $section->title ?: $section->section_key }}</strong>
-                                        <div class="muted">{{ $section->heading }}</div>
-                                    </td>
-                                    <td><code>{{ $section->section_key }}</code></td>
-                                    <td>{{ $section->is_active ? 'Active' : 'Hidden' }}</td>
-                                    <td>{{ $section->sort_order }}</td>
-                                    <td>
-                                        @if ($section->section_key === 'hero')
-                                            <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="button secondary small">Open Hero Editor</a>
-                                        @elseif ($section->section_key === 'full-homepage')
-                                            <a href="{{ route('admin.homepage-sections.full.edit') }}" class="button secondary small">Open Full Homepage</a>
-                                        @else
-                                            <a href="{{ route('admin.homepage-sections.edit', $section) }}" class="button secondary small">Edit Section</a>
-                                        @endif
-                                    </td>
+                                    <th>Section Name</th>
+                                    <th>Section Key</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Sort Order</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                @foreach ($sections as $section)
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 700; color: #0f172a;">
+                                                {{ $section->label ?: $section->title ?: $section->section_key }}
+                                            </div>
+                                            <small class="muted" style="font-size: 12px;">{{ $section->heading }}</small>
+                                        </td>
+                                        <td>
+                                            <code style="color: #2563eb; font-weight: 600;">{{ $section->section_key }}</code>
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($section->is_active)
+                                                <span class="badge bg-success">Active</span>
+                                            @else
+                                                <span class="badge bg-secondary">Hidden</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center font-monospace" style="font-weight: 600;">
+                                            {{ $section->sort_order }}
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($section->section_key === 'hero')
+                                                <a href="{{ route('admin.homepage-sections.hero.edit') }}" class="btn btn-sm btn-primary py-1 px-3" style="font-size: 12px;">
+                                                    <i class="bi bi-sliders me-1"></i> Open Studio
+                                                </a>
+                                            @elseif ($section->section_key === 'full-homepage')
+                                                <a href="{{ route('admin.homepage-sections.full.edit') }}" class="btn btn-sm btn-outline-secondary py-1 px-3" style="font-size: 12px;">
+                                                    <i class="bi bi-layout-text-window-reverse me-1"></i> Full Builder
+                                                </a>
+                                            @else
+                                                <a href="{{ route('admin.homepage-sections.edit', $section) }}" class="btn btn-sm btn-outline-secondary py-1 px-3" style="font-size: 12px;">
+                                                    <i class="bi bi-pencil-square me-1"></i> Edit Section
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
         </main>
     </div>

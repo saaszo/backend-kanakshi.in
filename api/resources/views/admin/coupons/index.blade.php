@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Coupons & Offers')
+@section('title', 'Coupons & Promotional Offers')
 
 @section('content')
     <div class="dashboard-shell">
@@ -10,98 +10,174 @@
                 <div class="admin-banner">
                     <div>
                         <div class="brand">Marketing</div>
-                        <h2>Coupons & Offers</h2>
-                        <p class="lead" style="margin-top:8px;">Create visible cart offers, promo codes, and festive discount campaigns from one place.</p>
+                        <h2>Coupons & Promotional Offers</h2>
+                        <p class="lead" style="margin-top: 4px;">Create checkout coupon codes, flat festive discounts, and minimum cart tier vouchers.</p>
                     </div>
                 </div>
 
                 @if (session('status'))
-                    <div class="admin-toast">
-    <div>
-        <strong>Success!</strong>
-        <p>{{ session('status') }}</p>
-    </div>
-</div>
+                    <div class="p-3 mb-4" style="background: #e8f7ee; border: 1px solid #c2ebd1; color: #0d532b; font-weight: 600;">
+                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('status') }}
+                    </div>
                 @endif
 
-                <div class="admin-fields admin-split-layout">
-                    <section class="admin-section">
-                        <h3>Create Offer</h3>
-                        <form method="POST" action="{{ route('admin.coupons.store') }}" class="admin-fields">
-                            @csrf
-                            <div class="form-grid">
-                                <div class="field"><label>Offer Title</label><input name="title" /></div>
-                                <div class="field"><label>Coupon Code</label><input name="code" /></div>
-                                <div class="field">
-                                    <label>Type</label>
-                                    <select name="type">
-                                        <option value="percent">Percent</option>
-                                        <option value="flat">Flat</option>
-                                        <option value="free_shipping">Free Shipping</option>
-                                    </select>
-                                </div>
-                                <div class="field"><label>Value</label><input name="value" type="number" step="0.01" min="0" /></div>
-                                <div class="field"><label>Minimum Order</label><input name="min_order_amount" type="number" step="0.01" min="0" /></div>
-                                <div class="field"><label>Badge Text</label><input name="badge_text" placeholder="10% OFF" /></div>
-                                <div class="field"><label>Starts At</label><input name="starts_at" type="datetime-local" /></div>
-                                <div class="field"><label>Ends At</label><input name="ends_at" type="datetime-local" /></div>
-                                <div class="field"><label>Usage Limit</label><input name="usage_limit" type="number" min="1" /></div>
-                                <div class="field"><label>Sort Order</label><input name="sort_order" type="number" value="0" /></div>
-                            </div>
-                            <div class="field"><label>Description</label><textarea name="description"></textarea></div>
-                            <div class="button-row">
-                                <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" checked> <span>Active</span></label>
-                                <label class="checkbox-row"><input type="checkbox" name="show_on_cart" value="1" checked> <span>Show on cart page</span></label>
-                                <button class="button small" type="submit">Create Offer</button>
-                            </div>
-                        </form>
-                    </section>
+                <div class="row g-4">
+                    <!-- Left: Create Offer Form -->
+                    <div class="col-lg-4">
+                        <section class="admin-section h-100">
+                            <h3 class="mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-tag" style="color: #2563eb;"></i>
+                                <span>Create New Coupon</span>
+                            </h3>
 
-                    <section class="admin-section">
-                        <h3>Existing Offers</h3>
-                        <div class="stack-list">
-                            @forelse ($coupons as $coupon)
-                                <form method="POST" action="{{ route('admin.coupons.update', $coupon) }}" class="stack-card">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="form-grid">
-                                        <div class="field"><label>Title</label><input name="title" value="{{ $coupon->title }}" /></div>
-                                        <div class="field"><label>Code</label><input name="code" value="{{ $coupon->code }}" /></div>
-                                        <div class="field">
-                                            <label>Type</label>
-                                            <select name="type">
-                                                <option value="percent" @selected($coupon->type === 'percent')>Percent</option>
-                                                <option value="flat" @selected($coupon->type === 'flat')>Flat</option>
-                                                <option value="free_shipping" @selected($coupon->type === 'free_shipping')>Free Shipping</option>
-                                            </select>
-                                        </div>
-                                        <div class="field"><label>Value</label><input name="value" type="number" step="0.01" min="0" value="{{ $coupon->value }}" /></div>
-                                        <div class="field"><label>Minimum Order</label><input name="min_order_amount" type="number" step="0.01" min="0" value="{{ $coupon->min_order_amount }}" /></div>
-                                        <div class="field"><label>Badge Text</label><input name="badge_text" value="{{ $coupon->badge_text }}" /></div>
-                                        <div class="field"><label>Starts At</label><input name="starts_at" type="datetime-local" value="{{ optional($coupon->starts_at)->format('Y-m-d\TH:i') }}" /></div>
-                                        <div class="field"><label>Ends At</label><input name="ends_at" type="datetime-local" value="{{ optional($coupon->ends_at)->format('Y-m-d\TH:i') }}" /></div>
-                                        <div class="field"><label>Usage Limit</label><input name="usage_limit" type="number" min="1" value="{{ $coupon->usage_limit }}" /></div>
-                                        <div class="field"><label>Used Count</label><input name="used_count" type="number" min="0" value="{{ $coupon->used_count }}" /></div>
-                                        <div class="field"><label>Sort Order</label><input name="sort_order" type="number" value="{{ $coupon->sort_order }}" /></div>
+                            <form method="POST" action="{{ route('admin.coupons.store') }}">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px;">Offer Title *</label>
+                                    <input type="text" name="title" class="form-control" placeholder="e.g. Festive Sparkle ₹500 OFF" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px;">Coupon Code *</label>
+                                    <input type="text" name="code" class="form-control" placeholder="SPARKLE500" style="text-transform: uppercase; font-weight: 700;" required />
+                                </div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-weight: 600; font-size: 13px;">Type</label>
+                                        <select name="type" class="form-select">
+                                            <option value="flat">Flat Amount (₹)</option>
+                                            <option value="percent">Percentage (%)</option>
+                                            <option value="free_shipping">Free Shipping</option>
+                                        </select>
                                     </div>
-                                    <div class="field"><label>Description</label><textarea name="description">{{ $coupon->description }}</textarea></div>
-                                    <div class="button-row">
-                                        <label class="checkbox-row"><input type="checkbox" name="is_active" value="1" @checked($coupon->is_active)> <span>Active</span></label>
-                                        <label class="checkbox-row"><input type="checkbox" name="show_on_cart" value="1" @checked($coupon->show_on_cart)> <span>Show on cart page</span></label>
-                                        <button class="button small" type="submit">Save</button>
-                                        <button class="button danger small" type="submit" form="coupon-delete-{{ $coupon->id }}">Delete</button>
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-weight: 600; font-size: 13px;">Value *</label>
+                                        <input type="number" name="value" step="0.01" min="0" class="form-control" placeholder="500" required />
                                     </div>
-                                </form>
-                                <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}" id="coupon-delete-{{ $coupon->id }}" onsubmit="return confirm('Delete this offer?')">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            @empty
-                                <p class="muted">No offers created yet.</p>
-                            @endforelse
-                        </div>
-                    </section>
+                                </div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-weight: 600; font-size: 13px;">Min Order (₹)</label>
+                                        <input type="number" name="min_order_amount" step="0.01" min="0" class="form-control" placeholder="2499" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label" style="font-weight: 600; font-size: 13px;">Badge Text</label>
+                                        <input type="text" name="badge_text" class="form-control" placeholder="₹500 OFF" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label" style="font-weight: 600; font-size: 13px;">Description</label>
+                                    <textarea name="description" class="form-control" rows="2" placeholder="Terms and conditions..."></textarea>
+                                </div>
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="is_active" checked>
+                                    <label class="form-check-label" for="is_active" style="font-size: 13px; font-weight: 600;">
+                                        Active & Redeemable
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="show_on_cart" value="1" id="show_on_cart" checked>
+                                    <label class="form-check-label" for="show_on_cart" style="font-size: 13px; font-weight: 600;">
+                                        Show on Cart Page Sheet
+                                    </label>
+                                </div>
+
+                                <button class="btn btn-primary w-100" type="submit">
+                                    <i class="bi bi-plus-lg me-1"></i> Create Coupon
+                                </button>
+                            </form>
+                        </section>
+                    </div>
+
+                    <!-- Right: Existing Coupons Table -->
+                    <div class="col-lg-8">
+                        <section class="admin-section h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h3 class="mb-0">Active Coupon Codes</h3>
+                                    <p class="muted mb-0" style="font-size: 13px;">{{ count($coupons) }} coupons available in database.</p>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Code & Offer</th>
+                                            <th>Benefit</th>
+                                            <th>Min Order</th>
+                                            <th class="text-center">Redeemed</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($coupons as $coupon)
+                                            <tr>
+                                                <td>
+                                                    <div style="font-weight: 800; font-family: monospace; font-size: 14px; color: #2563eb;">
+                                                        {{ $coupon->code }}
+                                                    </div>
+                                                    <div style="font-weight: 600; color: #0f172a; font-size: 12.5px;">{{ $coupon->title }}</div>
+                                                    @if($coupon->badge_text)
+                                                        <span class="badge bg-secondary" style="font-size: 9.5px;">{{ $coupon->badge_text }}</span>
+                                                    @endif
+                                                </td>
+                                                <td style="font-weight: 700; color: #16a34a;">
+                                                    @if($coupon->type === 'percent')
+                                                        {{ (int)$coupon->value }}% OFF
+                                                    @elseif($coupon->type === 'flat')
+                                                        ₹{{ number_format($coupon->value, 0) }} OFF
+                                                    @else
+                                                        Free Shipping
+                                                    @endif
+                                                </td>
+                                                <td style="color: #64748b; font-size: 13px;">
+                                                    @if($coupon->min_order_amount > 0)
+                                                        ₹{{ number_format($coupon->min_order_amount, 0) }}
+                                                    @else
+                                                        No Minimum
+                                                    @endif
+                                                </td>
+                                                <td class="text-center font-monospace" style="font-weight: 600;">
+                                                    {{ $coupon->used_count }} / {{ $coupon->usage_limit ?: '∞' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($coupon->is_active)
+                                                        <span class="badge bg-success">Active</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Disabled</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}" data-confirm="Are you sure you want to delete coupon code {{ $coupon->code }}?" data-confirm-title="Delete Coupon" data-confirm-btn="Delete Coupon">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" style="font-size: 12px;">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4" style="color: #64748b;">
+                                                    No coupon codes created yet.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
                 </div>
+
             </div>
         </main>
     </div>

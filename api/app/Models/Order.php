@@ -36,9 +36,14 @@ class Order extends Model
         return [
             'subtotal' => 'decimal:2',
             'discount' => 'decimal:2',
+            'prepaid_discount' => 'decimal:2',
+            'wallet_discount' => 'decimal:2',
             'tax' => 'decimal:2',
             'shipping_cost' => 'decimal:2',
+            'cod_fee' => 'decimal:2',
             'total_amount' => 'decimal:2',
+            'dispatched_at' => 'datetime',
+            'estimated_delivery_date' => 'date',
             'pending_access_expires_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -63,5 +68,10 @@ class Order extends Model
     public function returns(): HasMany
     {
         return $this->hasMany(OrderReturn::class);
+    }
+
+    public function walletTransactions(): HasMany
+    {
+        return $this->hasMany(CustomerWalletTransaction::class);
     }
 }

@@ -19,6 +19,8 @@ class OrderReturn extends Model
             'requested_amount' => 'decimal:2',
             'approved_amount' => 'decimal:2',
             'stock_restored_at' => 'datetime',
+            'pickup_scheduled_date' => 'date',
+            'refund_processed_at' => 'datetime',
             'requested_at' => 'datetime',
             'resolved_at' => 'datetime',
             'created_at' => 'datetime',

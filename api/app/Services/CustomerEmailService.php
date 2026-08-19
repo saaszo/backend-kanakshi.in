@@ -154,6 +154,8 @@ class CustomerEmailService
             'mail.from.name' => $profile['from_name'],
         ]);
 
+        Mail::purge('smtp');
+
         $channel = $profile['from_email'] === self::ORDER_FROM_EMAIL ? 'order' : 'auth';
         $html = view('emails.customer-brand', $this->buildEmailViewData($subject, $body, $channel))->render();
 

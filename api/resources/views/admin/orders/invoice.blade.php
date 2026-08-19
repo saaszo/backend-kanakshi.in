@@ -68,9 +68,17 @@
 
     <div class="summary">
         <div><span>Subtotal</span><span>₹{{ number_format($order->subtotal, 2) }}</span></div>
-        <div><span>Discount</span><span>-₹{{ number_format($order->discount, 2) }}</span></div>
+        @if($order->discount > 0)
+            <div><span>Coupon Discount</span><span>-₹{{ number_format($order->discount, 2) }}</span></div>
+        @endif
+        @if(($order->prepaid_discount ?? 0) > 0)
+            <div style="color: #16a34a;"><span>Prepaid Online Discount</span><span>-₹{{ number_format($order->prepaid_discount, 2) }}</span></div>
+        @endif
         <div><span>Tax</span><span>₹{{ number_format($order->tax, 2) }}</span></div>
         <div><span>Shipping</span><span>₹{{ number_format($order->shipping_cost, 2) }}</span></div>
+        @if(($order->cod_fee ?? 0) > 0)
+            <div><span>COD Fee</span><span>+₹{{ number_format($order->cod_fee, 2) }}</span></div>
+        @endif
         <div class="grand"><span>Grand Total</span><span>₹{{ number_format($order->total_amount, 2) }}</span></div>
     </div>
 </body>

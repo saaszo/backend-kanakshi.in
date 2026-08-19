@@ -27,6 +27,7 @@ class User extends Authenticatable
         'state',
         'pincode',
         'profile_image',
+        'wallet_balance',
         'role',
         'permissions',
         'status',
@@ -63,6 +64,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'wallet_balance' => 'decimal:2',
             'email_verified_at' => 'datetime',
             'locked_until' => 'datetime',
             'last_login' => 'datetime',
@@ -88,5 +90,49 @@ class User extends Authenticatable
     public function productReviews(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+    public function walletTransactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CustomerWalletTransaction::class);
+    }
+
+    public function creditWallet(float $amount, string $source, ?int $orderId = null, ?string $description = null, string $status = 'completed', ?\DateTimeInterface $availableAt = null): CustomerWalletTransaction
+    {
+        $amount = round(max(0, $amount), 2);
+        if ($status === 'completed') {
+            $this->increment('wallet_balance', $amount);
+        }
+
+        return $this->walletTransactions()->create([
+            'order_id' => $orderId,
+            'type' => 'credit',
+            'source' => $source,
+            'amount' => $amount,
+            'balance_after' => $this->fresh()->wallet_balance,
+            'description' => $description ?: "Wallet credited via {$source}",
+            'status' => $status,
+            'available_at' => $availableAt,
+        ]);
+    }
+
+    public function debitWallet(float $amount, string $source, ?int $orderId = null, ?string $description = null): ?CustomerWalletTransaction
+    {
+        $amount = round(max(0, $amount), 2);
+        if ($amount <= 0 || (float)$this->wallet_balance < $amount) {
+            return null;
+        }
+
+        $this->decrement('wallet_balance', $amount);
+
+        return $this->walletTransactions()->create([
+            'order_id' => $orderId,
+            'type' => 'debit',
+            'source' => $source,
+            'amount' => $amount,
+            'balance_after' => $this->fresh()->wallet_balance,
+            'description' => $description ?: "Wallet debited via {$source}",
+            'status' => 'completed',
+        ]);
     }
 }
